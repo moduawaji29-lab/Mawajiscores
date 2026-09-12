@@ -1,1 +1,493 @@
-78a63e9c8e656a177573b35f55ab1f88
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Football Scores</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+}
+
+header {
+    background: linear-gradient(135deg, #008000, #0066cc);
+    padding: 18px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px;
+    background: #1c1c1c;
+}
+
+.tabs button {
+    flex: 1;
+    padding: 12px 5px;
+    border: none;
+    border-radius: 6px;
+    background: #333;
+    color: white;
+    font-weight: bold;
+}
+
+.tabs button.active {
+    background: #008000;
+}
+
+.leagues {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 8px;
+}
+
+.leagues button {
+    white-space: nowrap;
+    padding: 9px 14px;
+    border: none;
+    border-radius: 20px;
+    background: #292929;
+    color: white;
+}
+
+.leagues button.active {
+    background: #0066cc;
+}
+
+.date-bar {
+    display: flex;
+    overflow-x: auto;
+    gap: 7px;
+    padding: 10px;
+}
+
+.date-bar button {
+    min-width: 75px;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: #292929;
+    color: white;
+}
+
+.date-bar button.active {
+    background: #008000;
+}
+
+.match {
+    background: #1d1d1d;
+    margin: 8px;
+    padding: 14px;
+    border-radius: 10px;
+}
+
+.league-name {
+    color: #00aaff;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.teams {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
+
+.team {
+    width: 38%;
+}
+
+.team img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+}
+
+.score {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.status {
+    color: #00ff66;
+    font-weight: bold;
+}
+
+.loading,
+.no-match,
+.error {
+    text-align: center;
+    padding: 30px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>⚽ LIVE FOOTBALL SCORES</h1>
+</header>
+
+<div class="tabs">
+    <button id="liveBtn" class="active" onclick="showLive()">LIVE</button>
+    <button id="upcomingBtn" onclick="showUpcoming()">UPCOMING</button>
+    <button id="finishedBtn" onclick="showFinished()">FINISHED</button>
+</div>
+
+<div class="leagues">
+    <button onclick="selectLeague(39)">Premier League</button>
+    <button onclick="selectLeague(140)">La Liga</button>
+    <button onclick="selectLeague(135)">Serie A</button>
+    <button onclick="selectLeague(78)">Bundesliga</button>
+    <button onclick="selectLeague(61)">Ligue 1</button>
+    <button onclick="selectLeague(2)">Champions League</button>
+</div>
+
+<div class="date-bar" id="dateBar"></div>
+
+<div id="matches">
+    <div class="loading">Loading matches...</div>
+</div>
+
+<script>
+
+// ================================
+// PUT YOUR API KEY HERE
+// ================================
+const API_KEY = "PASTE_YOUR_API_KEY_HERE";
+
+const API_URL = "https://v3.football.api-sports.io";
+
+let selectedLeague = 39;
+let selectedDate = new Date();
+
+let allMatches = [];
+
+// ================================
+// DATE FORMAT
+// ================================
+function formatDate(date) {
+    return date.toISOString().split("T")[0];
+}
+
+// ================================
+// CREATE DATE BAR
+// ================================
+function createDateBar() {
+
+    const bar = document.getElementById("dateBar");
+
+    bar.innerHTML = "";
+
+    for (let i = 0; i < 7; i++) {
+
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+
+        const button = document.createElement("button");
+
+        if (i === 0) {
+            button.innerText = "TODAY";
+        } else if (i === 1) {
+            button.innerText = "TOMORROW";
+        } else {
+            button.innerText = date.toLocaleDateString("en-US", {
+                weekday: "short"
+            });
+        }
+
+        button.onclick = function() {
+
+            selectedDate = date;
+
+            document.querySelectorAll(".date-bar button")
+                .forEach(b => b.classList.remove("active"));
+
+            button.classList.add("active");
+
+            showUpcoming();
+        };
+
+        if (i === 0) {
+            button.classList.add("active");
+        }
+
+        bar.appendChild(button);
+    }
+}
+
+// ================================
+// API REQUEST
+// ================================
+async function apiRequest(url) {
+
+    const response = await fetch(url, {
+        headers: {
+            "x-apisports-key": API_KEY
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error("API request failed");
+    }
+
+    const data = await response.json();
+
+    return data;
+}
+
+// ================================
+// LOAD FIXTURES
+// ================================
+async function loadFixtures() {
+
+    const container = document.getElementById("matches");
+
+    container.innerHTML =
+        '<div class="loading">Loading matches...</div>';
+
+    try {
+
+        const date = formatDate(selectedDate);
+
+        const url =
+            `${API_URL}/fixtures?league=${selectedLeague}&date=${date}`;
+
+        const data = await apiRequest(url);
+
+        allMatches = data.response || [];
+
+        displayMatches(allMatches);
+
+    } catch (error) {
+
+        container.innerHTML =
+            `<div class="error">
+                ⚠️ API request failed
+            </div>`;
+    }
+}
+
+// ================================
+// DISPLAY MATCHES
+// ================================
+function displayMatches(matches) {
+
+    const container = document.getElementById("matches");
+
+    container.innerHTML = "";
+
+    if (!matches || matches.length === 0) {
+
+        container.innerHTML =
+            '<div class="no-match">No matches available for this selection.</div>';
+
+        return;
+    }
+
+    matches.forEach(match => {
+
+        const home = match.teams.home;
+        const away = match.teams.away;
+
+        const status = match.fixture.status;
+
+        let statusText = status.short;
+
+        if (status.short === "NS") {
+            statusText =
+                new Date(match.fixture.date)
+                .toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+        }
+
+        if (status.short === "1H" ||
+            status.short === "2H" ||
+            status.short === "HT" ||
+            status.short === "ET") {
+
+            statusText = "LIVE";
+        }
+
+        const homeScore =
+            match.goals.home !== null
+                ? match.goals.home
+                : "-";
+
+        const awayScore =
+            match.goals.away !== null
+                ? match.goals.away
+                : "-";
+
+        const div = document.createElement("div");
+
+        div.className = "match";
+
+        div.innerHTML = `
+
+            <div class="league-name">
+                ${match.league.name}
+            </div>
+
+            <div class="teams">
+
+                <div class="team">
+                    <img src="${home.logo}">
+                    <div>${home.name}</div>
+                </div>
+
+                <div>
+                    <div class="score">
+                        ${homeScore} - ${awayScore}
+                    </div>
+
+                    <div class="status">
+                        ${statusText}
+                    </div>
+                </div>
+
+                <div class="team">
+                    <img src="${away.logo}">
+                    <div>${away.name}</div>
+                </div>
+
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+// ================================
+// LIVE
+// ================================
+async function showLive() {
+
+    setActive("liveBtn");
+
+    const container = document.getElementById("matches");
+
+    container.innerHTML =
+        '<div class="loading">Loading live matches...</div>';
+
+    try {
+
+        const data = await apiRequest(
+            `${API_URL}/fixtures?live=all`
+        );
+
+        let matches = data.response || [];
+
+        matches = matches.filter(match =>
+            [39, 140, 135, 78, 61, 2]
+            .includes(match.league.id)
+        );
+
+        displayMatches(matches);
+
+    } catch (error) {
+
+        container.innerHTML =
+            '<div class="error">⚠️ API request failed</div>';
+    }
+}
+
+// ================================
+// UPCOMING
+// ================================
+async function showUpcoming() {
+
+    setActive("upcomingBtn");
+
+    await loadFixtures();
+}
+
+// ================================
+// FINISHED
+// ================================
+async function showFinished() {
+
+    setActive("finishedBtn");
+
+    const container = document.getElementById("matches");
+
+    container.innerHTML =
+        '<div class="loading">Loading finished matches...</div>';
+
+    try {
+
+        const date = formatDate(new Date());
+
+        const data = await apiRequest(
+            `${API_URL}/fixtures?league=${selectedLeague}&date=${date}`
+        );
+
+        let matches = data.response || [];
+
+        matches = matches.filter(match =>
+            ["FT", "AET", "PEN"].includes(
+                match.fixture.status.short
+            )
+        );
+
+        displayMatches(matches);
+
+    } catch (error) {
+
+        container.innerHTML =
+            '<div class="error">⚠️ API request failed</div>';
+    }
+}
+
+// ================================
+// LEAGUE SELECTION
+// ================================
+function selectLeague(id) {
+
+    selectedLeague = id;
+
+    showUpcoming();
+}
+
+// ================================
+// ACTIVE TAB
+// ================================
+function setActive(id) {
+
+    document.querySelectorAll(".tabs button")
+        .forEach(button => {
+            button.classList.remove("active");
+        });
+
+    document.getElementById(id)
+        .classList.add("active");
+}
+
+// ================================
+// START
+// ================================
+createDateBar();
+
+showLive();
+
+</script>
+
+</body>
+</html>
