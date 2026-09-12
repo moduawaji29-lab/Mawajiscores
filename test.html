@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SportScore API Test</title>
+
+<style>
+body{
+    margin:0;
+    padding:20px;
+    background:#0b0d12;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+
+h1{
+    color:#00d084;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:0;
+    border-radius:8px;
+    background:#00a86b;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+}
+
+#status{
+    margin-top:15px;
+    padding:12px;
+    background:#151a21;
+    border-radius:8px;
+}
+
+.match{
+    background:#151a21;
+    margin-top:10px;
+    padding:15px;
+    border-radius:10px;
+    border-left:4px solid #00a86b;
+}
+
+.team{
+    font-size:16px;
+    font-weight:bold;
+}
+
+.score{
+    font-size:22px;
+    color:#00d084;
+    margin:8px 0;
+}
+
+.error{
+    color:#ff5555;
+}
+
+.success{
+    color:#00d084;
+}
+
+pre{
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-size:11px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚽ SportScore API Test</h1>
+
+<p>
+Testing SportScore football data...
+</p>
+
+<button onclick="testAPI()">
+🔄 TEST API
+</button>
+
+<div id="status">
+Waiting for test...
+</div>
+
+<div id="matches"></div>
+
+<script>
+
+const API_URL =
+"https://sportscore.com/api/widget/matches/?sport=football&limit=10";
+
+
+async function testAPI(){
+
+    const status =
+        document.getElementById("status");
+
+    const matchesBox =
+        document.getElementById("matches");
+
+    status.className = "";
+
+    status.innerHTML =
+        "⏳ Connecting to SportScore...";
+
+    matchesBox.innerHTML = "";
+
+    try{
+
+        const response =
+            await fetch(API_URL);
+
+        console.log(
+            "HTTP STATUS:",
+            response.status
+        );
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP Error: " +
+                response.status
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+        console.log(
+            "SPORTSCORE DATA:",
+            data
+        );
+
+        status.className =
+            "success";
+
+        status.innerHTML =
+            "✅ SUCCESS! SportScore API is working.";
+
+        const matches =
+            data.matches || [];
+
+        if(matches.length === 0){
+
+            matchesBox.innerHTML =
+                "<div class='match'>" +
+                "API connected successfully, " +
+                "but no matches were returned." +
+                "</div>";
+
+            return;
+        }
+
+        matches.forEach(match => {
+
+            const home =
+                match.homeTeam?.name ||
+                match.home_team?.name ||
+                match.home ||
+                "Home Team";
+
+            const away =
+                match.awayTeam?.name ||
+                match.away_team?.name ||
+                match.away ||
+                "Away Team";
+
+            const homeScore =
+                match.score?.home ??
+                match.homeScore ??
+                "-";
+
+            const awayScore =
+                match.score?.away ??
+                match.awayScore ??
+                "-";
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "match";
+
+            div.innerHTML = `
+
+                <div class="team">
+                    ${home}
+                </div>
+
+                <div class="score">
+                    ${homeScore} - ${awayScore}
+                </div>
+
+                <div class="team">
+                    ${away}
+                </div>
+
+            `;
+
+            matchesBox.appendChild(div);
+
+        });
+
+    }
+
+    catch(error){
+
+        console.error(
+            "SPORTSCORE ERROR:",
+            error
+        );
+
+        status.className =
+            "error";
+
+        status.innerHTML =
+
+            "❌ API TEST FAILED<br><br>" +
+
+            "<strong>Error:</strong> " +
+            error.message +
+            "<br><br>" +
+
+            "Possible causes:<br>" +
+            "• Internet connection problem<br>" +
+            "• SportScore temporarily unavailable<br>" +
+            "• Browser/network blocking the request<br>" +
+            "• GitHub Pages has not updated yet";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
