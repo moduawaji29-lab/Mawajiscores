@@ -12,221 +12,288 @@ content="M.Awaji LiveScores - Live football scores, fixtures and results">
 <meta name="theme-color" content="#0b0d12">
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#0b0d12;
-    color:#fff;
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0b0d12;
+    color: #fff;
 }
 
-header{
-    background:linear-gradient(135deg,#071a12,#063c2a,#075c43);
-    padding:18px 12px;
-    text-align:center;
-    position:sticky;
-    top:0;
-    z-index:100;
-    box-shadow:0 3px 15px rgba(0,0,0,.4);
+header {
+    background: linear-gradient(135deg, #071a12, #063c2a, #075c43);
+    padding: 20px 12px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 15px rgba(0,0,0,.4);
 }
 
-header h1{
-    font-size:24px;
-    margin-bottom:5px;
+header h1 {
+    font-size: 25px;
+    margin-bottom: 5px;
 }
 
-header p{
-    font-size:12px;
-    opacity:.8;
+header p {
+    font-size: 12px;
+    opacity: .8;
 }
 
-.container{
-    max-width:700px;
-    margin:auto;
-    padding:10px;
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: 10px;
 }
 
-.leagues{
-    display:flex;
-    gap:7px;
-    overflow-x:auto;
-    padding:8px 0;
+.leagues {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding: 8px 0;
+    scrollbar-width: none;
 }
 
-.leagues button{
-    flex:none;
-    border:1px solid #285344;
-    background:#121821;
-    color:#fff;
-    padding:9px 13px;
-    border-radius:20px;
-    font-size:12px;
+.leagues::-webkit-scrollbar {
+    display: none;
 }
 
-.leagues button.active{
-    background:#00a86b;
-    border-color:#00a86b;
+.leagues button {
+    flex: none;
+    border: 1px solid #285344;
+    background: #121821;
+    color: #fff;
+    padding: 9px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
-.tabs{
-    display:flex;
-    margin:8px 0;
-    background:#121821;
-    border-radius:10px;
-    padding:4px;
+.leagues button.active {
+    background: #00a86b;
+    border-color: #00a86b;
 }
 
-.tabs button{
-    flex:1;
-    border:0;
-    background:transparent;
-    color:#aaa;
-    padding:11px 5px;
-    border-radius:8px;
-    font-weight:bold;
+.tabs {
+    display: flex;
+    margin: 8px 0;
+    background: #121821;
+    border-radius: 10px;
+    padding: 4px;
 }
 
-.tabs button.active{
-    background:#00a86b;
-    color:#fff;
+.tabs button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: #aaa;
+    padding: 11px 5px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.datebar{
-    display:flex;
-    gap:6px;
-    overflow-x:auto;
-    padding:8px 0;
+.tabs button.active {
+    background: #00a86b;
+    color: #fff;
 }
 
-.datebar button{
-    min-width:90px;
-    padding:8px;
-    border-radius:8px;
-    border:1px solid #29303a;
-    background:#121821;
-    color:#fff;
+.datebar {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px 0;
+    scrollbar-width: none;
 }
 
-.datebar button.active{
-    background:#075c43;
-    border-color:#00a86b;
+.datebar::-webkit-scrollbar {
+    display: none;
 }
 
-.status{
-    background:#11161d;
-    border-radius:10px;
-    padding:10px;
-    margin:8px 0;
-    font-size:12px;
-    text-align:center;
+.datebar button {
+    min-width: 90px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #29303a;
+    background: #121821;
+    color: #fff;
+    cursor: pointer;
 }
 
-.error{
-    color:#ff6b6b;
+.datebar button.active {
+    background: #075c43;
+    border-color: #00a86b;
 }
 
-.success{
-    color:#42e695;
+.refresh {
+    width: 100%;
+    border: 0;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 9px;
+    background: #00a86b;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.loading{
-    text-align:center;
-    padding:25px;
-    color:#aaa;
+.refresh:active {
+    transform: scale(.98);
 }
 
-.match{
-    background:#121821;
-    border:1px solid #202833;
-    border-radius:12px;
-    margin:10px 0;
-    padding:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,.2);
+.status {
+    background: #11161d;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 12px;
+    text-align: center;
 }
 
-.competition{
-    font-size:11px;
-    color:#00d084;
-    margin-bottom:10px;
+.error {
+    color: #ff6b6b;
 }
 
-.teams{
-    display:grid;
-    grid-template-columns:1fr 70px 1fr;
-    align-items:center;
-    gap:5px;
+.success {
+    color: #42e695;
 }
 
-.team{
-    text-align:center;
-    font-size:13px;
+.loading {
+    text-align: center;
+    padding: 30px;
+    color: #aaa;
 }
 
-.team img{
-    width:38px;
-    height:38px;
-    object-fit:contain;
-    display:block;
-    margin:0 auto 6px;
+.match {
+    background: #121821;
+    border: 1px solid #202833;
+    border-radius: 12px;
+    margin: 10px 0;
+    padding: 14px 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
 }
 
-.score{
-    text-align:center;
-    font-size:21px;
-    font-weight:bold;
+.competition {
+    font-size: 11px;
+    color: #00d084;
+    margin-bottom: 12px;
+    font-weight: bold;
 }
 
-.time{
-    text-align:center;
-    font-size:11px;
-    color:#aaa;
-    margin-top:5px;
+.teams {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    align-items: center;
+    gap: 5px;
 }
 
-.live{
-    color:#ff4545;
-    font-size:11px;
-    font-weight:bold;
-    margin-top:5px;
+.team {
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.3;
 }
 
-.empty{
-    text-align:center;
-    padding:35px 15px;
-    color:#999;
+.team img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 7px;
 }
 
-.refresh{
-    width:100%;
-    border:0;
-    padding:12px;
-    margin:10px 0;
-    border-radius:9px;
-    background:#00a86b;
-    color:#fff;
-    font-weight:bold;
+.score {
+    text-align: center;
+    font-size: 21px;
+    font-weight: bold;
 }
 
-footer{
-    text-align:center;
-    padding:25px 10px;
-    color:#777;
-    font-size:11px;
+.time {
+    text-align: center;
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 5px;
 }
 
-.debug{
-    background:#171c23;
-    border:1px solid #333;
-    padding:10px;
-    border-radius:8px;
-    margin-top:10px;
-    font-size:11px;
-    word-break:break-word;
-    display:none;
+.live {
+    color: #ff4545;
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 6px;
+    text-align: center;
+}
+
+.live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: #ff4545;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .3;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.empty {
+    text-align: center;
+    padding: 35px 15px;
+    color: #999;
+}
+
+.debug {
+    background: #171c23;
+    border: 1px solid #333;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 11px;
+    word-break: break-word;
+    display: none;
+}
+
+footer {
+    text-align: center;
+    padding: 25px 10px;
+    color: #777;
+    font-size: 11px;
+}
+
+@media (max-width: 450px) {
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    .teams {
+        grid-template-columns: 1fr 65px 1fr;
+    }
+
+    .team {
+        font-size: 12px;
+    }
+
+    .team img {
+        width: 36px;
+        height: 36px;
+    }
+
+    .score {
+        font-size: 19px;
+    }
 }
 </style>
 </head>
@@ -240,68 +307,92 @@ footer{
 
 <div class="container">
 
+    <!-- LEAGUES -->
+
     <div class="leagues">
 
-        <button class="active"
-        data-league="PL">Premier League</button>
+        <button class="active" data-league="PL">
+            Premier League
+        </button>
 
-        <button
-        data-league="PD">La Liga</button>
+        <button data-league="PD">
+            La Liga
+        </button>
 
-        <button
-        data-league="SA">Serie A</button>
+        <button data-league="SA">
+            Serie A
+        </button>
 
-        <button
-        data-league="BL1">Bundesliga</button>
+        <button data-league="BL1">
+            Bundesliga
+        </button>
 
-        <button
-        data-league="FL1">Ligue 1</button>
+        <button data-league="FL1">
+            Ligue 1
+        </button>
 
-        <button
-        data-league="CL">Champions League</button>
+        <button data-league="CL">
+            Champions League
+        </button>
 
     </div>
+
+
+    <!-- TABS -->
 
     <div class="tabs">
 
-        <button class="active"
-        data-tab="live">
-        🔴 LIVE
+        <button class="active" data-tab="live">
+            🔴 LIVE
         </button>
 
-        <button
-        data-tab="upcoming">
-        📅 UPCOMING
+        <button data-tab="upcoming">
+            📅 UPCOMING
         </button>
 
-        <button
-        data-tab="finished">
-        ✅ FINISHED
+        <button data-tab="finished">
+            ✅ FINISHED
         </button>
 
     </div>
 
+
+    <!-- DATES -->
+
     <div class="datebar" id="dateBar"></div>
 
-    <button class="refresh"
-    onclick="loadMatches()">
+
+    <!-- REFRESH -->
+
+    <button class="refresh" onclick="loadMatches()">
         🔄 Refresh Matches
     </button>
+
+
+    <!-- STATUS -->
 
     <div id="status" class="status">
         Connecting to football-data.org...
     </div>
 
+
+    <!-- MATCHES -->
+
     <div id="matches"></div>
+
+
+    <!-- DEBUG -->
 
     <div id="debug" class="debug"></div>
 
 </div>
 
+
 <footer>
     M.Awaji LiveScores<br>
     Data provided by football-data.org
 </footer>
+
 
 <script>
 
@@ -309,8 +400,16 @@ footer{
    FOOTBALL-DATA.ORG SETTINGS
    ===================================================== */
 
+/*
+   IMPORTANT:
+   Put your own football-data.org API token below.
+
+   Do NOT send your token to anyone.
+*/
+
 const API_TOKEN =
-"8963e3ad73f146e5ad4344562d2162a0";
+"PASTE_YOUR_FOOTBALL_DATA_TOKEN_HERE";
+
 
 const API_URL =
 "https://api.football-data.org/v4";
@@ -321,10 +420,11 @@ const API_URL =
    ===================================================== */
 
 let selectedLeague = "PL";
+
 let selectedTab = "live";
 
 let selectedDate =
-new Date().toISOString().split("T")[0];
+getLocalDate();
 
 
 /* =====================================================
@@ -345,38 +445,75 @@ document.getElementById("dateBar");
 
 
 /* =====================================================
-   DATE HELPERS
+   LOCAL DATE
    ===================================================== */
 
-function formatDate(date){
+function getLocalDate() {
+
+    const now = new Date();
+
+    const year =
+    now.getFullYear();
+
+    const month =
+    String(now.getMonth() + 1)
+    .padStart(2, "0");
+
+    const day =
+    String(now.getDate())
+    .padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+/* =====================================================
+   FORMAT DATE
+   ===================================================== */
+
+function formatDate(date) {
 
     return date.toLocaleDateString(
         "en-US",
         {
-            weekday:"short",
-            month:"short",
-            day:"numeric"
+            weekday: "short",
+            month: "short",
+            day: "numeric"
         }
     );
 }
 
 
-function createDates(){
+/* =====================================================
+   CREATE DATE BUTTONS
+   ===================================================== */
+
+function createDates() {
 
     dateBar.innerHTML = "";
 
     const today = new Date();
 
-    for(let i=-2;i<=5;i++){
+    for (let i = -2; i <= 5; i++) {
 
-        const date = new Date(today);
+        const date =
+        new Date(today);
 
         date.setDate(
-            today.getDate()+i
+            today.getDate() + i
         );
 
         const dateString =
-        date.toISOString().split("T")[0];
+        date.getFullYear() +
+        "-" +
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            date.getDate()
+        ).padStart(2, "0");
+
 
         const button =
         document.createElement("button");
@@ -384,13 +521,15 @@ function createDates(){
         button.textContent =
         formatDate(date);
 
-        if(dateString === selectedDate){
+
+        if (dateString === selectedDate) {
 
             button.classList.add("active");
 
         }
 
-        button.onclick = function(){
+
+        button.onclick = function() {
 
             selectedDate =
             dateString;
@@ -400,6 +539,7 @@ function createDates(){
             loadMatches();
 
         };
+
 
         dateBar.appendChild(button);
 
@@ -411,7 +551,7 @@ function createDates(){
    API REQUEST
    ===================================================== */
 
-async function apiRequest(endpoint){
+async function apiRequest(endpoint) {
 
     const controller =
     new AbortController();
@@ -422,17 +562,18 @@ async function apiRequest(endpoint){
         15000
     );
 
-    try{
+
+    try {
 
         const response =
         await fetch(
             API_URL + endpoint,
             {
-                method:"GET",
+                method: "GET",
 
-                mode:"cors",
+                mode: "cors",
 
-                headers:{
+                headers: {
                     "X-Auth-Token":
                     API_TOKEN,
 
@@ -445,14 +586,16 @@ async function apiRequest(endpoint){
             }
         );
 
+
         clearTimeout(timeout);
 
 
-        if(!response.ok){
+        if (!response.ok) {
 
             let message = "";
 
-            try{
+
+            try {
 
                 const errorData =
                 await response.json();
@@ -460,10 +603,12 @@ async function apiRequest(endpoint){
                 message =
                 errorData.message || "";
 
-            }catch(e){}
+            }
+
+            catch (e) {}
 
 
-            if(response.status === 401){
+            if (response.status === 401) {
 
                 throw new Error(
                     "HTTP 401 - Invalid API token."
@@ -471,7 +616,8 @@ async function apiRequest(endpoint){
 
             }
 
-            if(response.status === 403){
+
+            if (response.status === 403) {
 
                 throw new Error(
                     "HTTP 403 - Your API token does not have permission for this request."
@@ -479,13 +625,15 @@ async function apiRequest(endpoint){
 
             }
 
-            if(response.status === 429){
+
+            if (response.status === 429) {
 
                 throw new Error(
                     "HTTP 429 - API rate limit exceeded."
                 );
 
             }
+
 
             throw new Error(
                 "HTTP " +
@@ -496,19 +644,28 @@ async function apiRequest(endpoint){
 
         }
 
+
         return await response.json();
 
-    }catch(error){
+    }
+
+
+    catch (error) {
 
         clearTimeout(timeout);
 
-        if(error.name === "AbortError"){
+
+        if (
+            error.name ===
+            "AbortError"
+        ) {
 
             throw new Error(
                 "Request timed out. Check your internet connection."
             );
 
         }
+
 
         throw error;
 
@@ -518,16 +675,16 @@ async function apiRequest(endpoint){
 
 
 /* =====================================================
-   TEST API CONNECTION
+   TEST API
    ===================================================== */
 
-async function testAPI(){
+async function testAPI() {
 
-    if(
+    if (
         !API_TOKEN ||
         API_TOKEN ===
         "PASTE_YOUR_FOOTBALL_DATA_TOKEN_HERE"
-    ){
+    ) {
 
         throw new Error(
             "API token has not been entered."
@@ -535,8 +692,23 @@ async function testAPI(){
 
     }
 
+
+    /*
+       IMPORTANT FIX:
+
+       API_URL already contains /v4.
+
+       Therefore this MUST be:
+
+       /competitions/PL
+
+       NOT:
+
+       /v4/competitions/PL
+    */
+
     return await apiRequest(
-        "/v4/competitions/PL"
+        "/competitions/PL"
     );
 
 }
@@ -546,23 +718,29 @@ async function testAPI(){
    LOAD MATCHES
    ===================================================== */
 
-async function loadMatches(){
+async function loadMatches() {
 
     matchesContainer.innerHTML =
-    '<div class="loading">Loading matches...</div>';
+    '<div class="loading">⚽ Loading matches...</div>';
+
 
     debugBox.style.display =
     "none";
 
+
     statusBox.className =
     "status";
+
 
     statusBox.textContent =
     "Connecting to football-data.org...";
 
-    try{
 
-        /* First test authentication */
+    try {
+
+        /*
+           Test authentication first.
+        */
 
         await testAPI();
 
@@ -574,49 +752,14 @@ async function loadMatches(){
 
 
         /*
-         LIVE:
-         Request today's matches.
+           Get matches for selected date.
         */
 
-        if(selectedTab === "live"){
-
-            endpoint +=
-            "?dateFrom=" +
-            selectedDate +
-            "&dateTo=" +
-            selectedDate;
-
-        }
-
-
-        /*
-         UPCOMING
-        */
-
-        else if(selectedTab === "upcoming"){
-
-            endpoint +=
-            "?dateFrom=" +
-            selectedDate +
-            "&dateTo=" +
-            selectedDate;
-
-        }
-
-
-        /*
-         FINISHED
-        */
-
-        else if(selectedTab === "finished"){
-
-            endpoint +=
-            "?dateFrom=" +
-            selectedDate +
-            "&dateTo=" +
-            selectedDate;
-
-        }
+        endpoint +=
+        "?dateFrom=" +
+        selectedDate +
+        "&dateTo=" +
+        selectedDate;
 
 
         const data =
@@ -628,10 +771,10 @@ async function loadMatches(){
 
 
         /* =================================================
-           FILTER STATUS
+           FILTER LIVE
            ================================================= */
 
-        if(selectedTab === "live"){
+        if (selectedTab === "live") {
 
             matches =
             matches.filter(
@@ -640,13 +783,21 @@ async function loadMatches(){
                     "LIVE",
                     "IN_PLAY",
                     "PAUSED"
-                ].includes(match.status)
+                ].includes(
+                    match.status
+                )
             );
 
         }
 
 
-        else if(selectedTab === "upcoming"){
+        /* =================================================
+           FILTER UPCOMING
+           ================================================= */
+
+        else if (
+            selectedTab === "upcoming"
+        ) {
 
             matches =
             matches.filter(
@@ -654,13 +805,21 @@ async function loadMatches(){
                 [
                     "SCHEDULED",
                     "TIMED"
-                ].includes(match.status)
+                ].includes(
+                    match.status
+                )
             );
 
         }
 
 
-        else if(selectedTab === "finished"){
+        /* =================================================
+           FILTER FINISHED
+           ================================================= */
+
+        else if (
+            selectedTab === "finished"
+        ) {
 
             matches =
             matches.filter(
@@ -672,15 +831,32 @@ async function loadMatches(){
         }
 
 
+        /*
+           Sort matches by kickoff time.
+        */
+
+        matches.sort(
+            (a, b) =>
+            new Date(a.utcDate) -
+            new Date(b.utcDate)
+        );
+
+
         displayMatches(matches);
 
 
-    }catch(error){
+    }
 
-        matchesContainer.innerHTML = "";
+
+    catch (error) {
+
+        matchesContainer.innerHTML =
+        "";
+
 
         statusBox.className =
         "status error";
+
 
         statusBox.textContent =
         "Unable to load matches";
@@ -689,6 +865,7 @@ async function loadMatches(){
         debugBox.style.display =
         "block";
 
+
         debugBox.innerHTML =
         "<strong>Error:</strong><br>" +
         escapeHTML(error.message) +
@@ -696,15 +873,15 @@ async function loadMatches(){
 
         "<strong>Possible causes:</strong><br>" +
 
-        "• API token is invalid or still a placeholder<br>" +
+        "• API token is invalid or missing<br>" +
 
-        "• Your football-data.org plan does not allow the requested data<br>" +
+        "• Your football-data.org plan does not allow this request<br>" +
 
-        "• Browser/network connection blocked the request<br>" +
+        "• API rate limit reached<br>" +
 
-        "• API rate limit reached<br><br>" +
+        "• Internet connection problem<br>" +
 
-        "If the message says 'Failed to fetch', the browser did not receive a normal HTTP response.";
+        "• Browser/network blocked the API request";
 
     }
 
@@ -715,28 +892,30 @@ async function loadMatches(){
    DISPLAY MATCHES
    ===================================================== */
 
-function displayMatches(matches){
+function displayMatches(matches) {
 
     matchesContainer.innerHTML = "";
 
 
-    if(matches.length === 0){
+    if (matches.length === 0) {
 
         statusBox.className =
         "status";
+
 
         statusBox.innerHTML =
         "No matches found for this selection.";
 
 
-        if(selectedTab === "live"){
+        if (selectedTab === "live") {
 
             statusBox.innerHTML +=
             "<br><small>" +
-            "Note: the football-data.org free plan provides delayed scores, so true live matches may not appear." +
+            "There may be no live matches at the selected time, or your API plan may provide delayed scores." +
             "</small>";
 
         }
+
 
         return;
 
@@ -746,183 +925,226 @@ function displayMatches(matches){
     statusBox.className =
     "status success";
 
+
     statusBox.textContent =
     matches.length +
     " match" +
-    (matches.length === 1 ? "" : "es") +
+    (
+        matches.length === 1
+        ? ""
+        : "es"
+    ) +
     " found";
 
 
-    matches.forEach(match => {
+    matches.forEach(
+        match => {
 
-        const card =
-        document.createElement("div");
+            const card =
+            document.createElement("div");
 
-        card.className =
-        "match";
-
-
-        const home =
-        match.homeTeam || {};
-
-        const away =
-        match.awayTeam || {};
-
-        const score =
-        match.score || {};
-
-        const fullTime =
-        score.fullTime || {};
+            card.className =
+            "match";
 
 
-        let homeScore =
-        fullTime.home;
-
-        let awayScore =
-        fullTime.away;
+            const home =
+            match.homeTeam || {};
 
 
-        if(homeScore === null ||
-           homeScore === undefined){
-
-            homeScore = "-";
-
-        }
-
-        if(awayScore === null ||
-           awayScore === undefined){
-
-            awayScore = "-";
-
-        }
+            const away =
+            match.awayTeam || {};
 
 
-        const matchTime =
-        new Date(
-            match.utcDate
-        ).toLocaleTimeString(
-            "en-NG",
-            {
-                hour:"2-digit",
-                minute:"2-digit"
+            const score =
+            match.score || {};
+
+
+            const fullTime =
+            score.fullTime || {};
+
+
+            let homeScore =
+            fullTime.home;
+
+
+            let awayScore =
+            fullTime.away;
+
+
+            /*
+               For live matches, football-data.org
+               can provide the current score here.
+            */
+
+            if (
+                homeScore === null ||
+                homeScore === undefined
+            ) {
+
+                homeScore = "-";
+
             }
-        );
 
 
-        let statusText =
-        match.status || "";
+            if (
+                awayScore === null ||
+                awayScore === undefined
+            ) {
+
+                awayScore = "-";
+
+            }
 
 
-        if(
+            /*
+               Nigeria / West Africa time.
+            */
+
+            const matchTime =
+            new Date(
+                match.utcDate
+            ).toLocaleTimeString(
+                "en-NG",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+
+            const isLive =
             [
                 "LIVE",
                 "IN_PLAY",
                 "PAUSED"
-            ].includes(match.status)
-        ){
+            ].includes(
+                match.status
+            );
 
-            statusText =
-            "🔴 LIVE";
+
+            let statusHTML = "";
+
+
+            if (isLive) {
+
+                statusHTML = `
+                    <div class="live">
+                        <span class="live-dot"></span>
+                        LIVE
+                    </div>
+                `;
+
+            }
+
+            else {
+
+                statusHTML = `
+                    <div class="time">
+                        ${escapeHTML(
+                            match.status || ""
+                        )}
+                    </div>
+                `;
+
+            }
+
+
+            card.innerHTML = `
+
+                <div class="competition">
+
+                    ${escapeHTML(
+                        match.competition?.name ||
+                        "Football"
+                    )}
+
+                </div>
+
+
+                <div class="teams">
+
+
+                    <div class="team">
+
+                        ${
+                            home.crest
+                            ?
+                            `<img
+                                src="${escapeHTML(home.crest)}"
+                                alt=""
+                                onerror="this.style.display='none'"
+                            >`
+                            :
+                            ""
+                        }
+
+
+                        ${escapeHTML(
+                            home.name ||
+                            "Home"
+                        )}
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="score">
+
+                            ${homeScore}
+                            -
+                            ${awayScore}
+
+                        </div>
+
+
+                        ${
+                            isLive
+                            ?
+                            statusHTML
+                            :
+                            `
+                            <div class="time">
+                                ${matchTime}
+                            </div>
+                            `
+                        }
+
+                    </div>
+
+
+                    <div class="team">
+
+                        ${
+                            away.crest
+                            ?
+                            `<img
+                                src="${escapeHTML(away.crest)}"
+                                alt=""
+                                onerror="this.style.display='none'"
+                            >`
+                            :
+                            ""
+                        }
+
+
+                        ${escapeHTML(
+                            away.name ||
+                            "Away"
+                        )}
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            matchesContainer
+            .appendChild(card);
 
         }
-
-
-        card.innerHTML = `
-
-            <div class="competition">
-
-                ${escapeHTML(
-                    match.competition?.name ||
-                    "Football"
-                )}
-
-            </div>
-
-
-            <div class="teams">
-
-                <div class="team">
-
-                    ${
-                        home.crest
-                        ?
-                        `<img
-                        src="${home.crest}"
-                        alt=""
-                        onerror="this.style.display='none'"
-                        >`
-                        :
-                        ""
-                    }
-
-                    ${escapeHTML(
-                        home.name ||
-                        "Home"
-                    )}
-
-                </div>
-
-
-                <div>
-
-                    <div class="score">
-
-                        ${homeScore}
-                        -
-                        ${awayScore}
-
-                    </div>
-
-
-                    <div class="time">
-
-                        ${matchTime}
-
-                    </div>
-
-
-                    ${
-                        statusText
-                        ?
-                        `<div class="live">
-                        ${escapeHTML(statusText)}
-                        </div>`
-                        :
-                        ""
-                    }
-
-                </div>
-
-
-                <div class="team">
-
-                    ${
-                        away.crest
-                        ?
-                        `<img
-                        src="${away.crest}"
-                        alt=""
-                        onerror="this.style.display='none'"
-                        >`
-                        :
-                        ""
-                    }
-
-                    ${escapeHTML(
-                        away.name ||
-                        "Away"
-                    )}
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        matchesContainer.appendChild(card);
-
-    });
+    );
 
 }
 
@@ -931,14 +1153,14 @@ function displayMatches(matches){
    ESCAPE HTML
    ===================================================== */
 
-function escapeHTML(value){
+function escapeHTML(value) {
 
     return String(value)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
@@ -948,30 +1170,44 @@ function escapeHTML(value){
    ===================================================== */
 
 document
-.querySelectorAll(".leagues button")
-.forEach(button => {
+.querySelectorAll(
+    ".leagues button"
+)
+.forEach(
+    button => {
 
-    button.addEventListener(
-        "click",
-        function(){
+        button.addEventListener(
+            "click",
+            function() {
 
-            document
-            .querySelectorAll(".leagues button")
-            .forEach(btn =>
-                btn.classList.remove("active")
-            );
+                document
+                .querySelectorAll(
+                    ".leagues button"
+                )
+                .forEach(
+                    btn =>
+                    btn.classList.remove(
+                        "active"
+                    )
+                );
 
-            this.classList.add("active");
 
-            selectedLeague =
-            this.dataset.league;
+                this.classList.add(
+                    "active"
+                );
 
-            loadMatches();
 
-        }
-    );
+                selectedLeague =
+                this.dataset.league;
 
-});
+
+                loadMatches();
+
+            }
+        );
+
+    }
+);
 
 
 /* =====================================================
@@ -979,34 +1215,48 @@ document
    ===================================================== */
 
 document
-.querySelectorAll(".tabs button")
-.forEach(button => {
+.querySelectorAll(
+    ".tabs button"
+)
+.forEach(
+    button => {
 
-    button.addEventListener(
-        "click",
-        function(){
+        button.addEventListener(
+            "click",
+            function() {
 
-            document
-            .querySelectorAll(".tabs button")
-            .forEach(btn =>
-                btn.classList.remove("active")
-            );
+                document
+                .querySelectorAll(
+                    ".tabs button"
+                )
+                .forEach(
+                    btn =>
+                    btn.classList.remove(
+                        "active"
+                    )
+                );
 
-            this.classList.add("active");
 
-            selectedTab =
-            this.dataset.tab;
+                this.classList.add(
+                    "active"
+                );
 
-            loadMatches();
 
-        }
-    );
+                selectedTab =
+                this.dataset.tab;
 
-});
+
+                loadMatches();
+
+            }
+        );
+
+    }
+);
 
 
 /* =====================================================
-   START APP
+   START APPLICATION
    ===================================================== */
 
 createDates();
@@ -1017,6 +1267,10 @@ loadMatches();
 /* =====================================================
    AUTO REFRESH
    ===================================================== */
+
+/*
+   Refresh every 60 seconds.
+*/
 
 setInterval(
     loadMatches,
