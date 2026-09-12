@@ -3,9 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Football Scores</title>
+
+<title>Top 5 Leagues - Live Scores</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -21,12 +26,17 @@ header {
 
 header h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 23px;
+}
+
+.subtitle {
+    margin-top: 5px;
+    font-size: 12px;
+    opacity: .85;
 }
 
 .tabs {
     display: flex;
-    justify-content: center;
     gap: 5px;
     padding: 10px;
     background: #1c1c1c;
@@ -53,6 +63,11 @@ header h1 {
     gap: 8px;
 }
 
+.leagues::-webkit-scrollbar,
+.date-bar::-webkit-scrollbar {
+    display: none;
+}
+
 .leagues button {
     white-space: nowrap;
     padding: 9px 14px;
@@ -74,8 +89,8 @@ header h1 {
 }
 
 .date-bar button {
-    min-width: 75px;
-    padding: 8px;
+    min-width: 78px;
+    padding: 9px;
     border: none;
     border-radius: 6px;
     background: #292929;
@@ -86,17 +101,30 @@ header h1 {
     background: #008000;
 }
 
+#matches {
+    padding-bottom: 20px;
+}
+
 .match {
     background: #1d1d1d;
     margin: 8px;
     padding: 14px;
     border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,.3);
 }
 
 .league-name {
     color: #00aaff;
     font-size: 13px;
-    margin-bottom: 8px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.match-time {
+    text-align: center;
+    color: #aaa;
+    font-size: 12px;
+    margin-bottom: 10px;
 }
 
 .teams {
@@ -107,32 +135,74 @@ header h1 {
 }
 
 .team {
-    width: 38%;
+    width: 37%;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .team img {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     object-fit: contain;
     display: block;
-    margin: auto;
+    margin: auto auto 7px;
+}
+
+.score-area {
+    width: 22%;
+    text-align: center;
 }
 
 .score {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: bold;
 }
 
 .status {
+    margin-top: 5px;
     color: #00ff66;
+    font-size: 12px;
     font-weight: bold;
+}
+
+.status.finished {
+    color: #aaa;
+}
+
+.status.scheduled {
+    color: #00aaff;
 }
 
 .loading,
 .no-match,
 .error {
     text-align: center;
-    padding: 30px;
+    padding: 35px 20px;
+}
+
+.error {
+    color: #ff5555;
+}
+
+.info {
+    text-align: center;
+    color: #aaa;
+    font-size: 12px;
+    padding: 10px 20px;
+}
+
+.refresh {
+    position: fixed;
+    right: 15px;
+    bottom: 20px;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: #008000;
+    color: white;
+    font-size: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.5);
 }
 </style>
 </head>
@@ -141,349 +211,990 @@ header h1 {
 
 <header>
     <h1>⚽ LIVE FOOTBALL SCORES</h1>
+    <div class="subtitle">Powered by football-data.org</div>
 </header>
 
+
+<!-- TABS -->
+
 <div class="tabs">
-    <button id="liveBtn" class="active" onclick="showLive()">LIVE</button>
-    <button id="upcomingBtn" onclick="showUpcoming()">UPCOMING</button>
-    <button id="finishedBtn" onclick="showFinished()">FINISHED</button>
+
+    <button id="liveBtn"
+            class="active"
+            onclick="showLive()">
+        LIVE
+    </button>
+
+    <button id="upcomingBtn"
+            onclick="showUpcoming()">
+        UPCOMING
+    </button>
+
+    <button id="finishedBtn"
+            onclick="showFinished()">
+        FINISHED
+    </button>
+
 </div>
 
+
+<!-- LEAGUES -->
+
 <div class="leagues">
-    <button onclick="selectLeague(39)">Premier League</button>
-    <button onclick="selectLeague(140)">La Liga</button>
-    <button onclick="selectLeague(135)">Serie A</button>
-    <button onclick="selectLeague(78)">Bundesliga</button>
-    <button onclick="selectLeague(61)">Ligue 1</button>
-    <button onclick="selectLeague(2)">Champions League</button>
+
+    <button
+        id="league-PL"
+        onclick="selectLeague('PL')">
+        Premier League
+    </button>
+
+    <button
+        id="league-PD"
+        onclick="selectLeague('PD')">
+        La Liga
+    </button>
+
+    <button
+        id="league-SA"
+        onclick="selectLeague('SA')">
+        Serie A
+    </button>
+
+    <button
+        id="league-BL1"
+        onclick="selectLeague('BL1')">
+        Bundesliga
+    </button>
+
+    <button
+        id="league-FL1"
+        onclick="selectLeague('FL1')">
+        Ligue 1
+    </button>
+
+    <button
+        id="league-CL"
+        onclick="selectLeague('CL')">
+        Champions League
+    </button>
+
 </div>
+
+
+<!-- DATES -->
 
 <div class="date-bar" id="dateBar"></div>
 
+
+<!-- MATCHES -->
+
 <div id="matches">
-    <div class="loading">Loading matches...</div>
+
+    <div class="loading">
+        Loading matches...
+    </div>
+
 </div>
+
+
+<div class="info">
+    Match data provided by football-data.org
+</div>
+
+
+<button class="refresh"
+        onclick="refreshCurrentPage()">
+    ↻
+</button>
+
 
 <script>
 
-// ================================
-// PUT YOUR API KEY HERE
-// ================================
-const API_KEY = "8963e3ad73f146e5ad4344562d2162a0";
+/* =========================================================
+   FOOTBALL-DATA.ORG CONFIGURATION
+   ========================================================= */
 
-const API_URL = "https://v3.football.api-sports.io";
+/*
+   PASTE YOUR TOKEN BETWEEN THE QUOTES.
 
-let selectedLeague = 39;
+   Example:
+
+   const API_TOKEN = "abc123xxxxxxxx";
+
+   DO NOT SHARE YOUR TOKEN PUBLICLY.
+*/
+
+const API_TOKEN = "PASTE_YOUR_FOOTBALL_DATA_TOKEN_HERE";
+
+
+/*
+   FOOTBALL-DATA.ORG V4
+*/
+
+const API_URL =
+    "https://api.football-data.org/v4";
+
+
+/*
+   Default league
+*/
+
+let selectedLeague = "PL";
+
+
+/*
+   Default date = today
+*/
+
 let selectedDate = new Date();
 
-let allMatches = [];
 
-// ================================
-// DATE FORMAT
-// ================================
+/*
+   Current screen
+*/
+
+let currentView = "live";
+
+
+/* =========================================================
+   COMPETITIONS
+   ========================================================= */
+
+const competitions = {
+
+    "PL": "Premier League",
+
+    "PD": "La Liga",
+
+    "SA": "Serie A",
+
+    "BL1": "Bundesliga",
+
+    "FL1": "Ligue 1",
+
+    "CL": "UEFA Champions League"
+
+};
+
+
+/* =========================================================
+   DATE FORMATTER
+   ========================================================= */
+
 function formatDate(date) {
-    return date.toISOString().split("T")[0];
+
+    const year =
+        date.getFullYear();
+
+    const month =
+        String(date.getMonth() + 1)
+        .padStart(2, "0");
+
+    const day =
+        String(date.getDate())
+        .padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
 }
 
-// ================================
-// CREATE DATE BAR
-// ================================
+
+/* =========================================================
+   DATE BAR
+   ========================================================= */
+
 function createDateBar() {
 
-    const bar = document.getElementById("dateBar");
+    const bar =
+        document.getElementById("dateBar");
 
     bar.innerHTML = "";
 
     for (let i = 0; i < 7; i++) {
 
         const date = new Date();
-        date.setDate(date.getDate() + i);
 
-        const button = document.createElement("button");
+        date.setDate(
+            date.getDate() + i
+        );
+
+        const button =
+            document.createElement("button");
+
 
         if (i === 0) {
+
             button.innerText = "TODAY";
+
         } else if (i === 1) {
+
             button.innerText = "TOMORROW";
+
         } else {
-            button.innerText = date.toLocaleDateString("en-US", {
-                weekday: "short"
-            });
+
+            button.innerText =
+                date.toLocaleDateString(
+                    "en-US",
+                    {
+                        weekday: "short",
+                        day: "numeric"
+                    }
+                );
         }
 
-        button.onclick = function() {
+
+        button.onclick = function () {
 
             selectedDate = date;
 
-            document.querySelectorAll(".date-bar button")
-                .forEach(b => b.classList.remove("active"));
+            document
+                .querySelectorAll(".date-bar button")
+                .forEach(b =>
+                    b.classList.remove("active")
+                );
 
             button.classList.add("active");
 
-            showUpcoming();
+
+            if (currentView === "live") {
+
+                showLive();
+
+            } else if (currentView === "upcoming") {
+
+                showUpcoming();
+
+            } else {
+
+                showFinished();
+            }
+
         };
 
+
         if (i === 0) {
+
             button.classList.add("active");
         }
+
 
         bar.appendChild(button);
     }
 }
 
-// ================================
-// API REQUEST
-// ================================
-async function apiRequest(url) {
 
-    const response = await fetch(url, {
-        headers: {
-            "x-apisports-key": API_KEY
-        }
-    });
+/* =========================================================
+   API REQUEST
+   ========================================================= */
+
+async function apiRequest(endpoint) {
+
+    if (
+        !API_TOKEN ||
+        API_TOKEN ===
+        "PASTE_YOUR_FOOTBALL_DATA_TOKEN_HERE"
+    ) {
+
+        throw new Error(
+            "API token has not been added."
+        );
+    }
+
+
+    const response =
+        await fetch(
+            API_URL + endpoint,
+            {
+                method: "GET",
+
+                headers: {
+
+                    "X-Auth-Token":
+                        API_TOKEN,
+
+                    "Accept":
+                        "application/json"
+                }
+            }
+        );
+
 
     if (!response.ok) {
-        throw new Error("API request failed");
+
+        let message =
+            `HTTP ${response.status}`;
+
+        try {
+
+            const errorData =
+                await response.json();
+
+            if (errorData.message) {
+
+                message +=
+                    " - " +
+                    errorData.message;
+            }
+
+        } catch (e) {}
+
+        throw new Error(message);
     }
 
-    const data = await response.json();
 
-    return data;
+    return await response.json();
 }
 
-// ================================
-// LOAD FIXTURES
-// ================================
-async function loadFixtures() {
 
-    const container = document.getElementById("matches");
+/* =========================================================
+   LOAD COMPETITION MATCHES
+   ========================================================= */
 
-    container.innerHTML =
-        '<div class="loading">Loading matches...</div>';
+async function loadCompetitionMatches(
+    competitionCode,
+    date
+) {
 
-    try {
+    const dateString =
+        formatDate(date);
 
-        const date = formatDate(selectedDate);
 
-        const url =
-            `${API_URL}/fixtures?league=${selectedLeague}&date=${date}`;
+    const endpoint =
+        `/competitions/${competitionCode}/matches` +
+        `?dateFrom=${dateString}` +
+        `&dateTo=${dateString}`;
 
-        const data = await apiRequest(url);
 
-        allMatches = data.response || [];
-
-        displayMatches(allMatches);
-
-    } catch (error) {
-
-        container.innerHTML =
-            `<div class="error">
-                ⚠️ API request failed
-            </div>`;
-    }
+    return await apiRequest(endpoint);
 }
 
-// ================================
-// DISPLAY MATCHES
-// ================================
+
+/* =========================================================
+   DISPLAY MATCHES
+   ========================================================= */
+
 function displayMatches(matches) {
 
-    const container = document.getElementById("matches");
+    const container =
+        document.getElementById("matches");
 
     container.innerHTML = "";
 
-    if (!matches || matches.length === 0) {
 
-        container.innerHTML =
-            '<div class="no-match">No matches available for this selection.</div>';
+    if (
+        !matches ||
+        matches.length === 0
+    ) {
+
+        container.innerHTML = `
+            <div class="no-match">
+                ⚽ No matches available
+                for this selection.
+            </div>
+        `;
 
         return;
     }
 
+
+    /*
+       Sort matches by kickoff time
+    */
+
+    matches.sort(
+        (a, b) =>
+            new Date(a.utcDate) -
+            new Date(b.utcDate)
+    );
+
+
     matches.forEach(match => {
 
-        const home = match.teams.home;
-        const away = match.teams.away;
+        const home =
+            match.homeTeam || {};
 
-        const status = match.fixture.status;
+        const away =
+            match.awayTeam || {};
 
-        let statusText = status.short;
-
-        if (status.short === "NS") {
-            statusText =
-                new Date(match.fixture.date)
-                .toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                });
-        }
-
-        if (status.short === "1H" ||
-            status.short === "2H" ||
-            status.short === "HT" ||
-            status.short === "ET") {
-
-            statusText = "LIVE";
-        }
 
         const homeScore =
-            match.goals.home !== null
-                ? match.goals.home
+            match.score &&
+            match.score.fullTime &&
+            match.score.fullTime.home
+            !== null
+                ? match.score.fullTime.home
                 : "-";
+
 
         const awayScore =
-            match.goals.away !== null
-                ? match.goals.away
+            match.score &&
+            match.score.fullTime &&
+            match.score.fullTime.away
+            !== null
+                ? match.score.fullTime.away
                 : "-";
 
-        const div = document.createElement("div");
+
+        let statusText =
+            getStatusText(match);
+
+
+        let statusClass =
+            getStatusClass(match.status);
+
+
+        const kickoff =
+            new Date(match.utcDate)
+            .toLocaleTimeString(
+                [],
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+
+        const div =
+            document.createElement("div");
 
         div.className = "match";
+
 
         div.innerHTML = `
 
             <div class="league-name">
-                ${match.league.name}
+
+                ${escapeHTML(
+                    match.competition?.name ||
+                    "Football"
+                )}
+
             </div>
+
+
+            <div class="match-time">
+
+                ${kickoff}
+
+            </div>
+
 
             <div class="teams">
 
+
                 <div class="team">
-                    <img src="${home.logo}">
-                    <div>${home.name}</div>
+
+                    <img
+                        src="${home.crest || ""}"
+                        onerror="this.style.display='none'"
+                        alt=""
+                    >
+
+                    <div>
+                        ${escapeHTML(
+                            home.name ||
+                            "Home Team"
+                        )}
+                    </div>
+
                 </div>
 
-                <div>
+
+                <div class="score-area">
+
                     <div class="score">
-                        ${homeScore} - ${awayScore}
+
+                        ${homeScore}
+                        -
+                        ${awayScore}
+
                     </div>
 
-                    <div class="status">
+
+                    <div class="status ${statusClass}">
+
                         ${statusText}
+
                     </div>
+
                 </div>
+
 
                 <div class="team">
-                    <img src="${away.logo}">
-                    <div>${away.name}</div>
+
+                    <img
+                        src="${away.crest || ""}"
+                        onerror="this.style.display='none'"
+                        alt=""
+                    >
+
+                    <div>
+                        ${escapeHTML(
+                            away.name ||
+                            "Away Team"
+                        )}
+                    </div>
+
                 </div>
+
 
             </div>
+
         `;
 
+
         container.appendChild(div);
+
     });
+
 }
 
-// ================================
-// LIVE
-// ================================
+
+/* =========================================================
+   STATUS TEXT
+   ========================================================= */
+
+function getStatusText(match) {
+
+    const status =
+        match.status;
+
+
+    if (
+        status === "IN_PLAY" ||
+        status === "LIVE"
+    ) {
+
+        if (match.minute) {
+
+            return `🔴 ${match.minute}'`;
+
+        }
+
+        return "🔴 LIVE";
+    }
+
+
+    if (status === "PAUSED") {
+
+        return "⏸ HALF TIME";
+    }
+
+
+    if (status === "FINISHED") {
+
+        return "FT";
+    }
+
+
+    if (status === "POSTPONED") {
+
+        return "POSTPONED";
+    }
+
+
+    if (status === "CANCELLED") {
+
+        return "CANCELLED";
+    }
+
+
+    if (status === "SUSPENDED") {
+
+        return "SUSPENDED";
+    }
+
+
+    return "SCHEDULED";
+}
+
+
+/* =========================================================
+   STATUS CLASS
+   ========================================================= */
+
+function getStatusClass(status) {
+
+    if (
+        status === "IN_PLAY" ||
+        status === "LIVE" ||
+        status === "PAUSED"
+    ) {
+
+        return "";
+    }
+
+
+    if (status === "FINISHED") {
+
+        return "finished";
+    }
+
+
+    return "scheduled";
+}
+
+
+/* =========================================================
+   LIVE MATCHES
+   ========================================================= */
+
 async function showLive() {
+
+    currentView = "live";
 
     setActive("liveBtn");
 
-    const container = document.getElementById("matches");
 
-    container.innerHTML =
-        '<div class="loading">Loading live matches...</div>';
+    const container =
+        document.getElementById("matches");
+
+
+    container.innerHTML = `
+        <div class="loading">
+            🔴 Loading live matches...
+        </div>
+    `;
+
 
     try {
 
-        const data = await apiRequest(
-            `${API_URL}/fixtures?live=all`
-        );
+        const today =
+            formatDate(new Date());
 
-        let matches = data.response || [];
 
-        matches = matches.filter(match =>
-            [39, 140, 135, 78, 61, 2]
-            .includes(match.league.id)
-        );
+        /*
+           Get today's matches for the
+           selected competition.
+        */
+
+        const data =
+            await loadCompetitionMatches(
+                selectedLeague,
+                new Date()
+            );
+
+
+        let matches =
+            data.matches || [];
+
+
+        /*
+           Keep only live matches.
+        */
+
+        matches =
+            matches.filter(match =>
+
+                [
+                    "LIVE",
+                    "IN_PLAY",
+                    "PAUSED"
+                ].includes(match.status)
+
+            );
+
 
         displayMatches(matches);
 
+
     } catch (error) {
 
-        container.innerHTML =
-            '<div class="error">⚠️ API request failed</div>';
+        showAPIError(error);
+
     }
 }
 
-// ================================
-// UPCOMING
-// ================================
+
+/* =========================================================
+   UPCOMING
+   ========================================================= */
+
 async function showUpcoming() {
+
+    currentView = "upcoming";
 
     setActive("upcomingBtn");
 
-    await loadFixtures();
-}
 
-// ================================
-// FINISHED
-// ================================
-async function showFinished() {
+    const container =
+        document.getElementById("matches");
 
-    setActive("finishedBtn");
 
-    const container = document.getElementById("matches");
+    container.innerHTML = `
+        <div class="loading">
+            📅 Loading upcoming matches...
+        </div>
+    `;
 
-    container.innerHTML =
-        '<div class="loading">Loading finished matches...</div>';
 
     try {
 
-        const date = formatDate(new Date());
+        const data =
+            await loadCompetitionMatches(
+                selectedLeague,
+                selectedDate
+            );
 
-        const data = await apiRequest(
-            `${API_URL}/fixtures?league=${selectedLeague}&date=${date}`
-        );
 
-        let matches = data.response || [];
+        let matches =
+            data.matches || [];
 
-        matches = matches.filter(match =>
-            ["FT", "AET", "PEN"].includes(
-                match.fixture.status.short
-            )
-        );
+
+        matches =
+            matches.filter(match =>
+
+                [
+                    "SCHEDULED",
+                    "TIMED"
+                ].includes(match.status)
+
+            );
+
 
         displayMatches(matches);
 
+
     } catch (error) {
 
-        container.innerHTML =
-            '<div class="error">⚠️ API request failed</div>';
+        showAPIError(error);
+
     }
 }
 
-// ================================
-// LEAGUE SELECTION
-// ================================
-function selectLeague(id) {
 
-    selectedLeague = id;
+/* =========================================================
+   FINISHED
+   ========================================================= */
 
-    showUpcoming();
+async function showFinished() {
+
+    currentView = "finished";
+
+    setActive("finishedBtn");
+
+
+    const container =
+        document.getElementById("matches");
+
+
+    container.innerHTML = `
+        <div class="loading">
+            ✅ Loading finished matches...
+        </div>
+    `;
+
+
+    try {
+
+        const data =
+            await loadCompetitionMatches(
+                selectedLeague,
+                selectedDate
+            );
+
+
+        let matches =
+            data.matches || [];
+
+
+        matches =
+            matches.filter(match =>
+
+                [
+                    "FINISHED"
+                ].includes(match.status)
+
+            );
+
+
+        displayMatches(matches);
+
+
+    } catch (error) {
+
+        showAPIError(error);
+
+    }
 }
 
-// ================================
-// ACTIVE TAB
-// ================================
-function setActive(id) {
 
-    document.querySelectorAll(".tabs button")
+/* =========================================================
+   SELECT LEAGUE
+   ========================================================= */
+
+function selectLeague(code) {
+
+    selectedLeague = code;
+
+
+    document
+        .querySelectorAll(".leagues button")
         .forEach(button => {
+
             button.classList.remove("active");
+
         });
 
-    document.getElementById(id)
+
+    const selectedButton =
+        document.getElementById(
+            "league-" + code
+        );
+
+
+    if (selectedButton) {
+
+        selectedButton.classList.add("active");
+    }
+
+
+    if (currentView === "live") {
+
+        showLive();
+
+    } else if (currentView === "upcoming") {
+
+        showUpcoming();
+
+    } else {
+
+        showFinished();
+    }
+}
+
+
+/* =========================================================
+   ACTIVE TAB
+   ========================================================= */
+
+function setActive(id) {
+
+    document
+        .querySelectorAll(".tabs button")
+        .forEach(button => {
+
+            button.classList.remove("active");
+
+        });
+
+
+    document
+        .getElementById(id)
         .classList.add("active");
 }
 
-// ================================
-// START
-// ================================
+
+/* =========================================================
+   API ERROR
+   ========================================================= */
+
+function showAPIError(error) {
+
+    const container =
+        document.getElementById("matches");
+
+
+    console.error(error);
+
+
+    container.innerHTML = `
+
+        <div class="error">
+
+            ⚠️ Unable to load matches.
+
+            <br><br>
+
+            <small>
+                ${escapeHTML(
+                    error.message ||
+                    "Unknown API error"
+                )}
+            </small>
+
+        </div>
+
+    `;
+}
+
+
+/* =========================================================
+   REFRESH
+   ========================================================= */
+
+function refreshCurrentPage() {
+
+    if (currentView === "live") {
+
+        showLive();
+
+    } else if (currentView === "upcoming") {
+
+        showUpcoming();
+
+    } else {
+
+        showFinished();
+    }
+}
+
+
+/* =========================================================
+   AUTO REFRESH LIVE SCORES
+   ========================================================= */
+
+/*
+   Refresh every 60 seconds.
+
+   This is deliberately not extremely frequent
+   because football-data.org applies request limits.
+*/
+
+setInterval(() => {
+
+    if (currentView === "live") {
+
+        showLive();
+
+    }
+
+}, 60000);
+
+
+/* =========================================================
+   HTML SECURITY
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    if (!value) return "";
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   START APPLICATION
+   ========================================================= */
+
 createDateBar();
+
+
+/*
+   Highlight Premier League
+*/
+
+selectLeague("PL");
+
+
+/*
+   Open LIVE
+*/
 
 showLive();
 
