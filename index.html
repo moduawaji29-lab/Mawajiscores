@@ -5206,4 +5206,3970 @@ window.goHome = function(){
 
 };
 
+function showView(id){
+
+  document
+    .querySelectorAll(".view")
+    .forEach(function(view){
+
+      view.classList.remove("active");
+
+    });
+
+
+  const view =
+    document.getElementById(id);
+
+
+  if(view){
+
+    view.classList.add("active");
+
+  }
+
+}
+
+
+/* ==================================================
+   HELPERS
+================================================== */
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function formatNaira(value){
+
+  const amount =
+    Number(value);
+
+
+  if(!Number.isFinite(amount)){
+    return "₦0";
+  }
+
+
+  return "₦" +
+    amount.toLocaleString(
+      "en-NG",
+      {
+        minimumFractionDigits:0,
+        maximumFractionDigits:2
+      }
+    );
+
+}
+
+
+function formatPaystackAmount(value){
+
+  const kobo =
+    Number(value);
+
+
+  if(!Number.isFinite(kobo)){
+    return "₦0";
+  }
+
+
+  return formatNaira(kobo / 100);
+
+}
+
+
+function validPhone(phone){
+
+  return /^0\d{10}$/.test(
+    String(phone).trim()
+  );
+
+}
+
+
+function validEmail(email){
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    String(email).trim()
+  );
+
+}
+
+
+function getPlanCode(plan){
+
+  return String(
+    plan?.code ??
+    plan?.plan_code ??
+    plan?.planCode ??
+    plan?.package_code ??
+    plan?.packageCode ??
+    plan?.id ??
+    ""
+  );
+
+}
+
+
+function getPlanName(plan){
+
+  return String(
+    plan?.plan_name ??
+    plan?.name ??
+    plan?.planName ??
+    plan?.package_name ??
+    plan?.packageName ??
+    plan?.description ??
+    "Data Plan"
+  );
+
+}
+
+
+function getPlanPrice(plan){
+
+  return Number(
+    plan?.selling_price ??
+    plan?.price ??
+    plan?.amount ??
+    0
+  );
+
+}
+
+
+function getServiceId(plan){
+
+  return String(
+    plan?.service_id ??
+    plan?.serviceId ??
+    serviceIds[selectedNetwork]
+  );
+
+}
+
+
+function formatDate(value){
+
+  if(!value){
+    return "Not available";
+  }
+
+
+  const date =
+    new Date(value);
+
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+    return String(value);
+  }
+
+
+  return date.toLocaleString(
+    "en-NG",
+    {
+      dateStyle:"medium",
+      timeStyle:"short"
+    }
+  );
+
+}
+
+
+/* ==================================================
+   PAYMENT METADATA HELPER
+================================================== */
+
+
+function normalizePaymentMetadata(result) {
+  function parseMetadata(value) {
+    if (!value) return {};
+
+    if (typeof value === "string") {
+      try {
+        value = JSON.parse(value);
+      } catch (error) {
+        return {};
+      }
+    }
+
+    return value && typeof value === "object"
+      ? value
+      : {};
+  }
+
+  const root = result || {};
+
+  const rootMetadata = parseMetadata(root.metadata);
+  const dataMetadata = parseMetadata(root.data?.metadata);
+  const nestedMetadata = parseMetadata(
+    root.data?.data?.metadata
+  );
+
+  // Preserve all available payment metadata.
+  const metadata = {
+    ...nestedMetadata,
+    ...dataMetadata,
+    ...rootMetadata
+  };
+
+  // Recover the service type from the payment response
+  // if it is not already present in the metadata.
+  const serviceType =
+    metadata.service_type ||
+    metadata.serviceType ||
+    root.service_type ||
+    root.serviceType ||
+    root.data?.service_type ||
+    root.data?.serviceType ||
+    root.data?.data?.service_type ||
+    root.data?.data?.serviceType;
+
+  if (serviceType) {
+    metadata.service_type = String(serviceType)
+      .trim()
+      .toLowerCase();
+  }
+
+  return metadata;
+}
+
+
+
+/* ==================================================
+   SESSION STORAGE HELPERS
+================================================== */
+
+function saveCablePendingOrder(order){
+
+  try{
+
+    sessionStorage.setItem(
+      CABLE_PENDING_KEY,
+      JSON.stringify(order)
+    );
+
+  }catch(error){
+
+    console.warn(
+      "Unable to save Cable TV pending order:",
+      error
+    );
+
+  }
+
+}
+
+
+function getCablePendingOrder(){
+
+  try{
+
+    const raw =
+      sessionStorage.getItem(
+        CABLE_PENDING_KEY
+      );
+
+
+    if(!raw){
+      return null;
+    }
+
+
+    const parsed =
+      JSON.parse(raw);
+
+
+    if(
+      !parsed ||
+      typeof parsed !== "object"
+    ){
+
+      return null;
+
+    }
+
+
+    return parsed;
+
+  }catch(error){
+
+    console.warn(
+      "Unable to read Cable TV pending order:",
+      error
+    );
+
+    return null;
+
+  }
+
+}
+
+
+function clearCablePendingOrder(){
+
+  try{
+
+    sessionStorage.removeItem(
+      CABLE_PENDING_KEY
+    );
+
+  }catch(error){
+
+    console.warn(
+      "Unable to clear Cable TV pending order:",
+      error
+    );
+
+  }
+
+}
+
+
+function saveCableFulfillment(
+  reference,
+  data
+){
+
+  try{
+
+    sessionStorage.setItem(
+      CABLE_FULFILLMENT_PREFIX +
+      String(reference),
+      JSON.stringify(data)
+    );
+
+  }catch(error){
+
+    console.warn(
+      "Unable to save Cable TV fulfillment:",
+      error
+    );
+
+  }
+
+}
+
+
+function getCableFulfillment(
+  reference
+){
+
+  try{
+
+    const raw =
+      sessionStorage.getItem(
+        CABLE_FULFILLMENT_PREFIX +
+        String(reference)
+      );
+
+
+    if(!raw){
+      return null;
+    }
+
+
+    const parsed =
+      JSON.parse(raw);
+
+
+    if(
+      !parsed ||
+      typeof parsed !== "object"
+    ){
+
+      return null;
+
+    }
+
+
+    return parsed;
+
+  }catch(error){
+
+    console.warn(
+      "Unable to read Cable TV fulfillment:",
+      error
+    );
+
+    return null;
+
+  }
+
+}
+
+
+/* ==================================================
+   CABLE TV PROVIDER
+================================================== */
+
+window.selectCableProvider =
+function(provider,button){
+
+  if(
+    !cableServiceIds[provider]
+  ){
+
+    console.error(
+      "Unknown Cable provider:",
+      provider
+    );
+
+    return;
+  }
+
+
+  selectedCableProvider =
+    provider;
+
+  cablePlans = [];
+  selectedCablePlan = null;
+  verifiedCableAccount = null;
+
+
+  document
+    .querySelectorAll(
+      "#cableView .network"
+    )
+    .forEach(function(item){
+
+      item.classList.remove("active");
+
+    });
+
+
+  if(button){
+
+    button.classList.add("active");
+
+  }
+
+
+  const customer =
+    document.getElementById(
+      "cableCustomer"
+    );
+
+
+  const plansSection =
+    document.getElementById(
+      "cablePlansSection"
+    );
+
+
+  const checkout =
+    document.getElementById(
+      "cableCheckout"
+    );
+
+
+  if(customer){
+    customer.classList.remove("show");
+  }
+
+
+  if(plansSection){
+    plansSection.style.display = "none";
+  }
+
+
+  if(checkout){
+    checkout.classList.remove("show");
+  }
+
+
+  clearCableStatus();
+
+};
+
+
+/* ==================================================
+   CABLE STATUS
+================================================== */
+
+function showCableStatus(
+  message,
+  type
+){
+
+  const status =
+    document.getElementById(
+      "cableStatus"
+    );
+
+
+  if(!status){
+    return;
+  }
+
+
+  status.textContent =
+    message;
+
+
+  status.className =
+    "status show " + type;
+
+}
+
+
+function clearCableStatus(){
+
+  const status =
+    document.getElementById(
+      "cableStatus"
+    );
+
+
+  if(!status){
+    return;
+  }
+
+
+  status.textContent =
+    "";
+
+
+  status.className =
+    "status";
+
+}
+
+
+/* ==================================================
+   CABLE TV VERIFICATION
+================================================== */
+
+window.verifyCableAccount =
+async function(){
+
+  const smartcardInput =
+    document.getElementById(
+      "cableSmartcard"
+    );
+
+  const phoneInput =
+    document.getElementById(
+      "cablePhone"
+    );
+
+  const emailInput =
+    document.getElementById(
+      "cableEmail"
+    );
+
+  const button =
+    document.getElementById(
+      "verifyCableButton"
+    );
+
+
+  if(
+    !smartcardInput ||
+    !phoneInput ||
+    !emailInput ||
+    !button
+  ){
+
+    console.error(
+      "Cable TV form elements are missing."
+    );
+
+    return;
+  }
+
+
+  const smartcard =
+    smartcardInput.value.trim();
+
+
+  const phone =
+    phoneInput.value.trim();
+
+
+  const email =
+    emailInput.value.trim();
+
+
+  const serviceId =
+    cableServiceIds[
+      selectedCableProvider
+    ];
+
+
+  if(!smartcard){
+
+    showCableStatus(
+      "Enter your Smartcard / IUC number.",
+      "error"
+    );
+
+    smartcardInput.focus();
+
+    return;
+  }
+
+
+  if(!validPhone(phone)){
+
+    showCableStatus(
+      "Enter a valid Nigerian phone number, for example 08012345678.",
+      "error"
+    );
+
+    phoneInput.focus();
+
+    return;
+  }
+
+
+  if(!validEmail(email)){
+
+    showCableStatus(
+      "Enter a valid email address.",
+      "error"
+    );
+
+    emailInput.focus();
+
+    return;
+  }
+
+
+  if(!serviceId){
+
+    showCableStatus(
+      "Cable TV provider configuration is missing.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Verifying Account...";
+
+
+  showCableStatus(
+    "Verifying your " +
+    cableProviderNames[
+      selectedCableProvider
+    ] +
+    " account...",
+    "info"
+  );
+
+
+  const customerBox =
+    document.getElementById(
+      "cableCustomer"
+    );
+
+  const plansSection =
+    document.getElementById(
+      "cablePlansSection"
+    );
+
+  const checkout =
+    document.getElementById(
+      "cableCheckout"
+    );
+
+
+  if(customerBox){
+    customerBox.classList.remove("show");
+  }
+
+  if(plansSection){
+    plansSection.style.display = "none";
+  }
+
+  if(checkout){
+    checkout.classList.remove("show");
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/verify-cable?_=" +
+        Date.now(),
+        {
+          method:"POST",
+
+          cache:"no-store",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            "Cache-Control":
+              "no-cache"
+          },
+
+          body:
+            JSON.stringify({
+
+              service_id:
+                String(serviceId),
+
+              smartcard_number:
+                String(smartcard),
+
+              phone:
+                String(phone)
+
+            })
+        }
+      );
+
+
+    const rawText =
+      await response.text();
+
+
+    let result;
+
+
+    try{
+
+      result =
+        JSON.parse(rawText);
+
+    }catch(parseError){
+
+      console.error(
+        "Cable API invalid JSON:",
+        rawText
+      );
+
+      throw new Error(
+        "Cable TV service returned an invalid response."
+      );
+
+    }
+
+
+    if(
+      !response.ok ||
+      !result ||
+      !result.success
+    ){
+
+      throw new Error(
+        result?.message ||
+        "Unable to verify Cable TV account."
+      );
+
+    }
+
+
+    const responseData =
+      result.data || {};
+
+
+    const customer =
+      result.customer ||
+      responseData.customer ||
+      {};
+
+
+    const packageData =
+      customer.package ||
+      customer.plan ||
+      responseData.package ||
+      responseData.plan ||
+      {};
+
+
+    const customerName =
+      customer.name ||
+      customer.customer_name ||
+      customer.customerName ||
+      responseData.customer_name ||
+      responseData.customerName ||
+      "";
+
+
+    const packageName =
+      packageData.name ||
+      packageData.plan_name ||
+      packageData.package_name ||
+      customer.package_name ||
+      customer.plan_name ||
+      responseData.package_name ||
+      responseData.plan_name ||
+      "";
+
+
+    const packagePrice =
+      packageData.price ??
+      packageData.amount ??
+      customer.package_price ??
+      customer.plan_price ??
+      responseData.price ??
+      responseData.amount ??
+      responseData.package_price ??
+      responseData.plan_price ??
+      0;
+
+
+    const smartcardNumber =
+      customer.smartcard_number ||
+      customer.smartcard ||
+      responseData.smartcard_number ||
+      responseData.smartcard ||
+      smartcard;
+
+
+    const returnedPlans =
+      Array.isArray(result.plans)
+        ? result.plans
+        : Array.isArray(responseData.cable_plans)
+        ? responseData.cable_plans
+        : [];
+
+
+    cablePlans =
+      returnedPlans
+        .map(function(plan){
+
+          return {
+
+            code:
+              String(
+                plan?.code ||
+                ""
+              ),
+
+            name:
+              String(
+                plan?.name ||
+                plan?.plan_name ||
+                "Cable TV Plan"
+              ),
+
+            price:
+              Number(
+                plan?.price ??
+                plan?.amount ??
+                0
+              ),
+
+            service_id:
+              String(
+                plan?.service_id ||
+                serviceId
+              )
+
+          };
+
+        })
+        .filter(function(plan){
+
+          return(
+            plan.code &&
+            plan.name &&
+            Number.isFinite(plan.price) &&
+            plan.price > 0
+          );
+
+        });
+
+
+    verifiedCableAccount = {
+
+      provider:
+        cableProviderNames[
+          selectedCableProvider
+        ] ||
+        "Cable TV",
+
+      service_id:
+        String(serviceId),
+
+      smartcard_number:
+        String(smartcardNumber),
+
+      phone:
+        String(phone),
+
+      email:
+        String(email),
+
+      customer_name:
+        String(
+          customerName ||
+          "Not available"
+        ),
+
+      current_package:
+        String(
+          packageName ||
+          "Not available"
+        ),
+
+      current_price:
+        Number(packagePrice) || 0
+
+    };
+
+
+    const providerElement =
+      document.getElementById(
+        "cableProviderName"
+      );
+
+
+    const customerElement =
+      document.getElementById(
+        "cableCustomerName"
+      );
+
+
+    const numberElement =
+      document.getElementById(
+        "cableCustomerNumber"
+      );
+
+
+    const packageElement =
+      document.getElementById(
+        "cablePackageName"
+      );
+
+
+    const priceElement =
+      document.getElementById(
+        "cablePackagePrice"
+      );
+
+
+    if(providerElement){
+
+      providerElement.textContent =
+        verifiedCableAccount.provider;
+
+    }
+
+
+    if(customerElement){
+
+      customerElement.textContent =
+        verifiedCableAccount.customer_name;
+
+    }
+
+
+    if(numberElement){
+
+      numberElement.textContent =
+        verifiedCableAccount.smartcard_number;
+
+    }
+
+
+    if(packageElement){
+
+      packageElement.textContent =
+        verifiedCableAccount.current_package;
+
+    }
+
+
+    if(priceElement){
+
+      priceElement.textContent =
+        formatNaira(
+          verifiedCableAccount.current_price
+        );
+
+    }
+
+
+    if(customerBox){
+
+      customerBox.classList.add(
+        "show"
+      );
+
+    }
+
+
+    if(!cablePlans.length){
+
+      showCableStatus(
+        "Account verified, but no subscription packages were returned by VTUGATE.",
+        "info"
+      );
+
+    }else{
+
+      renderCablePlans();
+
+      showCableStatus(
+        "Cable TV account verified successfully. Choose a subscription package below.",
+        "success"
+      );
+
+    }
+
+
+    if(customerBox){
+
+      customerBox.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+      });
+
+    }
+
+
+  }catch(error){
+
+    console.error(
+      "Cable TV verification error:",
+      error
+    );
+
+
+    showCableStatus(
+      error?.message ||
+      "Unable to verify Cable TV account.",
+      "error"
+    );
+
+
+  }finally{
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "Verify Account";
+
+  }
+
+};
+
+
+/* ==================================================
+   RENDER CABLE PLANS
+================================================== */
+
+function renderCablePlans(){
+
+  const section =
+    document.getElementById(
+      "cablePlansSection"
+    );
+
+  const plansElement =
+    document.getElementById(
+      "cablePlans"
+    );
+
+  const countElement =
+    document.getElementById(
+      "cablePlanCount"
+    );
+
+
+  if(!section || !plansElement){
+    return;
+  }
+
+
+  if(countElement){
+
+    countElement.textContent =
+      cablePlans.length +
+      " packages";
+
+  }
+
+
+  plansElement.innerHTML =
+    cablePlans
+      .map(function(plan,index){
+
+        return `
+
+          <div
+            class="plan"
+            id="cablePlan-${index}"
+          >
+
+            <div class="plan-name">
+              ${escapeHTML(plan.name)}
+            </div>
+
+            <div class="plan-meta">
+
+              ${escapeHTML(
+                cableProviderNames[
+                  selectedCableProvider
+                ] ||
+                "Cable TV"
+              )}
+
+              • Subscription
+
+            </div>
+
+            <div class="plan-price">
+              ${formatNaira(plan.price)}
+            </div>
+
+            <button
+              type="button"
+              class="plan-button"
+              onclick="selectCablePlan(${index})"
+            >
+              Select Package
+            </button>
+
+          </div>
+
+        `;
+
+      })
+      .join("");
+
+
+  section.style.display =
+    "block";
+
+}
+
+
+/* ==================================================
+   SELECT CABLE PLAN
+================================================== */
+
+window.selectCablePlan =
+function(index){
+
+  const plan =
+    cablePlans[index];
+
+
+  if(!plan){
+
+    showCableStatus(
+      "Unable to select this Cable TV package.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if(!verifiedCableAccount){
+
+    showCableStatus(
+      "Please verify your Cable TV account first.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  selectedCablePlan = {
+
+    ...plan,
+
+    code:
+      String(plan.code),
+
+    name:
+      String(plan.name),
+
+    price:
+      Number(plan.price),
+
+    service_id:
+      String(
+        plan.service_id ||
+        verifiedCableAccount.service_id
+      )
+
+  };
+
+
+  document
+    .querySelectorAll(
+      "#cablePlans .plan"
+    )
+    .forEach(function(item){
+
+      item.classList.remove(
+        "selected"
+      );
+
+    });
+
+
+  const selectedElement =
+    document.getElementById(
+      "cablePlan-" + index
+    );
+
+
+  if(selectedElement){
+
+    selectedElement.classList.add(
+      "selected"
+    );
+
+  }
+
+
+  updateCableCheckoutSummary();
+
+
+  const checkout =
+    document.getElementById(
+      "cableCheckout"
+    );
+
+
+  if(checkout){
+
+    checkout.classList.add(
+      "show"
+    );
+
+
+    checkout.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+
+  }
+
+
+  showCableStatus(
+    "Package selected. Review your order and continue to Paystack.",
+    "success"
+  );
+
+};
+
+
+/* ==================================================
+   CABLE CHECKOUT SUMMARY
+================================================== */
+
+function updateCableCheckoutSummary(){
+
+  if(
+    !selectedCablePlan ||
+    !verifiedCableAccount
+  ){
+    return;
+  }
+
+
+  const providerElement =
+    document.getElementById(
+      "cableSummaryProvider"
+    );
+
+
+  const customerElement =
+    document.getElementById(
+      "cableSummaryCustomer"
+    );
+
+
+  const smartcardElement =
+    document.getElementById(
+      "cableSummarySmartcard"
+    );
+
+
+  const planElement =
+    document.getElementById(
+      "cableSummaryPlan"
+    );
+
+
+  const emailElement =
+    document.getElementById(
+      "cableSummaryEmail"
+    );
+
+
+  const priceElement =
+    document.getElementById(
+      "cableSummaryPrice"
+    );
+
+
+  if(providerElement){
+
+    providerElement.textContent =
+      verifiedCableAccount.provider;
+
+  }
+
+
+  if(customerElement){
+
+    customerElement.textContent =
+      verifiedCableAccount.customer_name;
+
+  }
+
+
+  if(smartcardElement){
+
+    smartcardElement.textContent =
+      verifiedCableAccount.smartcard_number;
+
+  }
+
+
+  if(planElement){
+
+    planElement.textContent =
+      selectedCablePlan.name;
+
+  }
+
+
+  if(emailElement){
+
+    emailElement.textContent =
+      verifiedCableAccount.email ||
+      "Not entered";
+
+  }
+
+
+  if(priceElement){
+
+    priceElement.textContent =
+      formatNaira(
+        selectedCablePlan.price
+      );
+
+  }
+
+}
+
+
+/* ==================================================
+   CABLE PAYMENT
+================================================== */
+
+window.startCablePayment =
+async function(){
+
+  if(
+    !verifiedCableAccount
+  ){
+
+    showCableStatus(
+      "Please verify your Cable TV account first.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if(!selectedCablePlan){
+
+    showCableStatus(
+      "Please select a Cable TV package first.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const emailInput =
+    document.getElementById(
+      "cableEmail"
+    );
+
+
+  const email =
+    emailInput?.value.trim() ||
+    verifiedCableAccount.email ||
+    "";
+
+
+  if(!validEmail(email)){
+
+    showCableStatus(
+      "Enter a valid email address.",
+      "error"
+    );
+
+    if(emailInput){
+      emailInput.focus();
+    }
+
+    return;
+  }
+
+
+  verifiedCableAccount.email =
+    email;
+
+
+  updateCableCheckoutSummary();
+
+
+  const amount =
+    Number(
+      selectedCablePlan.price
+    );
+
+
+  if(
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ){
+
+    showCableStatus(
+      "Invalid Cable TV package price.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const payButton =
+    document.getElementById(
+      "cablePayButton"
+    );
+
+
+  if(!payButton){
+    return;
+  }
+
+
+  payButton.disabled =
+    true;
+
+  payButton.textContent =
+    "Connecting to Paystack...";
+
+
+  showCableStatus(
+    "Preparing your secure Cable TV payment...",
+    "info"
+  );
+
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/paystack",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              /*
+                Existing payment fields
+              */
+
+              email,
+
+              phone:
+                verifiedCableAccount.phone,
+
+              network:
+                "cable",
+
+              service_type:
+                "cable",
+
+              plan:
+                selectedCablePlan.name,
+
+              plan_name:
+                selectedCablePlan.name,
+
+              plan_code:
+                selectedCablePlan.code,
+
+              service_id:
+                selectedCablePlan.service_id ||
+                verifiedCableAccount.service_id,
+
+              amount,
+
+
+              /*
+                Cable-specific fields.
+
+                These are also saved in sessionStorage
+                below so the information survives the
+                Paystack redirect even if the Paystack
+                metadata returned by the backend does
+                not contain every field.
+              */
+
+              smartcard_number:
+                verifiedCableAccount.smartcard_number,
+
+              customer_name:
+                verifiedCableAccount.customer_name,
+
+              cable_provider:
+                verifiedCableAccount.provider
+
+            })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+
+      throw new Error(
+        result.message ||
+        "Unable to initialize Cable TV payment."
+      );
+
+    }
+
+
+    if(!result.authorization_url){
+
+      throw new Error(
+        "Paystack did not return a payment URL."
+      );
+
+    }
+
+
+    /*
+      Paystack initialization normally returns the
+      transaction reference together with the
+      authorization URL.
+
+      We support both:
+        result.reference
+      and:
+        result.data.reference
+    */
+
+    const initializedReference =
+      String(
+        result.reference ||
+        result.data?.reference ||
+        ""
+      );
+
+
+    /*
+      Save the complete Cable TV order before leaving
+      Awaji Magic Data.
+
+      This is the important continuity layer between
+      the checkout page and the payment return page.
+    */
+
+    saveCablePendingOrder({
+
+      reference:
+        initializedReference,
+
+      provider:
+        verifiedCableAccount.provider,
+
+      service_id:
+        String(
+          selectedCablePlan.service_id ||
+          verifiedCableAccount.service_id
+        ),
+
+      smartcard_number:
+        String(
+          verifiedCableAccount.smartcard_number
+        ),
+
+      phone:
+        String(
+          verifiedCableAccount.phone
+        ),
+
+      email:
+        String(email),
+
+      customer_name:
+        String(
+          verifiedCableAccount.customer_name
+        ),
+
+      plan_code:
+        String(
+          selectedCablePlan.code
+        ),
+
+      plan_name:
+        String(
+          selectedCablePlan.name
+        ),
+
+      amount:
+        Number(amount),
+
+      created_at:
+        new Date().toISOString()
+
+    });
+
+
+    showCableStatus(
+      "Payment page ready. Redirecting to Paystack...",
+      "info"
+    );
+
+
+    window.location.href =
+      result.authorization_url;
+
+
+  }catch(error){
+
+    console.error(
+      "Cable payment error:",
+      error
+    );
+
+
+    payButton.disabled =
+      false;
+
+    payButton.textContent =
+      "Continue to Paystack";
+
+
+    showCableStatus(
+      error?.message ||
+      "Unable to initialize Cable TV payment.",
+      "error"
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   AIRTIME NETWORK
+================================================== */
+
+window.selectAirtimeNetwork =
+function(network,button){
+
+  selectedAirtimeNetwork =
+    network;
+
+
+  document
+    .querySelectorAll(
+      "#airtimeView .network"
+    )
+    .forEach(function(item){
+
+      item.classList.remove("active");
+
+    });
+
+
+  if(button){
+
+    button.classList.add("active");
+
+  }
+
+
+  updateAirtimeSummary();
+
+  clearAirtimeStatus();
+
+};
+
+
+/* ==================================================
+   AIRTIME SUMMARY
+================================================== */
+
+function updateAirtimeSummary(){
+
+  const phone =
+    document
+      .getElementById(
+        "airtimePhone"
+      )
+      ?.value
+      .trim() || "";
+
+
+  const amount =
+    Number(
+      document
+        .getElementById(
+          "airtimeAmount"
+        )
+        ?.value || 0
+    );
+
+
+  const network =
+    airtimeNetworkNames[
+      selectedAirtimeNetwork
+    ] || "MTN";
+
+
+  const networkElement =
+    document.getElementById(
+      "airtimeSummaryNetwork"
+    );
+
+
+  const phoneElement =
+    document.getElementById(
+      "airtimeSummaryPhone"
+    );
+
+
+  const amountElement =
+    document.getElementById(
+      "airtimeSummaryAmount"
+    );
+
+
+  const totalElement =
+    document.getElementById(
+      "airtimeSummaryTotal"
+    );
+
+
+  if(networkElement){
+
+    networkElement.textContent =
+      network;
+
+  }
+
+
+  if(phoneElement){
+
+    phoneElement.textContent =
+      phone ||
+      "Not entered";
+
+  }
+
+
+  if(amountElement){
+
+    amountElement.textContent =
+      formatNaira(
+        Number.isFinite(amount)
+          ? amount
+          : 0
+      );
+
+  }
+
+
+  if(totalElement){
+
+    totalElement.textContent =
+      formatNaira(
+        Number.isFinite(amount)
+          ? amount
+          : 0
+      );
+
+  }
+
+}
+
+
+/* ==================================================
+   AIRTIME PAYMENT
+================================================== */
+
+window.startAirtimePayment =
+async function(){
+
+  const phone =
+    document
+      .getElementById(
+        "airtimePhone"
+      )
+      .value
+      .trim();
+
+
+  const email =
+    document
+      .getElementById(
+        "airtimeEmail"
+      )
+      .value
+      .trim();
+
+
+  const amount =
+    Number(
+      document
+        .getElementById(
+          "airtimeAmount"
+        )
+        .value
+    );
+
+
+  if(!validPhone(phone)){
+
+    showAirtimeStatus(
+      "Enter a valid Nigerian phone number, for example 08012345678.",
+      "error"
+    );
+
+    document
+      .getElementById(
+        "airtimePhone"
+      )
+      .focus();
+
+    return;
+  }
+
+
+  if(
+    !Number.isFinite(amount) ||
+    amount < 50
+  ){
+
+    showAirtimeStatus(
+      "Airtime amount must be at least ₦50.",
+      "error"
+    );
+
+    document
+      .getElementById(
+        "airtimeAmount"
+      )
+      .focus();
+
+    return;
+  }
+
+
+  if(!validEmail(email)){
+
+    showAirtimeStatus(
+      "Enter a valid email address.",
+      "error"
+    );
+
+    document
+      .getElementById(
+        "airtimeEmail"
+      )
+      .focus();
+
+    return;
+  }
+
+
+  const payButton =
+    document.getElementById(
+      "airtimePayButton"
+    );
+
+
+  payButton.disabled =
+    true;
+
+  payButton.textContent =
+    "Connecting to Paystack...";
+
+
+  showAirtimeStatus(
+    "Preparing your secure airtime payment...",
+    "info"
+  );
+
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/paystack-airtime",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              email,
+
+              phone,
+
+              network:
+                selectedAirtimeNetwork,
+
+              amount
+
+            })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+
+      throw new Error(
+        result.message ||
+        "Unable to initialize airtime payment."
+      );
+
+    }
+
+
+    if(!result.authorization_url){
+
+      throw new Error(
+        "Paystack did not return a payment URL."
+      );
+
+    }
+
+
+    showAirtimeStatus(
+      "Payment page ready. Redirecting to Paystack...",
+      "info"
+    );
+
+
+    window.location.href =
+      result.authorization_url;
+
+
+  }catch(error){
+
+    console.error(
+      "Airtime payment error:",
+      error
+    );
+
+
+    payButton.disabled =
+      false;
+
+    payButton.textContent =
+      "Continue to Paystack";
+
+
+    showAirtimeStatus(
+      error.message ||
+      "Unable to initialize airtime payment.",
+      "error"
+    );
+
+  }
+
+};
+
+
+function showAirtimeStatus(
+  message,
+  type
+){
+
+  const status =
+    document.getElementById(
+      "airtimeStatus"
+    );
+
+
+  if(!status){
+    return;
+  }
+
+
+  status.textContent =
+    message;
+
+
+  status.className =
+    "status show " + type;
+
+}
+
+
+function clearAirtimeStatus(){
+
+  const status =
+    document.getElementById(
+      "airtimeStatus"
+    );
+
+
+  if(!status){
+    return;
+  }
+
+
+  status.textContent =
+    "";
+
+
+  status.className =
+    "status";
+
+}
+
+
+/* ==================================================
+   DATA NETWORK
+================================================== */
+
+window.selectNetwork =
+function(network,button){
+
+  selectedNetwork =
+    network;
+
+  selectedPlan =
+    null;
+
+
+  document
+    .querySelectorAll(
+      "#dataView .network"
+    )
+    .forEach(function(item){
+
+      item.classList.remove("active");
+
+    });
+
+
+  if(button){
+
+    button.classList.add("active");
+
+  }
+
+
+  const checkout =
+    document.getElementById(
+      "checkout"
+    );
+
+
+  if(checkout){
+
+    checkout.classList.remove(
+      "show"
+    );
+
+  }
+
+
+  clearStatus();
+
+  loadPlans();
+
+};
+
+
+/* ==================================================
+   LOAD DATA PLANS
+================================================== */
+
+window.loadPlans =
+async function(){
+
+  const plansElement =
+    document.getElementById(
+      "plans"
+    );
+
+
+  const countElement =
+    document.getElementById(
+      "planCount"
+    );
+
+
+  if(!plansElement){
+
+    console.error(
+      "Plans element not found."
+    );
+
+    return;
+  }
+
+
+  currentPlans = [];
+
+  selectedPlan = null;
+
+
+  plansElement.innerHTML = `
+
+    <div class="loading">
+
+      <div class="spinner"></div>
+
+      Loading
+      ${escapeHTML(
+        networkNames[
+          selectedNetwork
+        ]
+      )}
+      plans...
+
+    </div>
+
+  `;
+
+
+  if(countElement){
+
+    countElement.textContent =
+      "";
+
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/plans?network=" +
+        encodeURIComponent(
+          selectedNetwork
+        ),
+        {
+          method:"GET",
+          cache:"no-store"
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+
+      throw new Error(
+        result.message ||
+        "Unable to load data plans"
+      );
+
+    }
+
+
+    currentPlans =
+      Array.isArray(result.plans)
+        ? result.plans
+        : [];
+
+
+    if(!currentPlans.length){
+
+      plansElement.innerHTML = `
+
+        <div class="empty">
+
+          No
+          ${escapeHTML(
+            networkNames[
+              selectedNetwork
+            ]
+          )}
+          data plans are currently available.
+
+          <br><br>
+
+          Please try again later.
+
+        </div>
+
+      `;
+
+      return;
+    }
+
+
+    if(countElement){
+
+      countElement.textContent =
+        currentPlans.length +
+        " plans";
+
+    }
+
+
+    plansElement.innerHTML =
+      currentPlans
+        .map(function(plan,index){
+
+          const name =
+            getPlanName(plan);
+
+          const price =
+            getPlanPrice(plan);
+
+          const code =
+            getPlanCode(plan);
+
+
+          if(
+            !code ||
+            !Number.isFinite(price) ||
+            price <= 0
+          ){
+
+            return "";
+
+          }
+
+
+          return `
+
+            <div class="plan">
+
+              <div class="plan-name">
+                ${escapeHTML(name)}
+              </div>
+
+              <div class="plan-meta">
+
+                ${escapeHTML(
+                  networkNames[
+                    selectedNetwork
+                  ]
+                )}
+
+                • Plan
+
+                ${escapeHTML(code)}
+
+              </div>
+
+              <div class="plan-price">
+                ${formatNaira(price)}
+              </div>
+
+              <button
+                type="button"
+                class="plan-button"
+                onclick="selectPlan(${index})"
+              >
+                Select Plan
+              </button>
+
+            </div>
+
+          `;
+
+        })
+        .join("");
+
+
+  }catch(error){
+
+    console.error(
+      "Plans error:",
+      error
+    );
+
+
+    plansElement.innerHTML = `
+
+      <div class="empty">
+
+        <strong>
+          Unable to load data plans.
+        </strong>
+
+        <br><br>
+
+        ${escapeHTML(
+          error.message ||
+          "Please try again."
+        )}
+
+        <br><br>
+
+        <button
+          type="button"
+          class="plan-button"
+          style="max-width:180px"
+          onclick="loadPlans()"
+        >
+          Try Again
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+};
+
+
+/* ==================================================
+   SELECT DATA PLAN
+================================================== */
+
+window.selectPlan =
+function(index){
+
+  const plan =
+    currentPlans[index];
+
+
+  if(!plan){
+
+    showStatus(
+      "Unable to select this plan.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const code =
+    getPlanCode(plan);
+
+
+  const name =
+    getPlanName(plan);
+
+
+  const price =
+    getPlanPrice(plan);
+
+
+  const serviceId =
+    getServiceId(plan);
+
+
+  if(
+    !code ||
+    !name ||
+    !Number.isFinite(price) ||
+    price <= 0
+  ){
+
+    showStatus(
+      "This plan has incomplete information.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  selectedPlan = {
+
+    ...plan,
+
+    code,
+
+    plan_code:code,
+
+    name,
+
+    price,
+
+    selling_price:price,
+
+    service_id:serviceId
+
+  };
+
+
+  updateCheckoutSummary();
+
+
+  const checkout =
+    document.getElementById(
+      "checkout"
+    );
+
+
+  if(checkout){
+
+    checkout.classList.add(
+      "show"
+    );
+
+
+    checkout.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+
+  }
+
+
+  clearStatus();
+
+};
+
+
+/* ==================================================
+   DATA SUMMARY
+================================================== */
+
+function updateCheckoutSummary(){
+
+  if(!selectedPlan){
+    return;
+  }
+
+
+  const phone =
+    document
+      .getElementById(
+        "phone"
+      )
+      ?.value
+      .trim() || "";
+
+
+  const email =
+    document
+      .getElementById(
+        "email"
+      )
+      ?.value
+      .trim() || "";
+
+
+  const summaryNetwork =
+    document.getElementById(
+      "summaryNetwork"
+    );
+
+
+  const summaryPlan =
+    document.getElementById(
+      "summaryPlan"
+    );
+
+
+  const summaryPhone =
+    document.getElementById(
+      "summaryPhone"
+    );
+
+
+  const summaryEmail =
+    document.getElementById(
+      "summaryEmail"
+    );
+
+
+  const summaryPrice =
+    document.getElementById(
+      "summaryPrice"
+    );
+
+
+  if(summaryNetwork){
+
+    summaryNetwork.textContent =
+      networkNames[
+        selectedNetwork
+      ];
+
+  }
+
+
+  if(summaryPlan){
+
+    summaryPlan.textContent =
+      selectedPlan.name;
+
+  }
+
+
+  if(summaryPhone){
+
+    summaryPhone.textContent =
+      phone ||
+      "Not entered";
+
+  }
+
+
+  if(summaryEmail){
+
+    summaryEmail.textContent =
+      email ||
+      "Not entered";
+
+  }
+
+
+  if(summaryPrice){
+
+    summaryPrice.textContent =
+      formatNaira(
+        selectedPlan.selling_price
+      );
+
+  }
+
+}
+
+
+/* ==================================================
+   DATA PAYMENT
+================================================== */
+
+window.startPayment =
+async function(){
+
+  if(!selectedPlan){
+
+    showStatus(
+      "Please select a data plan first.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const phone =
+    document
+      .getElementById(
+        "phone"
+      )
+      .value
+      .trim();
+
+
+  const email =
+    document
+      .getElementById(
+        "email"
+      )
+      .value
+      .trim();
+
+
+  if(!validPhone(phone)){
+
+    showStatus(
+      "Enter a valid Nigerian phone number, for example 08012345678.",
+      "error"
+    );
+
+    document
+      .getElementById(
+        "phone"
+      )
+      .focus();
+
+    return;
+  }
+
+
+  if(!validEmail(email)){
+
+    showStatus(
+      "Enter a valid email address.",
+      "error"
+    );
+
+    document
+      .getElementById(
+        "email"
+      )
+      .focus();
+
+    return;
+  }
+
+
+  const amount =
+    Number(
+      selectedPlan.selling_price
+    );
+
+
+  const planCode =
+    String(
+      selectedPlan.plan_code ||
+      selectedPlan.code ||
+      ""
+    );
+
+
+  const serviceId =
+    String(
+      selectedPlan.service_id ||
+      serviceIds[
+        selectedNetwork
+      ]
+    );
+
+
+  if(
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ){
+
+    showStatus(
+      "Invalid plan price.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const payButton =
+    document.getElementById(
+      "payButton"
+    );
+
+
+  if(!payButton){
+    return;
+  }
+
+
+  payButton.disabled =
+    true;
+
+  payButton.textContent =
+    "Connecting to Paystack...";
+
+
+  showStatus(
+    "Preparing your secure payment...",
+    "info"
+  );
+
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/paystack",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              email,
+
+              phone,
+
+              network:
+                selectedNetwork,
+
+              plan:
+                selectedPlan.name,
+
+              plan_code:
+                planCode,
+
+              service_id:
+                serviceId,
+
+              amount
+
+            })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+
+      throw new Error(
+        result.message ||
+        "Unable to initialize payment"
+      );
+
+    }
+
+
+    if(!result.authorization_url){
+
+      throw new Error(
+        "Paystack did not return a payment URL."
+      );
+
+    }
+
+
+    showStatus(
+      "Payment page ready. Redirecting to Paystack...",
+      "info"
+    );
+
+
+    window.location.href =
+      result.authorization_url;
+
+
+  }catch(error){
+
+    console.error(
+      "Payment error:",
+      error
+    );
+
+
+    payButton.disabled =
+      false;
+
+    payButton.textContent =
+      "Continue to Paystack";
+
+
+    showStatus(
+      error.message ||
+      "Unable to initialize payment.",
+      "error"
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   PAYMENT RETURN
+================================================== */
+
+async function checkPaymentReturn(){
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  const reference =
+    params.get("reference") ||
+    params.get("trxref");
+
+
+  const airtimeStatus =
+    params.get("airtime_status");
+
+
+  if(!reference){
+
+    return false;
+
+  }
+
+
+  try{
+
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+
+  }catch(error){
+
+    console.warn(
+      "Unable to clean URL:",
+      error
+    );
+
+  }
+
+
+  showView("receiptView");
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return true;
+  }
+
+
+  receipt.innerHTML = `
+
+    <div class="receipt-loading">
+
+      <div class="spinner"></div>
+
+      <h2>
+        Verifying Payment
+      </h2>
+
+      <p>
+
+        Reference:
+        <strong>
+          ${escapeHTML(reference)}
+        </strong>
+
+        <br><br>
+
+        Please wait while we securely verify
+        your Paystack transaction.
+
+      </p>
+
+    </div>
+
+  `;
+
+
+  try{
+
+    const response = await fetch(
+  "/api/paystack?reference=" +
+  encodeURIComponent(reference),
+  {
+    method: "GET",
+    cache: "no-store"
+  }
+);
+
+
+    const result =
+      await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        result.message ||
+        "Payment verification failed."
+      );
+
+    }
+
+
+    const metadata =
+      normalizePaymentMetadata(result);
+
+
+    const serviceType =
+      String(
+        metadata.service_type ||
+        metadata.serviceType ||
+        ""
+      ).toLowerCase();
+
+
+    const metadataNetwork =
+      String(
+        metadata.network ||
+        ""
+      ).toLowerCase();
+
+
+    const pendingCable =
+      getCablePendingOrder();
+
+
+    /*
+      If this reference belongs to a Cable TV
+      payment saved before the redirect, prefer
+      Cable processing even if the backend metadata
+      is incomplete.
+    */
+
+    const isPendingCable =
+      pendingCable &&
+      (
+        !pendingCable.reference ||
+        String(
+          pendingCable.reference
+        ) === String(reference)
+      );
+
+
+    if(
+      serviceType === "airtime"
+    ){
+
+      await renderAirtimeReceipt(
+        result,
+        reference,
+        airtimeStatus
+      );
+
+    }else if(
+      serviceType === "cable" ||
+      metadataNetwork === "cable" ||
+      isPendingCable
+    ){
+
+      await renderCableReceipt(
+        result,
+        reference
+      );
+
+    }else{
+
+      renderDataReceipt(
+        result,
+        reference
+      );
+
+    }
+
+
+  }catch(error){
+
+    console.error(
+      "Payment verification error:",
+      error
+    );
+
+
+    renderVerificationError(
+      reference,
+      error.message
+    );
+
+  }
+
+
+  return true;
+
+}
+
+
+/* ==================================================
+   CABLE RECEIPT + FULFILLMENT
+================================================== */
+
+async function renderCableReceipt(
+  result,
+  reference
+){
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return;
+  }
+
+
+  const metadata =
+    normalizePaymentMetadata(
+      result
+    );
+
+
+  const pending =
+    getCablePendingOrder();
+
+
+  /*
+    Use Paystack metadata first.
+
+    If the metadata does not contain a field,
+    fall back to the saved Cable TV order.
+  */
+
+
+  const metadataServiceId =
+    metadata.service_id ||
+    metadata.serviceId ||
+    "";
+
+
+  const serviceId =
+    String(
+      metadataServiceId ||
+      pending?.service_id ||
+      ""
+    );
+
+
+  const provider =
+    metadata.cable_provider ||
+    metadata.provider ||
+    pending?.provider ||
+    (
+      serviceId === "278"
+        ? "GOtv"
+        : serviceId === "276"
+        ? "DStv"
+        : serviceId === "277"
+        ? "Startimes"
+        : "Cable TV"
+    );
+
+
+  const customer =
+    metadata.customer_name ||
+    metadata.customer ||
+    metadata.customerName ||
+    pending?.customer_name ||
+    "Cable TV Customer";
+
+
+  const smartcard =
+    metadata.smartcard_number ||
+    metadata.smartcard ||
+    pending?.smartcard_number ||
+    "Not available";
+
+
+  const phone =
+    metadata.phone ||
+    pending?.phone ||
+    "";
+
+
+  const email =
+    metadata.email ||
+    pending?.email ||
+    "";
+
+
+  const planCode =
+    metadata.plan_code ||
+    metadata.planCode ||
+    pending?.plan_code ||
+    "";
+
+
+  const plan =
+    metadata.plan_name ||
+    metadata.plan ||
+    metadata.planName ||
+    pending?.plan_name ||
+    "Cable TV Plan";
+
+
+  const resultAmountKobo =
+    Number(
+      result.amount
+    );
+
+
+  const pendingAmount =
+    Number(
+      pending?.amount
+    );
+
+
+  const amountNaira =
+    Number.isFinite(
+      resultAmountKobo
+    )
+      ? resultAmountKobo / 100
+      : (
+          Number.isFinite(
+            pendingAmount
+          )
+            ? pendingAmount
+            : 0
+        );
+
+
+  const paymentStatus =
+    String(
+      result.status ||
+      "unknown"
+    ).toLowerCase();
+
+
+  const paymentSuccessful =
+    paymentStatus === "success";
+
+
+  if(!paymentSuccessful){
+
+    receipt.innerHTML = `
+
+      <div
+        class="receipt-top"
+        style="
+          background:#fef3f2;
+          border-color:#fecdca
+        "
+      >
+
+        <div
+          class="receipt-icon"
+          style="
+            background:#f04438;
+            box-shadow:none
+          "
+        >
+          !
+        </div>
+
+        <h2>
+          Payment Not Confirmed
+        </h2>
+
+        <p style="color:#b42318">
+          Your Cable TV payment was not confirmed as successful.
+        </p>
+
+      </div>
+
+
+      <div class="receipt-body">
+
+        <div class="receipt-row">
+          <span>Provider</span>
+          <strong>
+            ${escapeHTML(provider)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Customer</span>
+          <strong>
+            ${escapeHTML(customer)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Smartcard / IUC</span>
+          <strong>
+            ${escapeHTML(smartcard)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Package</span>
+          <strong>
+            ${escapeHTML(plan)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Amount</span>
+          <strong>
+            ${formatNaira(amountNaira)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-reference">
+
+          <div class="receipt-reference-label">
+            PAYMENT REFERENCE
+          </div>
+
+          <div class="receipt-reference-value">
+            ${escapeHTML(reference)}
+          </div>
+
+        </div>
+
+
+        <div class="fulfillment-box failed-box">
+
+          Payment was not confirmed as successful.
+
+          <br><br>
+
+          Please do not make another payment immediately.
+
+        </div>
+
+
+        <button
+          type="button"
+          class="receipt-button secondary"
+          style="width:100%;margin-top:20px"
+          onclick="goHome()"
+        >
+          Back to Home
+        </button>
+
+      </div>
+
+    `;
+
+    return;
+  }
+
+
+  /*
+    If the exact fulfillment result is already stored
+    in this browser session, do not submit the Cable TV
+    order to VTUGATE again.
+  */
+
+  let fulfillment =
+    getCableFulfillment(
+      reference
+    );
+
+
+  let fulfillmentError =
+    "";
+
+
+  if(!fulfillment){
+
+    try{
+
+      if(!planCode){
+
+        throw new Error(
+          "Cable TV plan information was not found."
+        );
+
+      }
+
+
+      if(!serviceId){
+
+        throw new Error(
+          "Cable TV service information was not found."
+        );
+
+      }
+
+
+      if(!smartcard){
+
+        throw new Error(
+          "Cable TV Smartcard / IUC number was not found."
+        );
+
+      }
+
+
+      if(
+        !phone ||
+        !validPhone(phone)
+      ){
+
+        throw new Error(
+          "Cable TV phone number was not found."
+        );
+
+      }
+
+
+      if(
+        !Number.isFinite(amountNaira) ||
+        amountNaira <= 0
+      ){
+
+        throw new Error(
+          "Cable TV payment amount could not be determined."
+        );
+
+      }
+
+
+      const response =
+        await fetch(
+          "/api/complete-cable-order",
+          {
+            method:"POST",
+
+            headers:{
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+
+                reference:
+
+                  String(
+                    result.reference ||
+                    reference
+                  ),
+
+                service_id:
+                  String(serviceId),
+
+                smartcard_number:
+                  String(smartcard),
+
+                phone:
+                  String(phone),
+
+                plan_code:
+                  String(planCode),
+
+                plan_name:
+                  String(plan),
+
+                amount:
+                  Number(amountNaira),
+
+                email:
+                  String(email)
+
+              })
+          }
+        );
+
+
+      const rawText =
+        await response.text();
+
+
+      let data;
+
+
+      try{
+
+        data =
+          JSON.parse(rawText);
+
+      }catch(error){
+
+        console.error(
+          "Cable fulfillment invalid JSON:",
+          rawText
+        );
+
+        throw new Error(
+          "Cable fulfillment returned an invalid response."
+        );
+
+      }
+
+
+      if(
+        !response.ok ||
+        !data.success
+      ){
+
+        throw new Error(
+          data.message ||
+          "Cable TV subscription could not be completed."
+        );
+
+      }
+
+
+      fulfillment =
+        data;
+
+
+      /*
+        Store the successful fulfillment response.
+        If the customer refreshes the receipt page,
+        we can display the same successful result
+        without sending another VTUGATE purchase.
+      */
+
+      saveCableFulfillment(
+        reference,
+        fulfillment
+      );
+
+
+      /*
+        The pending order is no longer needed once
+        fulfillment succeeds.
+      */
+
+      clearCablePendingOrder();
+
+
+    }catch(error){
+
+      console.error(
+        "Cable fulfillment error:",
+        error
+      );
+
+
+      fulfillmentError =
+        error?.message ||
+        "Cable TV subscription fulfillment failed.";
+
+    }
+
+  }
+
+
+  if(fulfillmentError){
+
+    receipt.innerHTML = `
+
+      <div class="receipt-top">
+
+        <div
+          class="receipt-icon"
+          style="
+            background:#f79009;
+            box-shadow:none
+          "
+        >
+          !
+        </div>
+
+        <h2>
+          Payment Confirmed
+        </h2>
+
+        <p>
+          Your Paystack payment was successfully verified.
+        </p>
+
+      </div>
+
+
+      <div class="receipt-body">
+
+        <div class="receipt-section-title">
+          Cable TV Transaction
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Provider</span>
+
+          <strong>
+            ${escapeHTML(provider)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Customer</span>
+
+          <strong>
+            ${escapeHTML(customer)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Smartcard / IUC</span>
+
+          <strong>
+            ${escapeHTML(smartcard)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Package</span>
+
+          <strong>
+            ${escapeHTML(plan)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-row">
+          <span>Amount</span>
+
+          <strong>
+            ${formatNaira(amountNaira)}
+          </strong>
+        </div>
+
+
+        <div class="receipt-reference">
+
+          <div class="receipt-reference-label">
+            PAYSTACK REFERENCE
+          </div>
+
+          <div class="receipt-reference-value">
+            ${escapeHTML(reference)}
+          </div>
+
+          <button
+            type="button"
+            class="copy-reference"
+            onclick="copyReference('${escapeHTML(
+              reference
+            )}')"
+          >
+            📋 Copy Reference
+          </button>
+
+        </div>
+
+
+        <div class="fulfillment-box pending-box">
+
+          <strong>
+            Payment Confirmed — Fulfillment Pending
+          </strong>
+
+          <br><br>
+
+          Your payment has been confirmed, but VTUGATE
+          has not yet confirmed the Cable TV subscription.
+
+          <br><br>
+
+          ${escapeHTML(
+            fulfillmentError
+          )}
+
+          <br><br>
+
+          Please keep your payment reference.
+
+        </div>
+
+
+        <div class="receipt-actions">
+
+          <button
+            type="button"
+            class="receipt-button primary"
+            onclick="retryCableFulfillment('${escapeHTML(
+              reference
+            )}')"
+          >
+            🔄 Try Fulfillment Again
+          </button>
+
+
+          <button
+            type="button"
+            class="receipt-button secondary"
+            onclick="window.print()"
+          >
+            🖨 Print Receipt
+          </button>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="receipt-button secondary"
+          style="width:100%;margin-top:10px"
+          onclick="goHome()"
+        >
+          Back to Home
+        </button>
+
+      </div>
+
+    `;
+
+    return;
+  }
+
+
+  const order =
+    fulfillment?.order ||
+    {};
+
+
+  const providerReference =
+    order.provider_reference ||
+    order.transaction_id ||
+    order.reference ||
+    fulfillment?.provider_reference ||
+    "";
+
+
+  receipt.innerHTML = `
+
+    <div class="receipt-top">
+
+      <div class="receipt-icon">
+        ✓
+      </div>
+
+      <h2>
+        Cable TV Subscription Successful
+      </h2>
+
+      <p>
+        Your payment and Cable TV subscription have been completed successfully.
+      </p>
+
+    </div>
+
+
+    <div class="receipt-body">
+
+      <div class="receipt-section-title">
+        Cable TV Transaction
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Provider</span>
+
+        <strong>
+          ${escapeHTML(
+            order.provider ||
+            provider
+          )}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Customer</span>
+
+        <strong>
+          ${escapeHTML(
+            order.customer_name ||
+            customer
+          )}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Smartcard / IUC</span>
+
+        <strong>
+          ${escapeHTML(
+            order.smartcard_number ||
+            smartcard
+          )}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Package</span>
+
+        <strong>
+          ${escapeHTML(
+            order.plan_name ||
+            plan
+          )}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Amount</span>
+
+        <strong>
+          ${formatNaira(
+            Number(
+              order.amount
+            ) ||
+            amountNaira
+          )}
+        </strong>
+      </div>
+
+
+      ${
+        providerReference
+        ? `
+
+          <div class="receipt-row">
+
+            <span>
+              VTUGATE Reference
+            </span>
+
+            <strong>
+              ${escapeHTML(
+                providerReference
+              )}
+            </strong>
+
+          </div>
+
+        `
+        : ""
+      }
+
+
+      <div class="receipt-reference">
+
+        <div class="receipt-reference-label">
+          PAYSTACK REFERENCE
+        </div>
+
+        <div class="receipt-reference-value">
+          ${escapeHTML(
+            result.reference ||
+            reference
+          )}
+        </div>
+
+        <button
+          type="button"
+          class="copy-reference"
+          onclick="copyReference('${escapeHTML(
+            result.reference ||
+            reference
+          )}')"
+        >
+          📋 Copy Reference
+        </button>
+
+      </div>
+
+
+      <div class="fulfillment-box success-box">
+
+        <strong>
+          ✓ Cable TV Fulfillment Complete
+        </strong>
+
+        <br><br>
+
+        Your payment was verified by Paystack and
+        the selected Cable TV package was successfully
+        submitted to VTUGATE.
+
+      </div>
+
+
+      <div class="receipt-actions">
+
+        <button
+          type="button"
+          class="receipt-button primary"
+          onclick="openService('cable')"
+        >
+          Buy Another Subscription
+        </button>
+
+
+        <button
+          type="button"
+          class="receipt-button secondary"
+          onclick="window.print()"
+        >
+          🖨 Print Receipt
+        </button>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="receipt-button secondary"
+        style="width:100%;margin-top:10px"
+        onclick="goHome()"
+      >
+        Back to Home
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ==================================================
+   RETRY CABLE FULFILLMENT
+================================================== */
+
+window.retryCableFulfillment =
+async function(reference){
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return;
+  }
+
+
+  /*
+    Remove any previous cached fulfillment result
+    so the endpoint can be attempted again.
+  */
+
+  try{
+
+    sessionStorage.removeItem(
+      CABLE_FULFILLMENT_PREFIX +
+      String(reference)
+    );
+
+  }catch(error){
+
+    console.warn(
+      "Unable to clear cached Cable fulfillment:",
+      error
+    );
+
+  }
+
+
+  receipt.innerHTML = `
+
+    <div class="receipt-loading">
+
+      <div class="spinner"></div>
+
+      <h2>
+        Retrying Cable TV Fulfillment
+      </h2>
+
+      <p>
+        Your Paystack payment is already confirmed.
+        We are retrying the Cable TV subscription.
+      </p>
+
+    </div>
+
+  `;
+
+
+  try{
+
+    const response =
+      await fetch("/api/paystack?reference=" +
+        encodeURIComponent(reference),
+        {
+          method:"GET",
+          cache:"no-store"
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        result.message ||
+        "Unable to verify payment."
+      );
+
+    }
+
+
+    await renderCableReceipt(
+      result,
+      reference
+    );
+
+
+  }catch(error){
+
+    renderVerificationError(
+      reference,
+      error.message
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   AIRTIME RECEIPT
+================================================== */
+
 
