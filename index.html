@@ -9172,4 +9172,2423 @@ async function(reference){
    AIRTIME RECEIPT
 ================================================== */
 
+async function renderAirtimeReceipt(
+  result,
+  reference,
+  callbackStatus
+){
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return;
+  }
+
+
+  const metadata =
+    normalizePaymentMetadata(
+      result
+    );
+
+
+  const network =
+    metadata.network ||
+    "mtn";
+
+
+  const phone =
+    metadata.phone ||
+    "Not available";
+
+
+  const airtimeAmount =
+    Number(
+      metadata.airtime_amount ||
+      metadata.airtimeAmount ||
+      0
+    );
+
+
+  const paymentStatus =
+    String(
+      result.status ||
+      "unknown"
+    ).toLowerCase();
+
+
+  const paymentSuccessful =
+    paymentStatus === "success";
+
+
+  const amount =
+    airtimeAmount > 0
+      ? formatNaira(airtimeAmount)
+      : formatPaystackAmount(
+          result.amount
+        );
+
+
+  const channel =
+    result.channel ||
+    "Paystack";
+
+
+  const paidAt =
+    formatDate(
+      result.paid_at
+    );
+
+
+  let deliveryStatus =
+    "processing";
+
+
+  let deliveryMessage =
+    "Checking Airtime fulfillment...";
+
+
+  let order = null;
+
+
+  if(paymentSuccessful){
+
+    try{
+
+      const statusResponse =
+        await fetch(
+          "/api/airtime-status?reference=" +
+          encodeURIComponent(reference),
+          {
+            method:"GET",
+            cache:"no-store"
+          }
+        );
+
+
+      const statusData =
+        await statusResponse.json();
+
+
+      order =
+        statusData.order ||
+        statusData.fulfillment?.order ||
+        statusData.data?.order ||
+        null;
+
+
+      const possibleStatus =
+        String(
+          order?.delivery_status ||
+          statusData.delivery_status ||
+          statusData.fulfillment?.delivery_status ||
+          statusData.status ||
+          ""
+        ).toLowerCase();
+
+
+      if(
+        possibleStatus === "delivered" ||
+        possibleStatus === "success"
+      ){
+
+        deliveryStatus =
+          "delivered";
+
+
+        deliveryMessage =
+          "Airtime delivery has been confirmed successfully.";
+
+      }
+
+      else if(
+        possibleStatus === "failed" ||
+        possibleStatus === "failure"
+      ){
+
+        deliveryStatus =
+          "failed";
+
+
+        deliveryMessage =
+          "The Airtime delivery attempt failed.";
+
+      }
+
+      else{
+
+        deliveryStatus =
+          "processing";
+
+
+        deliveryMessage =
+          "Your payment is confirmed and Airtime fulfillment is still being processed.";
+
+      }
+
+
+    }catch(error){
+
+      console.warn(
+        "Airtime status check failed:",
+        error
+      );
+
+
+      deliveryStatus =
+        "processing";
+
+
+      deliveryMessage =
+        "Payment is confirmed. Airtime delivery status is still being checked.";
+
+    }
+
+  }else{
+
+    deliveryStatus =
+      "failed";
+
+
+    deliveryMessage =
+      "Paystack payment was not confirmed as successful.";
+
+  }
+
+
+  let boxClass =
+    "pending-box";
+
+
+  let icon =
+    "⏳";
+
+
+  let title =
+    "Airtime Processing";
+
+
+  if(deliveryStatus === "delivered"){
+
+    boxClass =
+      "success-box";
+
+    icon =
+      "✓";
+
+    title =
+      "Airtime Delivered";
+
+  }
+
+
+  if(deliveryStatus === "failed"){
+
+    boxClass =
+      "failed-box";
+
+    icon =
+      "!";
+
+    title =
+      "Airtime Delivery Failed";
+
+  }
+
+
+  receipt.innerHTML = `
+
+    <div class="receipt-top">
+
+      <div class="receipt-icon">
+        ${paymentSuccessful ? icon : "!"}
+      </div>
+
+      <h2>
+        ${
+          paymentSuccessful
+            ? title
+            : "Payment Not Confirmed"
+        }
+      </h2>
+
+      <p>
+        ${
+          paymentSuccessful
+            ? "Your Airtime payment has been verified."
+            : "Your Paystack payment was not confirmed."
+        }
+      </p>
+
+    </div>
+
+
+    <div class="receipt-body">
+
+      <div class="receipt-section-title">
+        Airtime Transaction
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Service</span>
+
+        <strong>
+          Airtime
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Network</span>
+
+        <strong>
+          ${escapeHTML(
+            networkNames[
+              String(network).toLowerCase()
+            ] ||
+            String(network).toUpperCase()
+          )}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Phone</span>
+
+        <strong>
+          ${escapeHTML(phone)}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Airtime Amount</span>
+
+        <strong>
+          ${escapeHTML(amount)}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Payment Status</span>
+
+        <strong>
+          ${escapeHTML(
+            result.status ||
+            "Unknown"
+          )}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Payment Method</span>
+
+        <strong>
+          ${escapeHTML(channel)}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Date</span>
+
+        <strong>
+          ${escapeHTML(paidAt)}
+        </strong>
+      </div>
+
+
+      ${
+        order?.vtugate_transaction_id
+        ? `
+
+          <div class="receipt-row">
+
+            <span>
+              VTUGATE Transaction
+            </span>
+
+            <strong>
+              ${escapeHTML(
+                order.vtugate_transaction_id
+              )}
+            </strong>
+
+          </div>
+
+        `
+        : ""
+      }
+
+
+      <div class="receipt-reference">
+
+        <div class="receipt-reference-label">
+          PAYSTACK REFERENCE
+        </div>
+
+        <div class="receipt-reference-value">
+          ${escapeHTML(reference)}
+        </div>
+
+        <button
+          type="button"
+          class="copy-reference"
+          onclick="copyReference('${escapeHTML(
+            reference
+          )}')"
+        >
+          📋 Copy Reference
+        </button>
+
+      </div>
+
+
+      <div
+        class="fulfillment-box ${boxClass}"
+      >
+
+        <strong>
+          📱 Airtime Fulfillment
+        </strong>
+
+        <br><br>
+
+        ${escapeHTML(
+          deliveryMessage
+        )}
+
+      </div>
+
+
+      <div class="receipt-actions">
+
+        <button
+          type="button"
+          class="receipt-button primary"
+          onclick="openService('airtime')"
+        >
+          Buy Airtime Again
+        </button>
+
+
+        <button
+          type="button"
+          class="receipt-button secondary"
+          onclick="window.print()"
+        >
+          🖨 Print Receipt
+        </button>
+
+      </div>
+
+
+      ${
+        deliveryStatus === "processing"
+        ? `
+
+          <button
+            type="button"
+            class="receipt-button secondary"
+            style="width:100%;margin-top:10px"
+            onclick="checkAirtimeAgain('${escapeHTML(
+              reference
+            )}')"
+          >
+            🔄 Check Airtime Status Again
+          </button>
+
+        `
+        : ""
+      }
+
+
+      <button
+        type="button"
+        class="receipt-button secondary"
+        style="width:100%;margin-top:10px"
+        onclick="goHome()"
+      >
+        Back to Home
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ==================================================
+   CHECK AIRTIME AGAIN
+================================================== */
+
+window.checkAirtimeAgain =
+async function(reference){
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return;
+  }
+
+
+  receipt.innerHTML = `
+
+    <div class="receipt-loading">
+
+      <div class="spinner"></div>
+
+      <h2>
+        Checking Airtime Status
+      </h2>
+
+      <p>
+        Please wait while we check
+        the latest fulfillment status.
+      </p>
+
+    </div>
+
+  `;
+
+
+  try{
+
+    const paymentResponse =
+      await fetch("/api/paystack?reference=" +
+        encodeURIComponent(reference),
+        {
+          method:"GET",
+          cache:"no-store"
+        }
+      );
+
+
+    const paymentResult =
+      await paymentResponse.json();
+
+
+    if(!paymentResponse.ok){
+
+      throw new Error(
+        paymentResult.message ||
+        "Unable to verify payment."
+      );
+
+    }
+
+
+    await renderAirtimeReceipt(
+      paymentResult,
+      reference,
+      null
+    );
+
+
+  }catch(error){
+
+    renderVerificationError(
+      reference,
+      error.message
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   VERIFICATION ERROR
+================================================== */
+
+function renderVerificationError(
+  reference,
+  message
+){
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return;
+  }
+
+
+  receipt.innerHTML = `
+
+    <div
+      class="receipt-top"
+      style="
+        background:#fef3f2;
+        border-color:#fecdca
+      "
+    >
+
+      <div
+        class="receipt-icon"
+        style="
+          background:#f04438;
+          box-shadow:none
+        "
+      >
+        !
+      </div>
+
+
+      <h2>
+        Verification Pending
+      </h2>
+
+
+      <p style="color:#b42318">
+        We could not verify the payment yet.
+      </p>
+
+    </div>
+
+
+    <div class="receipt-body">
+
+      <div class="receipt-reference">
+
+        <div class="receipt-reference-label">
+          PAYMENT REFERENCE
+        </div>
+
+        <div class="receipt-reference-value">
+          ${escapeHTML(reference)}
+        </div>
+
+      </div>
+
+
+      <div class="fulfillment-box pending-box">
+
+        Your payment may still be processing.
+
+        <br><br>
+
+        Please do not make another payment
+        immediately.
+
+        <br><br>
+
+        Verification message:
+
+        ${escapeHTML(
+          message ||
+          "Unable to verify payment."
+        )}
+
+      </div>
+
+
+      <div class="receipt-actions">
+
+        <button
+          type="button"
+          class="receipt-button primary"
+          onclick="verifyReferenceAgain('${escapeHTML(
+            reference
+          )}')"
+        >
+          Verify Again
+        </button>
+
+
+        <button
+          type="button"
+          class="receipt-button secondary"
+          onclick="goHome()"
+        >
+          Back to Home
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ==================================================
+   VERIFY AGAIN
+================================================== */
+
+window.verifyReferenceAgain =
+async function(reference){
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return;
+  }
+
+
+  receipt.innerHTML = `
+
+    <div class="receipt-loading">
+
+      <div class="spinner"></div>
+
+      <h2>
+        Checking Again
+      </h2>
+
+      <p>
+        Verifying your payment reference...
+      </p>
+
+    </div>
+
+  `;
+
+
+  try{
+
+    
+const response =
+  await fetch(
+    "/api/paystack?reference=" +
+    encodeURIComponent(reference),
+    {
+      method:"GET",
+      cache:"no-store",
+      headers:{
+        "Accept":"application/json"
+      }
+    }
+  );
+
+const responseText =
+  await response.text();
+
+let result;
+
+try{
+
+  result =
+    JSON.parse(responseText);
+
+}catch(parseError){
+
+  console.error(
+    "Invalid payment verification response:",
+    responseText
+  );
+
+  throw new Error(
+    "The payment server returned an invalid response. Please try again shortly."
+  );
+
+}
+;
+
+
+    if(!response.ok){
+
+      throw new Error(
+        result.message ||
+        "Payment verification failed."
+      );
+
+    }
+
+
+    const metadata =
+      normalizePaymentMetadata(
+        result
+      );
+
+
+    const serviceType =
+      String(
+        metadata.service_type ||
+        metadata.serviceType ||
+        ""
+      ).toLowerCase();
+
+
+    const metadataNetwork =
+      String(
+        metadata.network ||
+        ""
+      ).toLowerCase();
+
+
+    const pendingCable =
+      getCablePendingOrder();
+
+
+    const isPendingCable =
+      pendingCable &&
+      (
+        !pendingCable.reference ||
+        String(
+          pendingCable.reference
+        ) === String(reference)
+      );
+
+
+    if(
+      serviceType === "airtime"
+    ){
+
+      await renderAirtimeReceipt(
+        result,
+        reference,
+        null
+      );
+
+    }else if(
+      serviceType === "cable" ||
+      metadataNetwork === "cable" ||
+      isPendingCable
+    ){
+
+      await renderCableReceipt(
+        result,
+        reference
+      );
+
+    }else{
+
+      renderDataReceipt(
+        result,
+        reference
+      );
+
+    }
+
+
+  }catch(error){
+
+    renderVerificationError(
+      reference,
+      error.message
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   DATA RECEIPT
+================================================== */
+
+function renderDataReceipt(
+  result,
+  reference
+){
+
+  const receipt =
+    document.getElementById(
+      "receiptContent"
+    );
+
+
+  if(!receipt){
+    return;
+  }
+
+
+  const metadata =
+    normalizePaymentMetadata(
+      result
+    );
+
+
+  const network =
+    metadata.network ||
+    "Data";
+
+
+  const plan =
+  (
+    result.service_type ||
+    result.metadata?.service_type ||
+    result.data?.metadata?.service_type ||
+    metadata.service_type ||
+    ""
+  ).toLowerCase() === "education"
+    ? `${String(
+        metadata.education_product_code ||
+        metadata.product_code ||
+        "Education"
+      ).toUpperCase()} PIN`
+    :
+      metadata.plan ||
+      metadata.plan_name ||
+      metadata.planName ||
+      "Data Plan";
+
+
+  const phone =
+    metadata.phone ||
+    "Not available";
+
+
+  const paymentStatus =
+    String(
+      result.status ||
+      "unknown"
+    ).toLowerCase();
+
+
+  const isSuccessful =
+    paymentStatus === "success";
+
+
+  const amount =
+    formatPaystackAmount(
+      result.amount
+    );
+
+
+  const channel =
+    result.channel ||
+    "Paystack";
+
+
+  const paidAt =
+    formatDate(
+      result.paid_at
+    );
+
+
+  receipt.innerHTML = `
+
+    <div class="receipt-top">
+
+      <div class="receipt-icon">
+        ${isSuccessful ? "✓" : "!"}
+      </div>
+
+      <h2>
+        ${
+          isSuccessful
+            ? "Payment Confirmed"
+            : "Payment Status"
+        }
+      </h2>
+
+      <p>
+        ${
+          isSuccessful
+            ? "Your payment has been successfully verified."
+            : "Your payment could not be confirmed as successful."
+        }
+      </p>
+
+    </div>
+
+
+    <div class="receipt-body">
+
+      <div class="receipt-section-title">
+        Transaction Details
+      </div>
+
+
+      
+<div class="receipt-row">
+  <span>Service</span>
+
+  <strong>
+    ${
+  (
+    result.service_type ||
+    result.metadata?.service_type ||
+    result.data?.metadata?.service_type ||
+    metadata.service_type ||
+    ""
+  ).toLowerCase() === "electricity"
+    ? "Electricity"
+    :
+    (
+      result.service_type ||
+      result.metadata?.service_type ||
+      result.data?.metadata?.service_type ||
+      metadata.service_type ||
+      ""
+    ).toLowerCase() === "education"
+      ? "Education"
+      : escapeHTML(network) + " Data"
+}
+  </strong>
+</div>
+
+
+
+      
+<div class="receipt-row">
+  <span>Plan</span>
+
+  <strong>
+    ${
+      (
+        result.service_type ||
+        result.metadata?.service_type ||
+        result.data?.metadata?.service_type ||
+        "data"
+      ).toLowerCase() === "electricity"
+        ? "Electricity " +
+          escapeHTML(
+            result.metadata?.meter_type ||
+            result.data?.metadata?.meter_type ||
+            result.metadata?.meterType ||
+            result.data?.metadata?.meterType ||
+            "Payment"
+          )
+        : escapeHTML(plan)
+    }
+  </strong>
+</div>
+
+
+
+      <div class="receipt-row">
+        <span>Phone</span>
+
+        <strong>
+          ${escapeHTML(phone)}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Amount</span>
+
+        <strong>
+          ${escapeHTML(amount)}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Payment Status</span>
+
+        <strong>
+          ${escapeHTML(
+            result.status ||
+            "Unknown"
+          )}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Payment Method</span>
+
+        <strong>
+          ${escapeHTML(channel)}
+        </strong>
+      </div>
+
+
+      <div class="receipt-row">
+        <span>Date</span>
+
+        <strong>
+          ${escapeHTML(paidAt)}
+        </strong>
+      </div>
+
+
+      <div class="receipt-reference">
+
+        <div class="receipt-reference-label">
+          PAYSTACK REFERENCE
+        </div>
+
+        <div class="receipt-reference-value">
+          ${escapeHTML(
+            result.reference ||
+            reference
+          )}
+        </div>
+
+        <button
+          type="button"
+          class="copy-reference"
+          onclick="copyReference('${escapeHTML(
+            result.reference ||
+            reference
+          )}')"
+        >
+          📋 Copy Reference
+        </button>
+
+      </div>
+
+
+      ${
+        isSuccessful
+        ? `
+
+          <div class="fulfillment-box">
+
+  <strong>
+    ${
+  (
+    result.service_type ||
+    result.metadata?.service_type ||
+    result.data?.metadata?.service_type ||
+    "data"
+  ).toLowerCase() === "electricity"
+    ? "⚡ Electricity Fulfillment"
+    :
+    (
+      result.service_type ||
+      result.metadata?.service_type ||
+      result.data?.metadata?.service_type ||
+      "data"
+    ).toLowerCase() === "education"
+      ? "🎓 Education Fulfillment"
+      : "📦 Data Fulfillment"
+    }
+  </strong>
+
+  <br><br>
+
+${
+  (
+    result.service_type ||
+    result.metadata?.service_type ||
+    result.data?.metadata?.service_type ||
+    "data"
+  ).toLowerCase() === "electricity"
+    ? `
+      Your payment has been confirmed.
+
+      Your electricity order is being processed through the Awaji Magic Data electricity fulfillment system.
+
+      <br><br>
+
+      Keep your payment reference until the electricity order has been completed.
+    `
+    :
+    (
+      result.service_type ||
+      result.metadata?.service_type ||
+      result.data?.metadata?.service_type ||
+      "data"
+    ).toLowerCase() === "education"
+      ? `
+        Your payment has been confirmed.
+
+        Your education PIN order is being processed through the Awaji Magic Data education fulfillment system.
+
+        <br><br>
+
+        Keep your payment reference until your education PINs have been delivered.
+      `
+      : `
+        Your payment has been confirmed.
+
+        Your data order is being processed through the Awaji Magic Data fulfillment system.
+
+        <br><br>
+
+        Keep your payment reference until the order has been completed.
+      `
+}
+
+</div>
+
+        `
+        : `
+
+          <div class="fulfillment-box failed-box">
+
+            ⚠️ Payment status:
+
+            <strong>
+              ${escapeHTML(
+                result.status ||
+                "unknown"
+              )}
+            </strong>
+
+          </div>
+
+        `
+      }
+
+
+      <div class="receipt-actions">
+
+        <button
+          type="button"
+          class="receipt-button primary"
+          onclick="openService('data')"
+        >
+          Buy Another Plan
+        </button>
+
+
+        <button
+          type="button"
+          class="receipt-button secondary"
+          onclick="window.print()"
+        >
+          🖨 Print Receipt
+        </button>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="receipt-button secondary"
+        style="width:100%;margin-top:10px"
+        onclick="goHome()"
+      >
+        Back to Home
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ==================================================
+   COPY REFERENCE
+================================================== */
+
+window.copyReference =
+async function(reference){
+
+  try{
+
+    await navigator.clipboard.writeText(
+      reference
+    );
+
+
+    alert(
+      "Payment reference copied."
+    );
+
+
+  }catch(error){
+
+    window.prompt(
+      "Copy your payment reference:",
+      reference
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   DATA STATUS
+================================================== */
+
+function showStatus(
+  message,
+  type
+){
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+
+  if(!status){
+    return;
+  }
+
+
+  status.textContent =
+    message;
+
+
+  status.className =
+    "status show " + type;
+
+}
+
+
+function clearStatus(){
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+
+  if(!status){
+    return;
+  }
+
+
+  status.textContent =
+    "";
+
+
+  status.className =
+    "status";
+
+}
+
+
+/* ==================================================
+   INPUT EVENTS
+================================================== */
+
+function setupInputEvents(){
+
+  const phoneInput =
+    document.getElementById(
+      "phone"
+    );
+
+
+  if(phoneInput){
+
+    phoneInput.addEventListener(
+      "input",
+      function(){
+
+        this.value =
+          this.value
+            .replace(/\D/g,"")
+            .slice(0,11);
+
+
+        updateCheckoutSummary();
+
+      }
+    );
+
+  }
+
+
+  const emailInput =
+    document.getElementById(
+      "email"
+    );
+
+
+  if(emailInput){
+
+    emailInput.addEventListener(
+      "input",
+      function(){
+
+        updateCheckoutSummary();
+
+      }
+    );
+
+  }
+
+
+  const airtimePhoneInput =
+    document.getElementById(
+      "airtimePhone"
+    );
+
+
+  if(airtimePhoneInput){
+
+    airtimePhoneInput.addEventListener(
+      "input",
+      function(){
+
+        this.value =
+          this.value
+            .replace(/\D/g,"")
+            .slice(0,11);
+
+
+        updateAirtimeSummary();
+
+      }
+    );
+
+  }
+
+
+  const airtimeAmountInput =
+    document.getElementById(
+      "airtimeAmount"
+    );
+
+
+  if(airtimeAmountInput){
+
+    airtimeAmountInput.addEventListener(
+      "input",
+      function(){
+
+        updateAirtimeSummary();
+
+      }
+    );
+
+  }
+
+
+  const airtimeEmailInput =
+    document.getElementById(
+      "airtimeEmail"
+    );
+
+
+  if(airtimeEmailInput){
+
+    airtimeEmailInput.addEventListener(
+      "input",
+      function(){
+
+        updateAirtimeSummary();
+
+      }
+    );
+
+  }
+
+
+  const cableSmartcardInput =
+    document.getElementById(
+      "cableSmartcard"
+    );
+
+
+  if(cableSmartcardInput){
+
+    cableSmartcardInput.addEventListener(
+      "input",
+      function(){
+
+        this.value =
+          this.value
+            .replace(/\D/g,"")
+            .slice(0,20);
+
+      }
+    );
+
+  }
+
+
+  const cablePhoneInput =
+    document.getElementById(
+      "cablePhone"
+    );
+
+
+  if(cablePhoneInput){
+
+    cablePhoneInput.addEventListener(
+      "input",
+      function(){
+
+        this.value =
+          this.value
+            .replace(/\D/g,"")
+            .slice(0,11);
+
+      }
+    );
+
+  }
+
+
+  const cableEmailInput =
+    document.getElementById(
+      "cableEmail"
+    );
+
+
+  if(cableEmailInput){
+
+    cableEmailInput.addEventListener(
+      "input",
+      function(){
+
+        if(
+          verifiedCableAccount
+        ){
+
+          verifiedCableAccount.email =
+            this.value.trim();
+
+          updateCableCheckoutSummary();
+
+        }
+
+      }
+    );
+
+  }
+
+}
+
+
+/* ==================================================
+   YEARS
+================================================== */
+
+function setYears(){
+
+  const year =
+    new Date()
+      .getFullYear();
+
+
+  const ids = [
+    "year",
+    "yearData",
+    "yearAirtime",
+    "yearCable",
+    "yearReceipt",
+    "yearComing"
+  ];
+
+
+  ids.forEach(function(id){
+
+    const element =
+      document.getElementById(id);
+
+
+    if(element){
+
+      element.textContent =
+        year;
+
+    }
+
+  });
+
+}
+
+
+/* ==================================================
+   GLOBAL ERROR MONITOR
+================================================== */
+
+window.addEventListener(
+  "error",
+  function(event){
+
+    console.error(
+      "Awaji Magic Data JavaScript error:",
+      event.error ||
+      event.message
+    );
+
+  }
+);
+
+
+window.addEventListener(
+  "unhandledrejection",
+  function(event){
+
+    console.error(
+      "Awaji Magic Data promise error:",
+      event.reason
+    );
+
+  }
+);
+
+
+/* ==================================================
+   INITIALIZATION
+================================================== */
+
+async function initializeApp(){
+
+  setYears();
+
+  setupInputEvents();
+
+
+  /*
+    WALLET FUNDING RETURN
+
+    Wallet payments use references beginning with
+    AWJ-WALLET-. Do NOT send those references through
+    the normal service-payment receipt flow, because that
+    flow is for Data/Airtime/Cable/Electricity orders.
+
+    The customer-auth boot sequence handles wallet-verify
+    separately and then refreshes the Wallet screen.
+  */
+  const returnParams =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const returnReference =
+    returnParams.get("reference") ||
+    returnParams.get("trxref") ||
+    "";
+
+  if(
+    String(returnReference)
+      .toUpperCase()
+      .startsWith("AWJ-WALLET-")
+  ){
+
+    showView(
+      "homeView"
+    );
+
+    return;
+
+  }
+
+
+  const returnedFromPayment =
+    await checkPaymentReturn();
+
+
+  if(returnedFromPayment){
+
+    return;
+
+  }
+
+
+  showView(
+    "homeView"
+  );
+
+}
+
+
+if(
+  document.readyState === "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeApp
+  );
+
+}else{
+
+  initializeApp();
+
+}
+window.verifyElectricityMeter = async function () {
+  const disco = document.getElementById("electricityDisco").value;
+  const meterNo = document.getElementById("electricityMeter").value.trim();
+  const status = document.getElementById("electricityStatus");
+  const button = document.getElementById("verifyElectricityButton");
+  const customerBox = document.getElementById("electricityCustomer");
+
+  const discoMap = {
+    ikeja: "ikedc",
+    eko: "ekedc",
+    abuja: "aedc",
+    kano: "kedco",
+    ibadan: "ibadan",
+    jos: "jos",
+    kaduna: "kaduna",
+    enugu: "enugu",
+    portharcourt: "portharcourt",
+    benin: "benin",
+    yola: "yola",
+    aba: "aba"
+  };
+
+  if (!disco || !meterNo) {
+    status.textContent = "Please select your provider and enter your meter number.";
+    return;
+  }
+
+  const providerCode = discoMap[disco];
+
+  if (!providerCode) {
+    status.textContent = "Please select a valid electricity provider.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Verifying...";
+  status.textContent = "Checking your meter details...";
+  customerBox.style.display = "none";
+
+  try {
+    const response = await fetch("/api/verify-cable", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        service_type: "electricity",
+        service_id: "1",
+        meter_no: meterNo,
+        disco: providerCode
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Unable to verify your meter."
+      );
+    }
+
+    const customer = data.customer || {};
+
+    document.getElementById("electricityCustomerName").textContent =
+      customer.name || "Not provided";
+
+    document.getElementById("electricityCustomerAddress").textContent =
+      customer.address || "Not provided";
+
+    document.getElementById("electricityVerifiedMeter").textContent =
+      customer.meter_number || meterNo;
+
+    customerBox.style.display = "block";
+
+    status.textContent =
+      "Meter verified successfully. Please check the customer details.";
+
+    window.electricityVerifiedCustomer = {
+      meterNo: meterNo,
+      disco: providerCode,
+      customer: customer
+    };
+
+  } catch (error) {
+    status.textContent =
+      error.message || "Meter verification failed. Please try again.";
+
+    window.electricityVerifiedCustomer = null;
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Verify Meter";
+  }
+};
+  // ELECTRICITY PAYMENT HANDLER
+window.payElectricityBill = async function () {
+  const payButton = document.getElementById(
+    "payElectricityButton"
+  );
+
+  const disco = document.getElementById(
+    "electricityDisco"
+  ).value;
+
+  const meterType = document.getElementById(
+    "electricityMeterType"
+  ).value;
+
+  const meterNo = document.getElementById(
+    "electricityMeter"
+  ).value.trim();
+
+  const phone = document.getElementById(
+    "electricityPhone"
+  ).value.trim();
+
+  const amount = Number(
+    document.getElementById(
+      "electricityAmount"
+    ).value
+  );
+
+  const email = document.getElementById(
+    "electricityEmail"
+  ).value.trim();
+
+  const verifiedMeter = document.getElementById(
+    "electricityVerifiedMeter"
+  ).textContent.trim();
+
+  if (!verifiedMeter || verifiedMeter !== meterNo) {
+    alert("Please verify this meter number first.");
+    return;
+  }
+
+  if (!Number.isFinite(amount) || amount < 100) {
+    alert("Enter a valid electricity amount.");
+    return;
+  }
+
+  if (!phone || !email) {
+    alert("Enter your phone number and email.");
+    return;
+  }
+
+  payButton.disabled = true;
+  payButton.textContent = "Connecting to Paystack...";
+
+  try {
+    const response = await fetch("/api/paystack", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        service_type: "electricity",
+        network: "electricity",
+        disco: disco,
+        meter_no: meterNo,
+        meter_type: meterType,
+        electricity_service_id: "1",
+        amount: amount,
+        phone: phone,
+        email: email
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.message || "Unable to initialize payment."
+      );
+    }
+
+    if (!result.authorization_url) {
+      throw new Error(
+        "Paystack did not return a payment link."
+      );
+    }
+
+    window.location.href = result.authorization_url;
+
+  } catch (error) {
+    alert(error.message || "Payment could not proceed.");
+
+    payButton.disabled = false;
+    payButton.textContent = "Continue to Payment";
+  }
+};
+  
+// Education price and selection handling
+let educationUnitPrice = 0;
+
+async function updateEducationPrice() {
+  const serviceSelect =
+    document.getElementById("educationService");
+
+  const productSelect =
+    document.getElementById("educationProduct");
+
+  const quantityInput =
+    document.getElementById("educationQuantity");
+
+  const amountElement =
+    document.getElementById("educationAmount");
+
+  const selectedService =
+    document.getElementById(
+      "educationSelectedService"
+    );
+
+  const selectedQuantity =
+    document.getElementById(
+      "educationSelectedQuantity"
+    );
+
+  const serviceId =
+    serviceSelect.value;
+
+  const productCode =
+    productSelect.value;
+
+  const quantity =
+    Number(quantityInput.value) || 1;
+
+  selectedQuantity.textContent =
+    quantity;
+
+  if (serviceId === "1") {
+    selectedService.textContent = "WAEC";
+  } else {
+    selectedService.textContent =
+      serviceSelect.options[
+        serviceSelect.selectedIndex
+      ]?.text || "Not selected";
+  }
+
+  if (!serviceId || !productCode) {
+    educationUnitPrice = 0;
+    amountElement.textContent = "₦0.00";
+    return;
+  }
+
+  try {
+    amountElement.textContent =
+      "Loading...";
+
+    const response = await fetch(
+      `/api/plans?action=education-price&service_id=${encodeURIComponent(serviceId)}`
+    );
+
+    const result =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+      throw new Error(
+        result.message ||
+        "Unable to get Education price."
+      );
+    }
+
+    educationUnitPrice =
+      Number(result.price);
+
+    if (
+      !Number.isFinite(
+        educationUnitPrice
+      ) ||
+      educationUnitPrice <= 0
+    ) {
+      throw new Error(
+        "Invalid Education price."
+      );
+    }
+
+    const total =
+      educationUnitPrice * quantity;
+
+    amountElement.textContent =
+      `₦${total.toLocaleString(
+        "en-NG",
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }
+      )}`;
+
+  } catch (error) {
+    educationUnitPrice = 0;
+    amountElement.textContent =
+      "₦0.00";
+
+    console.error(
+      "Education price error:",
+      error
+    );
+  }
+}
+
+
+// Examination service changed
+document
+  .getElementById("educationService")
+  ?.addEventListener(
+    "change",
+    updateEducationPrice
+  );
+
+
+// Examination product changed
+document
+  .getElementById("educationProduct")
+  ?.addEventListener(
+    "change",
+    updateEducationPrice
+  );
+
+
+// Quantity changed
+document
+  .getElementById("educationQuantity")
+  ?.addEventListener(
+    "input",
+    updateEducationPrice
+);
+
+updateEducationPrice();
+
+window.payEducation = async function () {
+
+  const productCode = document.getElementById(
+    "educationProduct"
+  ).value;
+
+  const serviceId = document.getElementById(
+    "educationService"
+  ).value;
+
+  const quantity = Number(
+    document.getElementById(
+      "educationQuantity"
+    ).value
+  );
+
+  const phone = document.getElementById(
+    "educationPhone"
+  ).value.trim();
+
+  const email = document.getElementById(
+    "educationEmail"
+  ).value.trim();
+
+  // educationAmount is a <strong>, not an input.
+  // Read its displayed text instead of .value.
+  const amountText = document.getElementById(
+    "educationAmount"
+  ).textContent;
+
+  const amount = Number(
+    amountText.replace(/[^\d.]/g, "")
+  );
+
+  if (!serviceId || !productCode) {
+    alert("Please select an examination service and product.");
+    return;
+  }
+
+  if (
+    !Number.isInteger(quantity) ||
+    quantity < 1 ||
+    quantity > 10
+  ) {
+    alert("Enter a quantity between 1 and 10.");
+    return;
+  }
+
+  if (!phone || !email) {
+    alert("Enter your phone number and email.");
+    return;
+  }
+
+  if (
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ) {
+    alert(
+      "The Education price is not available. Please select a product with a valid price."
+    );
+    return;
+  }
+
+  payButton.disabled = true;
+  payButton.textContent = "Connecting to Paystack...";
+
+  try {
+    const response = await fetch("/api/paystack", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        service_type: "education",
+        network: "education",
+        education_service_id: serviceId,
+        service_id: serviceId,
+        product_code: productCode,
+        education_product_code: productCode,
+        quantity: quantity,
+        education_quantity: quantity,
+        amount: amount,
+        phone: phone,
+        email: email
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.message ||
+        "Unable to initialize Education payment."
+      );
+    }
+
+    const authorizationUrl =
+      result.authorization_url ||
+      result.data?.authorization_url ||
+      result.data?.data?.authorization_url;
+
+    if (authorizationUrl) {
+      window.location.href = authorizationUrl;
+      return;
+    }
+
+    if (result.checkout_url) {
+      window.location.href = result.checkout_url;
+      return;
+    }
+
+    throw new Error(
+      "Paystack did not return a checkout URL."
+    );
+
+  } catch (error) {
+    alert(
+      error.message ||
+      "Education payment failed."
+    );
+
+    payButton.disabled = false;
+    payButton.textContent = "Continue to Payment";
+  }
+};
+
+  /*
+   * =====================================================
+   * AWAIJI AI ASSISTANT
+   * =====================================================
+   */
+
+  const aiAskButton =
+    document.getElementById("aiAskButton");
+
+  const aiQuestion =
+    document.getElementById("aiQuestion");
+
+  const aiResponse =
+    document.getElementById("aiResponse");
+
+
+  if (
+    aiAskButton &&
+    aiQuestion &&
+    aiResponse
+  ) {
+
+    aiAskButton.addEventListener(
+      "click",
+      async () => {
+
+        const question =
+          aiQuestion.value.trim();
+
+        if (!question) {
+          aiResponse.style.display =
+            "block";
+
+          aiResponse.textContent =
+            "Please enter a question first.";
+
+          return;
+        }
+
+
+        aiAskButton.disabled = true;
+
+        aiAskButton.textContent =
+          "🤖 Thinking...";
+
+        aiResponse.style.display =
+          "block";
+
+        aiResponse.textContent =
+          "Awaji AI is thinking...";
+
+
+        try {
+
+          const response =
+            await fetch(
+              "/api/plans?action=ai",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                  JSON.stringify({
+                    question
+                  })
+              }
+            );
+
+
+          const result =
+            await response.json();
+
+
+          if (
+            !response.ok ||
+            !result.success
+          ) {
+            throw new Error(
+              result.message ||
+              "Unable to get an AI response."
+            );
+          }
+
+
+          aiResponse.textContent =
+            result.answer ||
+            "I could not generate a response.";
+
+
+        } catch (error) {
+
+          console.error(
+            "Awaji AI error:",
+            error
+          );
+
+          aiResponse.textContent =
+            error.message ||
+            "Something went wrong. Please try again.";
+
+        } finally {
+
+          aiAskButton.disabled =
+            false;
+
+          aiAskButton.textContent =
+            "🤖 Ask Awaji AI";
+
+        }
+
+      }
+    );
+
+  }
+  /*
+ * =====================================================
+ * AI QUICK QUESTIONS
+ * =====================================================
+ */
+
+const aiQuickButtons =
+  document.querySelectorAll(
+    ".aiQuickButton"
+  );
+
+aiQuickButtons.forEach(
+  button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const question =
+          button.dataset.question ||
+          "";
+
+        aiQuestion.value =
+          question + " ";
+
+        aiQuestion.focus();
+
+      }
+    );
+
+  }
+);
+</script>
+<script>
+(function(){
+  "use strict";
+
+  const AUTH_API="/api/complete-order";
+  let authUser=null;
+
+  function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;");}
+
+  function authMessage(id,msg,type="error"){
+    const el=document.getElementById(id); if(!el)return;
+    el.textContent=msg||""; el.className="awaji-auth-message show "+type;
+  }
+
+  async function authFetch(action,body){
+    const opts={method:action==="me"?"GET":"POST",headers:{"Content-Type":"application/json"}};
+    if(action!=="me")opts.body=JSON.stringify(body||{});
+    const r=await fetch(AUTH_API+"?action="+encodeURIComponent(action),opts);
+    const data=await r.json().catch(()=>({success:false,message:"Invalid server response."}));
+    if(!r.ok)throw new Error(data.message||"Request failed.");
+    return data;
+  }
+
+  function createAuthUI(){
+    if(document.getElementById("awajiAuthOverlay"))return;
+    const style=document.createElement("style");
+    style.id="awajiCleanAuthStyle";
+    style.textContent=`
+      .awaji-auth-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.68);backdrop-filter:blur(8px)}
+      .awaji-auth-overlay.show{display:flex}.awaji-auth-card{width:min(100%,430px);max-height:92vh;overflow:auto;background:#fff;border-radius:24px;padding:26px;box-shadow:0 25px 80px rgba(0,0,0,.28);position:relative}.awaji-auth-close{position:absolute;top:14px;right:16px;width:36px;height:36px;border:0;border-radius:50%;background:#f1f5f9;font-size:22px;cursor:pointer}.awaji-auth-logo{width:58px;height:58px;border-radius:17px;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(135deg,#1264f5,#73aaff);color:#fff;font-size:25px;font-weight:800}.awaji-auth-title{text-align:center;margin:0;color:#0f172a;font-size:25px;font-weight:800}.awaji-auth-subtitle{text-align:center;color:#64748b;margin:7px 0 22px;font-size:14px}.awaji-auth-form{display:none}.awaji-auth-form.active{display:block}.awaji-auth-field{margin-bottom:14px}.awaji-auth-field label{display:block;font-size:13px;font-weight:700;color:#344054;margin-bottom:7px}.awaji-auth-field input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #d0d5dd;border-radius:12px;outline:none}.awaji-auth-field input:focus{border-color:#1264f5;box-shadow:0 0 0 3px rgba(18,100,245,.1)}.awaji-auth-submit{width:100%;border:0;border-radius:13px;padding:14px;background:#1264f5;color:#fff;font-weight:800;cursor:pointer}.awaji-auth-submit:disabled{opacity:.6}.awaji-auth-switch{text-align:center;margin-top:16px;color:#667085;font-size:13px}.awaji-auth-switch button{border:0;background:none;color:#1264f5;font-weight:800;cursor:pointer}.awaji-auth-message{display:none;padding:11px;border-radius:10px;margin:8px 0 12px;font-size:13px}.awaji-auth-message.show{display:block}.awaji-auth-message.error{background:#fef3f2;color:#b42318}.awaji-auth-message.success{background:#ecfdf3;color:#067647}
+    `;document.head.appendChild(style);
+    const overlay=document.createElement("div");overlay.id="awajiAuthOverlay";overlay.className="awaji-auth-overlay";
+    overlay.innerHTML=`<div class="awaji-auth-card"><button type="button" class="awaji-auth-close" id="awajiAuthClose">×</button><div class="awaji-auth-logo">A</div><h2 class="awaji-auth-title">Welcome to Awaji Magic Data</h2><p class="awaji-auth-subtitle">Create an account or login to continue</p><form id="awajiLoginForm" class="awaji-auth-form active"><div class="awaji-auth-field"><label>Email or Phone Number</label><input id="awajiLoginIdentifier" type="text" autocomplete="username" placeholder="Enter email or phone" required></div><div class="awaji-auth-field"><label>Password</label><input id="awajiLoginPassword" type="password" autocomplete="current-password" placeholder="Enter password" required></div><div id="awajiLoginMessage" class="awaji-auth-message"></div><button id="awajiLoginSubmit" class="awaji-auth-submit" type="submit">Login</button><div class="awaji-auth-switch">Don't have an account? <button type="button" id="awajiShowRegister">Create Account</button></div></form><form id="awajiRegisterForm" class="awaji-auth-form"><div class="awaji-auth-field"><label>Full Name</label><input id="awajiRegisterName" type="text" autocomplete="name" placeholder="Enter your full name" required></div><div class="awaji-auth-field"><label>Email Address</label><input id="awajiRegisterEmail" type="email" autocomplete="email" placeholder="Enter your email" required></div><div class="awaji-auth-field"><label>Phone Number</label><input id="awajiRegisterPhone" type="tel" autocomplete="tel" placeholder="08012345678" required></div><div class="awaji-auth-field"><label>Password</label><input id="awajiRegisterPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Minimum 8 characters" required></div><div class="awaji-auth-field"><label>Confirm Password</label><input id="awajiRegisterConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="Re-enter your password" required></div><div id="awajiRegisterMessage" class="awaji-auth-message"></div><button id="awajiRegisterSubmit" class="awaji-auth-submit" type="submit">Create Account</button><div class="awaji-auth-switch">Already have an account? <button type="button" id="awajiShowLogin">Login</button></div></form></div>`;
+    document.body.appendChild(overlay);
+    document.getElementById("awajiAuthClose").onclick=closeAuth;
+    document.getElementById("awajiShowRegister").onclick=()=>switchAuth("register");
+    document.getElementById("awajiShowLogin").onclick=()=>switchAuth("login");
+    document.getElementById("awajiLoginForm").onsubmit=loginCustomer;
+    document.getElementById("awajiRegisterForm").onsubmit=registerCustomer;
+    overlay.onclick=e=>{if(e.target===overlay)closeAuth();};
+  }
+
+  function switchAuth(mode){
+    document.getElementById("awajiLoginForm")?.classList.toggle("active",mode==="login");
+    document.getElementById("awajiRegisterForm")?.classList.toggle("active",mode==="register");
+  }
+  function openAuth(mode="login"){createAuthUI();switchAuth(mode);document.getElementById("awajiAuthOverlay")?.classList.add("show");}
+  function closeAuth(){document.getElementById("awajiAuthOverlay")?.classList.remove("show");}
+  window.awajiAuth={open:openAuth,close:closeAuth,login:()=>openAuth("login"),register:()=>openAuth("register"),logout:logoutCustomer,getUser:()=>authUser,isLoggedIn:()=>!!authUser};
+
+  async function loginCustomer(e){
+    e.preventDefault();const btn=document.getElementById("awajiLoginSubmit");btn.disabled=true;btn.textContent="Logging in...";
+    try{const data=await authFetch("login",{identifier:document.getElementById("awajiLoginIdentifier").value.trim(),password:document.getElementById("awajiLoginPassword").value});if(!data.success||!data.user)throw new Error(data.message||"Login failed.");authUser=data.user;authMessage("awajiLoginMessage","Login successful.","success");updateCustomerNav();setTimeout(closeAuth,500);}catch(err){authMessage("awajiLoginMessage",err.message||"Unable to login.");}finally{btn.disabled=false;btn.textContent="Login";}
+  }
+
+  async function registerCustomer(e){
+    e.preventDefault();const password=document.getElementById("awajiRegisterPassword").value;const confirm=document.getElementById("awajiRegisterConfirm").value;if(password!==confirm){authMessage("awajiRegisterMessage","Passwords do not match.");return;}const btn=document.getElementById("awajiRegisterSubmit");btn.disabled=true;btn.textContent="Creating account...";
+    try{const data=await authFetch("register",{full_name:document.getElementById("awajiRegisterName").value.trim(),email:document.getElementById("awajiRegisterEmail").value.trim(),phone:document.getElementById("awajiRegisterPhone").value.trim(),password});if(!data.success||!data.user)throw new Error(data.message||"Registration failed.");authUser=data.user;authMessage("awajiRegisterMessage","Account created successfully.","success");updateCustomerNav();setTimeout(closeAuth,600);}catch(err){authMessage("awajiRegisterMessage",err.message||"Unable to create account.");}finally{btn.disabled=false;btn.textContent="Create Account";}
+  }
+
+  async function logoutCustomer(){try{await authFetch("logout",{});}catch(e){}authUser=null;updateCustomerNav();}
+
+  async function checkCurrentCustomer(){
+    try{const data=await authFetch("me");if(data?.authenticated&&data.user)authUser=data.user;}catch(e){authUser=null;}updateCustomerNav();
+  }
+
+  function updateCustomerNav(){
+    const name=document.getElementById("awajiDrawerName"),email=document.getElementById("awajiDrawerEmail"),account=document.getElementById("awajiAccountButton");
+    if(authUser){if(name)name.textContent=authUser.full_name||"Customer";if(email)email.textContent=authUser.email||authUser.phone||"";if(account)account.textContent="Account";}else{if(name)name.textContent="Guest";if(email)email.textContent="Login to access your account";if(account)account.textContent="Login";}
+  }
+
+  function createCustomerNavigation(){
+    if(document.getElementById("awajiCustomerNavStyle"))return;
+    const style=document.createElement("style");style.id="awajiCustomerNavStyle";style.textContent=`
+      #awajiCustomerTopBar{display:flex;align-items:center;gap:8px;margin-left:auto}.awaji-nav-btn{border:0;border-radius:12px;padding:9px 11px;background:#eef4ff;color:#0757d9;font-weight:800;font-size:12px;cursor:pointer}.awaji-nav-btn.dark{background:#07111f;color:#fff}
+      #awajiCustomerDrawer,.awaji-customer-sheet{position:fixed;inset:0;z-index:99990;display:none;background:rgba(0,0,0,.55);padding:20px;overflow:auto}.awaji-customer-sheet{z-index:99980}.awaji-customer-sheet.show,#awajiCustomerDrawer.show{display:block}
+      .awaji-drawer-panel{position:absolute;left:0;top:0;bottom:0;width:min(88vw,360px);background:#fff;padding:22px;overflow:auto;box-shadow:18px 0 50px rgba(0,0,0,.25)}.awaji-drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.awaji-drawer-title{font-size:20px;font-weight:900}.awaji-drawer-close,.awaji-sheet-close{border:0;background:#f1f5f9;width:38px;height:38px;border-radius:50%;font-size:22px;cursor:pointer}.awaji-drawer-profile{padding:15px;border-radius:16px;background:#f8fafc;margin-bottom:16px}.awaji-drawer-name{font-weight:900}.awaji-drawer-email{font-size:12px;color:#64748b;margin-top:4px}.awaji-drawer-item{width:100%;border:0;background:#fff;text-align:left;padding:13px 10px;border-radius:12px;font-weight:700;color:#334155;cursor:pointer;margin:2px 0}.awaji-drawer-item:hover{background:#f1f5f9}
+      .awaji-sheet-card{max-width:560px;margin:40px auto;background:#fff;border-radius:22px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.25)}.awaji-sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.awaji-sheet-head h3{margin:0;font-size:21px}.awaji-account-card{padding:18px;border-radius:18px;background:linear-gradient(135deg,#0757d9,#1264f5);color:#fff;margin-bottom:12px}.awaji-account-label{font-size:11px;opacity:.8}.awaji-account-number{font-size:24px;font-weight:900;letter-spacing:1px;margin:8px 0}.awaji-account-meta{font-size:13px;opacity:.92}.awaji-info-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #eef2f7}.awaji-info-row span{color:#64748b}.awaji-info-row strong{text-align:right}
+      #awajiCustomerBottomNav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(calc(100% - 20px),560px);z-index:9990;background:#fff;border:1px solid #e5e7eb;border-radius:20px;box-shadow:0 12px 35px rgba(0,0,0,.15);display:grid;grid-template-columns:repeat(4,1fr);padding:7px}.awaji-bottom-item{border:0;background:#fff;border-radius:14px;padding:8px 4px;font-size:11px;font-weight:800;color:#64748b;cursor:pointer}.awaji-bottom-item.active{background:#eef4ff;color:#0757d9}body{padding-bottom:78px}@media(max-width:520px){.account-label{display:none!important}.awaji-sheet-card{margin:15px auto}.awaji-drawer-panel{padding:18px}}
+    `;document.head.appendChild(style);
+
+    const header=document.querySelector("header .header-inner");
+    if(header){const top=document.createElement("div");top.id="awajiCustomerTopBar";top.innerHTML=`<button type="button" class="awaji-nav-btn dark" id="awajiMenuButton">☰</button><button type="button" class="awaji-nav-btn account-label" id="awajiAccountButton">Login</button>`;header.appendChild(top);document.getElementById("awajiMenuButton").onclick=openDrawer;document.getElementById("awajiAccountButton").onclick=()=>authUser?openSheet("profile"):openAuth("login");}
+
+    const drawer=document.createElement("div");drawer.id="awajiCustomerDrawer";drawer.innerHTML=`<aside class="awaji-drawer-panel"><div class="awaji-drawer-head"><div class="awaji-drawer-title">Awaji Magic Data</div><button class="awaji-drawer-close" id="awajiDrawerClose">×</button></div><div class="awaji-drawer-profile"><div class="awaji-drawer-name" id="awajiDrawerName">Guest</div><div class="awaji-drawer-email" id="awajiDrawerEmail">Login to access your account</div></div><button class="awaji-drawer-item" data-nav="home">🏠 Home</button><button class="awaji-drawer-item" data-nav="transactions">🧾 Transactions</button><button class="awaji-drawer-item" data-nav="wallet">💰 Wallet</button><button class="awaji-drawer-item" data-nav="profile">👤 Profile</button><button class="awaji-drawer-item" data-nav="virtual">🏦 Virtual Account</button><button class="awaji-drawer-item" data-nav="support">ℹ️ Support & Info</button><button class="awaji-drawer-item" id="awajiDrawerLogout">🚪 Sign Out</button></aside>`;document.body.appendChild(drawer);document.getElementById("awajiDrawerClose").onclick=closeDrawer;drawer.onclick=e=>{if(e.target===drawer)closeDrawer();};drawer.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>customerNav(b.dataset.nav));document.getElementById("awajiDrawerLogout").onclick=()=>{closeDrawer();logoutCustomer();};
+
+    const bottom=document.createElement("nav");bottom.id="awajiCustomerBottomNav";bottom.innerHTML=`<button class="awaji-bottom-item active" data-nav="home">🏠<br>Home</button><button class="awaji-bottom-item" data-nav="transactions">🧾<br>Transactions</button><button class="awaji-bottom-item" data-nav="wallet">💰<br>Wallet</button><button class="awaji-bottom-item" data-nav="profile">👤<br>Profile</button>`;document.body.appendChild(bottom);bottom.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>customerNav(b.dataset.nav));
+  }
+
+  function openDrawer(){document.getElementById("awajiCustomerDrawer")?.classList.add("show");}
+  function closeDrawer(){document.getElementById("awajiCustomerDrawer")?.classList.remove("show");}
+
+  async function openSheet(type){
+    if(!authUser){openAuth("login");return;}
+    let sheet=document.getElementById("awajiCustomerSheet");
+    if(!sheet){sheet=document.createElement("div");sheet.id="awajiCustomerSheet";sheet.className="awaji-customer-sheet";sheet.innerHTML=`<div class="awaji-sheet-card"><div class="awaji-sheet-head"><h3 id="awajiSheetTitle">Account</h3><button class="awaji-sheet-close" id="awajiSheetClose">×</button></div><div id="awajiSheetContent"></div></div>`;document.body.appendChild(sheet);document.getElementById("awajiSheetClose").onclick=()=>sheet.classList.remove("show");sheet.onclick=e=>{if(e.target===sheet)sheet.classList.remove("show");};}
+    const title=document.getElementById("awajiSheetTitle"),box=document.getElementById("awajiSheetContent"),u=authUser;
+    if(type==="profile"){title.textContent="My Profile";box.innerHTML=`<div class="awaji-info-row"><span>Name</span><strong>${esc(u.full_name||"-")}</strong></div><div class="awaji-info-row"><span>Email</span><strong>${esc(u.email||"-")}</strong></div><div class="awaji-info-row"><span>Phone</span><strong>${esc(u.phone||"-")}</strong></div>`;}
+    else if(type==="wallet"){await openWalletSheet(title,box);}
+    else if(type==="virtual"){title.textContent="Virtual Account";box.innerHTML=`<div class="awaji-account-card"><div class="awaji-account-label">VIRTUAL ACCOUNT</div><div class="awaji-account-number">Not assigned yet</div><div class="awaji-account-meta">Your dedicated bank account will appear here when the provider is connected.</div></div>`;}
+    else{title.textContent="Support & Info";box.innerHTML=`<div class="awaji-info-row"><span>Support</span><strong>Awaji Magic Data Support</strong></div><div class="awaji-info-row"><span>Security</span><strong>Secure payments</strong></div>`;}
+    sheet.classList.add("show");
+  }
+
+  async function getWallet(){
+    const r=await fetch(AUTH_API+"?action=wallet",{credentials:"same-origin",cache:"no-store"});
+    const data=await r.json().catch(()=>({success:false,message:"Invalid server response."}));
+    if(!r.ok||!data.success)throw new Error(data.message||"Unable to load wallet.");
+    return data.wallet;
+  }
+
+  async function fundWallet(){
+    if(!authUser){openAuth("login");return;}
+    const raw=prompt("Enter amount to add to your wallet (₦100 - ₦1,000,000):");
+    if(raw===null)return;
+    const amount=Number(String(raw).replace(/,/g,""));
+    if(!Number.isFinite(amount)||amount<100||amount>1000000){alert("Enter an amount between ₦100 and ₦1,000,000.");return;}
+    try{
+      const data=await authFetch("wallet-fund",{amount});
+      if(!data.authorization_url)throw new Error("Unable to start Paystack payment.");
+      sessionStorage.setItem("awaji_wallet_pending_reference",data.reference||"");
+      window.location.href=data.authorization_url;
+    }catch(e){alert(e.message||"Unable to fund wallet.");}
+  }
+
+  async function verifyReturnedWalletFunding(){
+    if(!authUser)return;
+    const params=new URLSearchParams(window.location.search);
+    const reference=params.get("reference")||params.get("trxref")||sessionStorage.getItem("awaji_wallet_pending_reference")||"";
+    if(!reference)return;
+    try{
+      const data=await authFetch("wallet-verify",{reference});
+      if(data.success){
+        sessionStorage.removeItem("awaji_wallet_pending_reference");
+        history.replaceState({},document.title,window.location.pathname);
+        if(typeof openSheet === "function"){
+          await openSheet("wallet");
+        }
+      }
+    }catch(e){
+      // Paystack webhook may still be processing; wallet can be refreshed from the Wallet screen.
+    }
+  }
+
+  async function openWalletSheet(title,box){
+    title.textContent="Wallet";
+    box.innerHTML=`<div class="awaji-account-card"><div class="awaji-account-label">AVAILABLE BALANCE</div><div class="awaji-account-number">Loading...</div><div class="awaji-account-meta">Your wallet balance is protected by your customer account.</div></div><button type="button" id="awajiFundWalletBtn" class="awaji-nav-btn dark" style="width:100%;padding:13px;margin-top:4px">＋ Fund Wallet</button><div id="awajiWalletStatus" style="margin-top:12px;font-size:13px;color:#64748b"></div>`;
+    const balanceEl=box.querySelector(".awaji-account-number"),status=box.querySelector("#awajiWalletStatus"),btn=box.querySelector("#awajiFundWalletBtn");
+    btn.onclick=fundWallet;
+    try{const wallet=await getWallet();balanceEl.textContent=formatNaira(wallet?.balance||0);status.textContent="Wallet ready. Use Fund Wallet to add money securely through Paystack.";}catch(e){balanceEl.textContent="₦0.00";status.textContent=e.message||"Unable to load wallet.";status.style.color="#b91c1c";}
+  }
+
+
+
+  async function showTransactions(){
+    if(!authUser){openAuth("login");return;}
+    let modal=document.getElementById("awajiCustomerTransactions");
+    if(!modal){modal=document.createElement("div");modal.id="awajiCustomerTransactions";modal.className="awaji-customer-sheet";modal.innerHTML=`<div class="awaji-sheet-card"><div class="awaji-sheet-head"><h3>Transactions</h3><button class="awaji-sheet-close" id="awajiTxClose">×</button></div><div id="awajiTxContent">Loading...</div></div>`;document.body.appendChild(modal);document.getElementById("awajiTxClose").onclick=()=>modal.classList.remove("show");modal.onclick=e=>{if(e.target===modal)modal.classList.remove("show");};}
+    modal.classList.add("show");const box=document.getElementById("awajiTxContent");box.textContent="Loading transactions...";
+    try{const p=new URLSearchParams({action:"history",email:authUser.email||"",phone:authUser.phone||""});const r=await fetch("/api/complete-order?"+p.toString(),{cache:"no-store"});const data=await r.json();if(!r.ok||!data.success)throw new Error(data.message||"Unable to load transactions.");if(!data.transactions?.length){box.innerHTML=`<div style="padding:20px;text-align:center;color:#64748b">No transactions found yet.</div>`;return;}box.innerHTML=data.transactions.map(tx=>`<div style="padding:14px 0;border-bottom:1px solid #eef2f7"><div style="display:flex;justify-content:space-between;gap:10px"><strong>${esc(tx.plan||tx.service_type||"Transaction")}</strong><strong>${formatNaira(tx.amount||0)}</strong></div><div style="font-size:12px;color:#64748b;margin-top:5px">${esc(tx.payment_status||"pending")} • ${esc(tx.delivery_status||"processing")} • ${esc(tx.created_at||"")}</div></div>`).join("");}catch(e){box.innerHTML=`<div style="padding:15px;background:#fef2f2;color:#b91c1c;border-radius:12px">${esc(e.message||"Unable to load transactions.")}</div>`;}
+  }
+
+  function customerNav(section){
+    closeDrawer();document.querySelectorAll(".awaji-bottom-item").forEach(b=>b.classList.toggle("active",b.dataset.nav===section));
+    if(section==="home"){document.getElementById("awajiCustomerSheet")?.classList.remove("show");document.getElementById("awajiCustomerTransactions")?.classList.remove("show");if(typeof goHome==="function")goHome();return;}
+    if(section==="transactions"){showTransactions();return;}
+    openSheet(section);
+  }
+  window.customerNav=customerNav;
+
+  async function boot(){
+    createAuthUI();createCustomerNavigation();await checkCurrentCustomer();
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+})();
+</script>
+</body>
+</html>
 
