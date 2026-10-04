@@ -2,43 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="theme-color" content="#07110d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>M.Awaji LiveScores</title>
+<meta name="theme-color" content="#07111f">
 
-<meta name="description"
-content="M.Awaji LiveScores - live football scores, fixtures, results and standings">
+<meta
+  name="description"
+  content="Awaji Magic Data - Fast and secure digital services."
+>
+
+<title>Awaji Magic Data</title>
 
 <style>
+
 *{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
 :root{
-    --bg:#070b10;
-    --panel:#111820;
-    --panel2:#151e27;
-    --line:#26323d;
-    --green:#00c878;
-    --green2:#075c43;
-    --text:#f4f7f8;
-    --muted:#8d99a5;
-    --red:#ff4655;
-    --yellow:#ffc857;
+  --primary:#1264f5;
+  --primary-dark:#0848b8;
+  --primary-light:#eef4ff;
+
+  --dark:#07111f;
+  --dark-2:#0d1b2e;
+
+  --bg:#f5f7fb;
+  --card:#fff;
+
+  --text:#101828;
+  --muted:#667085;
+
+  --border:#e4e7ec;
+
+  --success:#12b76a;
+  --success-dark:#067647;
+
+  --danger:#f04438;
+  --warning:#f79009;
+
+  --radius:18px;
+
+  --shadow:
+    0 10px 30px rgba(16,24,40,.07);
+}
+
+html{
+  scroll-behavior:smooth;
 }
 
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    min-height:100vh;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+button,
+input,
+select{
+  font:inherit;
 }
 
 button{
-    font:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.app{
+  max-width:1100px;
+  margin:auto;
+  min-height:100vh;
 }
 
 /* =========================
@@ -46,211 +90,725 @@ button{
 ========================= */
 
 header{
-    position:sticky;
-    top:0;
-    z-index:50;
-    background:
-        linear-gradient(
-            135deg,
-            #06150e,
-            #075c43,
-            #07815b
-        );
-    box-shadow:0 5px 25px #0008;
+  background:var(--dark);
+  color:#fff;
+  padding:14px 18px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 3px 18px rgba(0,0,0,.16);
 }
 
-.head{
-    max-width:760px;
-    margin:auto;
-    padding:13px 12px;
+.header-inner{
+  max-width:1060px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
 }
 
 .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
+  display:flex;
+  align-items:center;
+  gap:11px;
 }
 
 .logo{
+  width:44px;
+  height:44px;
+  border-radius:13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1677ff,
+      #73aaff
+    );
+
+  display:grid;
+  place-items:center;
+
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+
+  box-shadow:
+    0 7px 20px
+    rgba(18,100,245,.35);
+}
+
+.brand-name{
+  font-size:18px;
+  font-weight:800;
+  line-height:1.1;
+}
+
+.brand-subtitle{
+  font-size:11px;
+  color:#98a2b3;
+  margin-top:4px;
+}
+
+.secure-badge{
+  padding:8px 11px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  border-radius:10px;
+
+  color:#d0d5dd;
+
+  background:
+    rgba(255,255,255,.06);
+
+  font-size:11px;
+}
+
+/* =========================
+   VIEWS
+========================= */
+
+.view{
+  display:none;
+  animation:viewIn .25s ease;
+}
+
+.view.active{
+  display:block;
+}
+
+@keyframes viewIn{
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  margin:20px;
+  padding:30px 25px;
+  border-radius:24px;
+  color:#fff;
+
+  background:
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(255,255,255,.14),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #1264f5,
+      #0848b8
+    );
+
+  position:relative;
+  overflow:hidden;
+
+  box-shadow:
+    0 15px 35px
+    rgba(18,100,245,.18);
+}
+
+.hero-content{
+  position:relative;
+  z-index:2;
+}
+
+.hero-label{
+  display:inline-block;
+
+  background:
+    rgba(255,255,255,.12);
+
+  border:
+    1px solid
+    rgba(255,255,255,.14);
+
+  padding:6px 10px;
+
+  border-radius:30px;
+
+  font-size:11px;
+
+  margin-bottom:13px;
+}
+
+.hero h2{
+  font-size:clamp(28px,6vw,42px);
+  line-height:1.05;
+  margin-bottom:10px;
+}
+
+.hero p{
+  max-width:650px;
+  color:#dbeafe;
+  line-height:1.6;
+  font-size:14px;
+}
+
+.hero-actions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+  flex-wrap:wrap;
+}
+
+.hero-button{
+  border:none;
+  border-radius:11px;
+  padding:11px 15px;
+  background:#fff;
+  color:var(--primary-dark);
+  font-weight:800;
+  font-size:12px;
+}
+
+/* =========================
+   HOME
+========================= */
+
+.home-section{
+  padding:0 20px 22px;
+}
+
+.section-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:13px;
+}
+
+.section-heading h2{
+  font-size:19px;
+}
+
+.section-heading span{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.services{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  width:100%;
+}
+
+.service-card{
+  width:100%;
+  min-width:0;
+  min-height:138px;
+  padding:16px;
+  text-align:left;
+
+  border:1px solid var(--border);
+  border-radius:18px;
+
+  background:var(--card);
+  color:var(--text);
+
+  position:relative;
+  overflow:hidden;
+
+  cursor:pointer;
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease;
+}
+
+.service-card:hover{
+  transform:translateY(-3px);
+  border-color:#b9d1ff;
+  box-shadow:var(--shadow);
+}
+
+.service-card:active{
+  transform:scale(.98);
+}
+
+.service-icon{
+  width:44px;
+  height:44px;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:14px;
+  background:var(--primary-light);
+
+  font-size:22px;
+  margin-bottom:12px;
+}
+
+.service-card strong{
+  display:block;
+  font-size:15px;
+  font-weight:700;
+  margin-bottom:5px;
+}
+
+.service-card small{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.4;
+  padding-right:20px;
+}
+
+.service-arrow{
+  position:absolute;
+  right:14px;
+  bottom:14px;
+
+  color:#98a2b3;
+  font-size:18px;
+}
+
+/* MOBILE SERVICE CARDS */
+@media (max-width:700px){
+  .services{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+
+  .service-card{
+    min-height:142px;
+    padding:15px;
+    border-radius:17px;
+  }
+
+  .service-icon{
     width:42px;
     height:42px;
-    border-radius:12px;
-    display:grid;
-    place-items:center;
-    background:
-        linear-gradient(
-            135deg,
-            #00d084,
-            #063e2c
-        );
-    font-weight:900;
     font-size:21px;
+    margin-bottom:11px;
+  }
+
+  .service-card strong{
+    font-size:15px;
+  }
+
+  .service-card small{
+    font-size:11px;
+  }
+
+  .service-arrow{
+    right:13px;
+    bottom:13px;
+  }
 }
 
-.brand h1{
+@media (max-width:380px){
+  .services{
+    gap:10px;
+  }
+
+  .service-card{
+    min-height:136px;
+    padding:13px;
+  }
+
+  .service-icon{
+    width:40px;
+    height:40px;
     font-size:20px;
-}
+  }
 
-.brand p{
+  .service-card strong{
+    font-size:14px;
+  }
+
+  .service-card small{
     font-size:10px;
-    opacity:.8;
-    margin-top:2px;
+  }
+  }
 }
 
-.live-badge{
-    margin-left:auto;
-    font-size:9px;
-    font-weight:800;
-    background:#0003;
-    border-radius:20px;
-    padding:7px 9px;
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:18px;
+}
+
+.info-card{
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:15px;
+  padding:15px;
+}
+
+.info-icon{
+  font-size:21px;
+  margin-bottom:7px;
+}
+
+.info-card strong{
+  display:block;
+  font-size:13px;
+}
+
+.info-card span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+  margin-top:4px;
 }
 
 /* =========================
-   NAVIGATION
+   PAGE
 ========================= */
 
-nav{
-    display:flex;
-    gap:4px;
-    overflow-x:auto;
-    margin-top:12px;
-    scrollbar-width:none;
+.page{
+  padding:18px 20px 30px;
 }
 
-nav::-webkit-scrollbar{
-    display:none;
+.back-button{
+  border:
+    1px solid
+    var(--border);
+
+  background:#fff;
+  color:var(--text);
+
+  border-radius:11px;
+
+  padding:10px 14px;
+
+  font-weight:700;
+
+  margin-bottom:18px;
 }
 
-.nav{
-    border:0;
-    background:#07120e88;
-    color:#b8c4ca;
-    border-radius:8px;
-    padding:9px 12px;
-    font-size:10px;
-    font-weight:800;
-    white-space:nowrap;
-    cursor:pointer;
+.back-button:active{
+  transform:scale(.98);
 }
 
-.nav.active{
-    background:#00c878;
-    color:#fff;
+.page-title{
+  margin-bottom:18px;
+}
+
+.page-title h2{
+  font-size:25px;
+  margin-bottom:5px;
+}
+
+.page-title p{
+  color:var(--muted);
+  font-size:13px;
 }
 
 /* =========================
-   MAIN
+   NETWORK TABS
 ========================= */
 
-main{
-    max-width:760px;
-    margin:auto;
-    padding:10px 8px 35px;
+.network-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:17px;
+}
+
+.network{
+  border:
+    1px solid
+    var(--border);
+
+  background:#fff;
+  color:var(--text);
+
+  padding:12px 7px;
+
+  border-radius:11px;
+
+  font-weight:800;
+}
+
+.network.active{
+  background:var(--primary);
+  border-color:var(--primary);
+  color:#fff;
+
+  box-shadow:
+    0 5px 15px
+    rgba(18,100,245,.2);
 }
 
 /* =========================
-   TOOLBAR
+   FORM
 ========================= */
 
-.toolbar{
-    display:flex;
-    gap:7px;
-    overflow-x:auto;
-    scrollbar-width:none;
-    margin-bottom:8px;
+.form-card{
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:var(--radius);
+
+  padding:18px;
+
+  margin-bottom:18px;
 }
 
-.toolbar::-webkit-scrollbar{
-    display:none;
+.form-card-title{
+  font-weight:800;
+  margin-bottom:15px;
+  font-size:16px;
 }
 
-.tool{
-    flex:none;
-    border:1px solid var(--line);
-    background:var(--panel);
-    color:#cbd4d9;
-    border-radius:8px;
-    padding:8px 11px;
-    font-size:10px;
-    font-weight:700;
-    cursor:pointer;
+.field{
+  margin-bottom:15px;
 }
 
-.tool.active{
-    background:var(--green2);
-    border-color:var(--green);
-    color:#fff;
+.field:last-child{
+  margin-bottom:0;
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.field input{
+  width:100%;
+  padding:13px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:11px;
+
+  outline:none;
+  background:#fff;
+  color:var(--text);
+}
+
+.field input:focus{
+  border-color:var(--primary);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(18,100,245,.1);
+}
+
+.input-hint{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:5px;
 }
 
 /* =========================
-   DATE BAR
+   PLANS
 ========================= */
 
-.datebar{
-    display:flex;
-    gap:6px;
-    overflow-x:auto;
-    scrollbar-width:none;
-    margin-bottom:8px;
+.plans-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
 }
 
-.datebar::-webkit-scrollbar{
-    display:none;
+.plans-header h3{
+  font-size:17px;
 }
 
-.date{
-    flex:none;
-    min-width:86px;
-    border:1px solid var(--line);
-    background:var(--panel);
-    color:#fff;
-    border-radius:9px;
-    padding:8px;
-    text-align:center;
-    cursor:pointer;
+.plan-count{
+  font-size:11px;
+  color:var(--muted);
 }
 
-.date b{
-    display:block;
-    font-size:10px;
+.plans{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
 }
 
-.date small{
-    color:var(--muted);
-    font-size:9px;
+.plan{
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:15px;
+  padding:15px;
+  transition:.2s;
 }
 
-.date.active{
-    background:var(--green2);
-    border-color:var(--green);
+.plan:hover{
+  border-color:#a9c7ff;
+  box-shadow:var(--shadow);
+}
+
+.plan.selected{
+  border-color:var(--primary);
+  box-shadow:
+    0 0 0 3px
+    rgba(18,100,245,.10);
+}
+
+.plan-name{
+  font-weight:800;
+  font-size:15px;
+  min-height:20px;
+}
+
+.plan-meta{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:5px;
+  min-height:32px;
+  line-height:1.45;
+}
+
+.plan-price{
+  font-size:20px;
+  font-weight:900;
+  margin:11px 0;
+}
+
+.plan-button{
+  width:100%;
+  border:none;
+  background:var(--primary);
+  color:#fff;
+  padding:11px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.plan-button:hover{
+  background:var(--primary-dark);
 }
 
 /* =========================
-   ACTIONS
+   CHECKOUT
 ========================= */
 
-.actions{
-    display:flex;
-    gap:7px;
-    margin-bottom:9px;
+.checkout{
+  display:none;
+
+  margin-top:18px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:17px;
+
+  padding:18px;
+
+  box-shadow:var(--shadow);
 }
 
-.action{
-    flex:1;
-    border:1px solid var(--line);
-    background:var(--panel);
-    color:#fff;
-    border-radius:8px;
-    padding:10px;
-    font-size:10px;
-    font-weight:800;
-    cursor:pointer;
+.checkout.show{
+  display:block;
 }
 
-.action.primary{
-    background:var(--green);
-    border-color:var(--green);
+.checkout-title{
+  font-size:16px;
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.checkout-subtitle{
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:12px;
+}
+
+.checkout-row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+
+  padding:9px 0;
+
+  font-size:13px;
+
+  border-bottom:
+    1px solid
+    #f0f2f5;
+}
+
+.checkout-row span{
+  color:var(--muted);
+}
+
+.checkout-row strong{
+  text-align:right;
+  word-break:break-word;
+}
+
+.total-row{
+  margin-top:4px;
+  padding-top:13px;
+
+  border-top:
+    1px solid
+    var(--border);
+
+  font-size:16px;
+}
+
+.pay-button{
+  width:100%;
+  border:none;
+
+  background:var(--success);
+  color:#fff;
+
+  padding:14px;
+
+  border-radius:11px;
+
+  font-weight:900;
+
+  margin-top:14px;
+}
+
+.pay-button:hover{
+  background:var(--success-dark);
+}
+
+.pay-button:disabled{
+  opacity:.6;
+  cursor:wait;
+}
+
+.secure-checkout-note{
+  text-align:center;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:10px;
 }
 
 /* =========================
@@ -258,507 +816,355 @@ main{
 ========================= */
 
 .status{
-    display:none;
-    border:1px solid var(--line);
-    background:var(--panel);
-    border-radius:8px;
-    padding:8px;
-    text-align:center;
-    color:var(--muted);
-    font-size:10px;
-    margin-bottom:8px;
+  display:none;
+
+  margin-top:15px;
+
+  padding:13px;
+
+  border-radius:11px;
+
+  font-size:12px;
+  line-height:1.5;
 }
 
 .status.show{
-    display:block;
+  display:block;
+}
+
+.status.info{
+  color:#175cd3;
+  background:#eff8ff;
+  border:1px solid #b2ddff;
+}
+
+.status.success{
+  color:#067647;
+  background:#ecfdf3;
+  border:1px solid #abefc6;
 }
 
 .status.error{
-    color:#ff7781;
-    border-color:#4b252b;
+  color:#b42318;
+  background:#fef3f2;
+  border:1px solid #fecdca;
 }
 
 /* =========================
    LOADING
 ========================= */
 
-.loading{
-    text-align:center;
-    padding:45px;
-    color:var(--muted);
-    font-size:11px;
+.loading,
+.empty{
+  grid-column:1/-1;
+  text-align:center;
+  color:var(--muted);
+  padding:35px 15px;
+  font-size:12px;
 }
 
 .spinner{
-    width:27px;
-    height:27px;
-    border:3px solid #26323d;
-    border-top-color:var(--green);
-    border-radius:50%;
-    margin:0 auto 12px;
-    animation:spin .8s linear infinite;
+  width:27px;
+  height:27px;
+
+  border:
+    3px solid
+    #d0d5dd;
+
+  border-top-color:var(--primary);
+
+  border-radius:50%;
+
+  animation:spin .8s linear infinite;
+
+  margin:auto auto 10px;
 }
 
 @keyframes spin{
-    to{
-        transform:rotate(360deg);
-    }
+  to{
+    transform:rotate(360deg);
+  }
 }
 
 /* =========================
-   LEAGUE
+   RECEIPT
 ========================= */
 
-.league{
-    border:1px solid var(--line);
-    background:var(--panel);
-    border-radius:8px;
-    overflow:hidden;
-    margin-bottom:7px;
+.receipt-wrap{
+  max-width:650px;
+  margin:auto;
 }
 
-.league-head{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 10px;
-    background:#151e27;
-    color:#dfe7eb;
-    font-size:10px;
-    font-weight:800;
+.receipt-card{
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:22px;
+
+  overflow:hidden;
+
+  box-shadow:var(--shadow);
 }
 
-.country{
-    color:#7f8c97;
-    font-weight:500;
+.receipt-top{
+  padding:30px 25px;
+  text-align:center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ecfdf3,
+      #f8fffb
+    );
+
+  border-bottom:
+    1px solid
+    #d1fadf;
 }
 
-.star{
-    margin-left:auto;
-    border:0;
-    background:none;
-    color:#65727d;
-    cursor:pointer;
-    font-size:13px;
+.receipt-icon{
+  width:64px;
+  height:64px;
+
+  margin:auto auto 13px;
+
+  border-radius:50%;
+
+  display:grid;
+  place-items:center;
+
+  background:var(--success);
+  color:#fff;
+
+  font-size:31px;
+  font-weight:900;
+
+  box-shadow:
+    0 8px 22px
+    rgba(18,183,106,.25);
 }
 
-.star.on{
-    color:#ffc857;
+.receipt-top h2{
+  font-size:24px;
+  margin-bottom:6px;
+}
+
+.receipt-top p{
+  color:var(--success-dark);
+  font-size:12px;
+}
+
+.receipt-body{
+  padding:22px;
+}
+
+.receipt-section-title{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  color:var(--muted);
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.receipt-row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+
+  padding:11px 0;
+
+  border-bottom:
+    1px solid
+    #f0f2f5;
+
+  font-size:13px;
+}
+
+.receipt-row span{
+  color:var(--muted);
+}
+
+.receipt-row strong{
+  text-align:right;
+  word-break:break-word;
+}
+
+.receipt-reference{
+  margin-top:18px;
+  padding:13px;
+
+  background:#f8fafc;
+
+  border:
+    1px dashed
+    #d0d5dd;
+
+  border-radius:12px;
+}
+
+.receipt-reference-label{
+  color:var(--muted);
+  font-size:10px;
+  margin-bottom:5px;
+}
+
+.receipt-reference-value{
+  font-size:13px;
+  font-weight:800;
+  word-break:break-all;
+}
+
+.copy-reference{
+  width:100%;
+
+  border:
+    1px solid
+    var(--border);
+
+  background:#fff;
+
+  padding:10px;
+
+  border-radius:9px;
+
+  margin-top:9px;
+
+  font-size:11px;
+  font-weight:800;
+}
+
+.fulfillment-box{
+  margin-top:18px;
+
+  padding:14px;
+
+  border-radius:12px;
+
+  background:#eff8ff;
+
+  border:
+    1px solid
+    #b2ddff;
+
+  color:#175cd3;
+
+  font-size:12px;
+
+  line-height:1.55;
+}
+
+.fulfillment-box.success-box{
+  background:#ecfdf3;
+  border-color:#abefc6;
+  color:#067647;
+}
+
+.fulfillment-box.failed-box{
+  background:#fef3f2;
+  border-color:#fecdca;
+  color:#b42318;
+}
+
+.fulfillment-box.pending-box{
+  background:#fff8eb;
+  border-color:#fedf89;
+  color:#92400e;
+}
+
+.receipt-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:20px;
+}
+
+.receipt-button{
+  border:none;
+  border-radius:11px;
+  padding:13px;
+  font-weight:800;
+  font-size:12px;
+}
+
+.receipt-button.primary{
+  background:var(--primary);
+  color:#fff;
+}
+
+.receipt-button.secondary{
+  background:#f2f4f7;
+  color:var(--text);
+}
+
+.receipt-loading{
+  padding:55px 20px;
+  text-align:center;
+}
+
+.receipt-loading h2{
+  font-size:21px;
+  margin-bottom:7px;
+}
+
+.receipt-loading p{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
 }
 
 /* =========================
-   MATCH ROW
+   COMING SOON
 ========================= */
 
-.match{
-    display:grid;
-    grid-template-columns:
-        45px
-        1fr
-        58px
-        1fr
-        28px;
+.coming-card{
+  max-width:600px;
 
-    align-items:center;
+  margin:20px auto;
 
-    min-height:61px;
+  padding:45px 25px;
 
-    border-top:1px solid #202a33;
+  background:#fff;
 
-    padding:7px 8px;
+  border:
+    1px solid
+    var(--border);
 
-    cursor:pointer;
+  border-radius:22px;
+
+  text-align:center;
+
+  box-shadow:var(--shadow);
 }
 
-.match:hover{
-    background:#ffffff03;
+.coming-icon{
+  width:75px;
+  height:75px;
+
+  display:grid;
+  place-items:center;
+
+  margin:0 auto 18px;
+
+  border-radius:22px;
+
+  background:var(--primary-light);
+
+  font-size:38px;
 }
 
-.kick{
-    font-size:9px;
-    color:#a8b3bb;
-    text-align:center;
+.coming-card h2{
+  font-size:25px;
+  margin-bottom:8px;
 }
 
-.kick.live{
-    color:#ff5965;
-    font-weight:900;
-}
-
-.team{
-    font-size:10px;
-    line-height:1.2;
-
-    display:flex;
-    align-items:center;
-    gap:6px;
-
-    min-width:0;
-}
-
-.team.away{
-    justify-content:flex-start;
-}
-
-.team.home{
-    justify-content:flex-end;
-    text-align:right;
-}
-
-.team img{
-    width:24px;
-    height:24px;
-    object-fit:contain;
-    flex:none;
-}
-
-.team-name{
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-.score{
-    text-align:center;
-    font-size:14px;
-    font-weight:900;
-    white-space:nowrap;
-}
-
-.score .sub{
-    display:block;
-    font-size:8px;
-    color:var(--muted);
-    font-weight:600;
-    margin-top:2px;
-}
-
-.arrow{
-    text-align:center;
-    color:#56636d;
-    font-size:13px;
-}
-
-/* =========================
-   EMPTY
-========================= */
-
-.empty{
-    text-align:center;
-    padding:50px 15px;
-    color:var(--muted);
-}
-
-.empty .ball{
-    font-size:36px;
-    margin-bottom:10px;
-}
-
-.empty b{
-    display:block;
-    color:#aeb8bf;
-    font-size:14px;
-    margin-bottom:6px;
-}
-
-.empty p{
-    font-size:10px;
-}
-
-/* =========================
-   PAGE TITLE
-========================= */
-
-.page-title{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:5px 2px 9px;
-}
-
-.page-title h2{
-    font-size:14px;
-}
-
-.page-title span{
-    font-size:9px;
-    color:var(--muted);
-}
-
-/* =========================
-   LEAGUE BROWSER
-========================= */
-
-.country-box{
-    border:1px solid var(--line);
-    border-radius:8px;
-    overflow:hidden;
-    margin-bottom:7px;
-    background:var(--panel);
-}
-
-.country-head{
-    padding:10px 11px;
-    font-size:11px;
-    font-weight:800;
-    background:var(--panel2);
-    cursor:pointer;
-}
-
-.country-head span{
-    float:right;
-    color:var(--muted);
-}
-
-.league-list{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:1px;
-    background:var(--line);
-}
-
-.league-choice{
-    border:0;
-    background:var(--panel);
-    color:#dbe2e6;
-    text-align:left;
-    padding:11px 10px;
-    font-size:10px;
-    cursor:pointer;
-}
-
-.league-choice:hover{
-    background:#18232c;
-}
-
-/* =========================
-   STANDINGS
-========================= */
-
-.table-wrap{
-    overflow-x:auto;
-    border:1px solid var(--line);
-    border-radius:8px;
-    background:var(--panel);
-}
-
-.standings{
-    width:100%;
-    border-collapse:collapse;
-    min-width:520px;
-    font-size:10px;
-}
-
-.standings th{
-    color:#778590;
-    background:var(--panel2);
-    font-size:8px;
-    text-align:center;
-    padding:9px 5px;
-}
-
-.standings td{
-    border-top:1px solid #202a33;
-    padding:8px 5px;
-    text-align:center;
-}
-
-.standings td:nth-child(2){
-    text-align:left;
-    font-weight:700;
-}
-
-.pos{
-    color:#7f8b96;
-}
-
-.teamcell{
-    display:flex;
-    align-items:center;
-    gap:7px;
-}
-
-.teamcell img{
-    width:22px;
-    height:22px;
-    object-fit:contain;
-}
-
-/* =========================
-   MATCH MODAL
-========================= */
-
-.modal{
-    position:fixed;
-    inset:0;
-    background:#000c;
-    z-index:100;
-    display:none;
-    overflow:auto;
-    padding:12px 8px;
-}
-
-.modal.show{
-    display:block;
-}
-
-.modal-box{
-    max-width:720px;
-    margin:auto;
-    background:#0b1117;
-    border:1px solid #2b3944;
-    border-radius:14px;
-    overflow:hidden;
-}
-
-.modal-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:11px 13px;
-    border-bottom:1px solid var(--line);
-}
-
-.modal-head h2{
-    font-size:13px;
-}
-
-.close{
-    width:32px;
-    height:32px;
-    border:0;
-    border-radius:8px;
-    background:#202b35;
-    color:#fff;
-    font-size:18px;
-    cursor:pointer;
-}
-
-/* =========================
-   MATCH DETAILS
-========================= */
-
-.hero{
-    text-align:center;
-    padding:18px 12px;
-}
-
-.hero-league{
-    color:#00d084;
-    font-size:10px;
-    font-weight:800;
-}
-
-.hero-status{
-    color:var(--muted);
-    font-size:9px;
-    margin:6px 0 14px;
-}
-
-.hero-teams{
-    display:grid;
-    grid-template-columns:1fr 90px 1fr;
-    align-items:center;
-    gap:5px;
-}
-
-.hero-team{
-    font-size:11px;
-    font-weight:800;
-}
-
-.hero-team img{
-    width:52px;
-    height:52px;
-    object-fit:contain;
-    display:block;
-    margin:0 auto 6px;
-}
-
-.hero-score{
-    font-size:26px;
-    font-weight:900;
-}
-
-.hero-time{
-    font-size:9px;
-    color:var(--muted);
-    margin-top:4px;
-}
-
-.detail-section{
-    padding:0 12px 12px;
-}
-
-.detail-title{
-    font-size:10px;
-    font-weight:800;
-    padding:9px 0;
-    border-bottom:1px solid #202a33;
-}
-
-.info{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
-    margin-top:7px;
-}
-
-.info div{
-    background:var(--panel);
-    border:1px solid #202a33;
-    border-radius:7px;
-    padding:8px;
-}
-
-.info small{
-    display:block;
-    color:#687680;
-    font-size:7px;
-    text-transform:uppercase;
-    margin-bottom:4px;
-}
-
-.info b{
-    font-size:9px;
-}
-
-.event{
-    display:grid;
-    grid-template-columns:40px 1fr;
-    padding:8px 0;
-    border-bottom:1px solid #202a33;
-    font-size:9px;
-}
-
-.event-time{
-    color:#8d99a5;
-}
-
-.event-main{
-    text-align:center;
-}
-
-.stats-row{
-    display:grid;
-    grid-template-columns:50px 1fr 50px;
-    gap:5px;
-    align-items:center;
-    padding:7px 0;
-    border-bottom:1px solid #202a33;
-    font-size:8px;
-    text-align:center;
-}
-
-.share{
-    width:100%;
-    border:0;
-    background:var(--green);
-    color:#fff;
-    border-radius:8px;
-    padding:10px;
-    font-size:10px;
-    font-weight:800;
-    cursor:pointer;
+.coming-card p{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
 }
 
 /* =========================
@@ -766,3026 +1172,4038 @@ main{
 ========================= */
 
 footer{
-    text-align:center;
-    color:#596671;
-    font-size:9px;
-    padding:22px 8px 30px;
-    line-height:1.7;
+  text-align:center;
+  color:var(--muted);
+  padding:28px 20px 35px;
+  font-size:11px;
 }
 
 /* =========================
-   MOBILE
+   PRINT
 ========================= */
 
-@media(max-width:430px){
-
-    .brand h1{
-        font-size:18px;
-    }
-
-    .live-badge{
-        display:none;
-    }
-
-    .match{
-        grid-template-columns:
-            43px
-            1fr
-            52px
-            1fr
-            24px;
-    }
-
-    .team{
-        font-size:9px;
-    }
-
-    .team img{
-        width:22px;
-        height:22px;
-    }
-
-    .league-list{
-        grid-template-columns:1fr;
-    }
+@page{
+  size:A4;
+  margin:8mm;
 }
+
+@media print{
+
+  html,
+  body{
+    background:#fff !important;
+    margin:0 !important;
+    padding:0 !important;
+    height:auto !important;
+  }
+
+  body{
+    font-size:10px !important;
+  }
+
+  header,
+  .back-button,
+  .receipt-actions,
+  footer,
+  .secure-badge{
+    display:none !important;
+  }
+
+  .app{
+    max-width:none !important;
+    min-height:0 !important;
+    margin:0 !important;
+  }
+
+  .view{
+    display:none !important;
+    animation:none !important;
+  }
+
+  #receiptView{
+    display:block !important;
+    min-height:0 !important;
+    height:auto !important;
+  }
+
+  #receiptView .page{
+    padding:0 !important;
+    margin:0 !important;
+  }
+
+  .receipt-wrap{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+  }
+
+  .receipt-card{
+    width:100% !important;
+    max-width:100% !important;
+
+    border:
+      1px solid
+      #d0d5dd !important;
+
+    border-radius:8px !important;
+    box-shadow:none !important;
+    overflow:visible !important;
+  }
+
+  .receipt-top{
+    padding:14px 15px !important;
+  }
+
+  .receipt-icon{
+    width:42px !important;
+    height:42px !important;
+    font-size:21px !important;
+    margin-bottom:7px !important;
+    box-shadow:none !important;
+  }
+
+  .receipt-top h2{
+    font-size:18px !important;
+    margin-bottom:3px !important;
+  }
+
+  .receipt-top p{
+    font-size:9px !important;
+  }
+
+  .receipt-body{
+    padding:12px 15px !important;
+  }
+
+  .receipt-section-title{
+    font-size:9px !important;
+    margin-bottom:5px !important;
+  }
+
+  .receipt-row{
+    padding:6px 0 !important;
+    font-size:10px !important;
+    line-height:1.25 !important;
+  }
+
+  .receipt-reference{
+    margin-top:10px !important;
+    padding:8px !important;
+  }
+
+  .receipt-reference-label{
+    font-size:8px !important;
+    margin-bottom:3px !important;
+  }
+
+  .receipt-reference-value{
+    font-size:10px !important;
+  }
+
+  .copy-reference{
+    display:none !important;
+  }
+
+  .fulfillment-box{
+    margin-top:10px !important;
+    padding:9px !important;
+    font-size:9px !important;
+    line-height:1.35 !important;
+  }
+
+  .receipt-card,
+  .receipt-top,
+  .receipt-body,
+  .receipt-reference,
+  .fulfillment-box{
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:800px){
+
+  .services{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .plans{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .info-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:520px){
+
+  header{
+    padding:13px 15px;
+  }
+
+  .secure-badge{
+    display:none;
+  }
+
+  .hero{
+    margin:15px;
+    padding:25px 18px;
+  }
+
+  .home-section,
+<style>
+/* =========================================================
+   AWaji MAGIC DATA — MODERN FINTECH UI
+   UI ONLY — EXISTING JAVASCRIPT/API LOGIC PRESERVED
+========================================================= */
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+  --primary:#1769ff;
+  --primary-dark:#0b45c7;
+  --primary-deep:#06358f;
+  --primary-light:#edf4ff;
+  --primary-soft:#f5f8ff;
+
+  --dark:#07152f;
+  --dark-2:#0c2145;
+  --dark-3:#102d5a;
+
+  --bg:#f4f7fc;
+  --card:#ffffff;
+  --surface:#f8faff;
+
+  --text:#101828;
+  --text-2:#344054;
+  --muted:#667085;
+  --muted-2:#98a2b3;
+
+  --border:#e5eaf2;
+  --border-light:#eef2f7;
+
+  --success:#12b76a;
+  --success-dark:#067647;
+  --success-light:#ecfdf3;
+
+  --danger:#f04438;
+  --danger-light:#fef3f2;
+
+  --warning:#f79009;
+  --warning-light:#fffaeb;
+
+  --info:#2e90fa;
+  --info-light:#eff8ff;
+
+  --radius:18px;
+  --radius-lg:24px;
+
+  --shadow:
+    0 8px 30px rgba(16,24,40,.06);
+
+  --shadow-lg:
+    0 18px 50px rgba(16,24,40,.10);
+
+  --shadow-blue:
+    0 15px 35px rgba(23,105,255,.20);
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f7f9fd 0%,
+      #f2f5fa 100%
+    );
+
+  color:var(--text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+button:disabled{
+  cursor:not-allowed;
+}
+
+.app{
+  max-width:1100px;
+  margin:auto;
+  min-height:100vh;
+  background:transparent;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header{
+  background:
+    linear-gradient(
+      135deg,
+      #06142f 0%,
+      #092858 55%,
+      #0d3f8f 100%
+    );
+
+  color:#fff;
+
+  padding:14px 18px;
+
+  position:sticky;
+  top:0;
+  z-index:100;
+
+  box-shadow:
+    0 4px 24px
+    rgba(4,20,48,.20);
+
+  backdrop-filter:blur(16px);
+}
+
+.header-inner{
+  max-width:1060px;
+  margin:auto;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:14px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+
+.logo{
+  width:45px;
+  height:45px;
+
+  flex-shrink:0;
+
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2d82ff,
+      #6faeff
+    );
+
+  display:grid;
+  place-items:center;
+
+  color:#fff;
+
+  font-size:22px;
+  font-weight:900;
+
+  box-shadow:
+    0 8px 24px
+    rgba(38,126,255,.32);
+
+  border:
+    1px solid
+    rgba(255,255,255,.15);
+}
+
+.brand-name{
+  font-size:18px;
+  font-weight:850;
+  line-height:1.1;
+  letter-spacing:-.25px;
+}
+
+.brand-subtitle{
+  font-size:10px;
+  color:#aab9d2;
+  margin-top:4px;
+}
+
+.secure-badge{
+  padding:8px 11px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  border-radius:12px;
+
+  color:#dce7f8;
+
+  background:
+    rgba(255,255,255,.07);
+
+  font-size:10px;
+  font-weight:700;
+
+  white-space:nowrap;
+}
+
+
+/* =========================================================
+   VIEWS
+========================================================= */
+
+.view{
+  display:none;
+  animation:viewIn .25s ease;
+}
+
+.view.active{
+  display:block;
+}
+
+@keyframes viewIn{
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+
+/* =========================================================
+   HERO / WALLET STYLE
+========================================================= */
+
+.hero{
+  margin:20px;
+
+  padding:28px 25px;
+
+  border-radius:26px;
+
+  color:#fff;
+
+  background:
+    radial-gradient(
+      circle at 88% 12%,
+      rgba(255,255,255,.18),
+      transparent 26%
+    ),
+
+    radial-gradient(
+      circle at 8% 95%,
+      rgba(255,255,255,.10),
+      transparent 28%
+    ),
+
+    linear-gradient(
+      135deg,
+      #1264f5 0%,
+      #0b4dcc 52%,
+      #073d9f 100%
+    );
+
+  position:relative;
+  overflow:hidden;
+
+  box-shadow:
+    var(--shadow-blue);
+}
+
+.hero::before{
+  content:"";
+
+  position:absolute;
+
+  width:180px;
+  height:180px;
+
+  right:-70px;
+  bottom:-90px;
+
+  border-radius:50%;
+
+  background:
+    rgba(255,255,255,.08);
+}
+
+.hero::after{
+  content:"";
+
+  position:absolute;
+
+  width:110px;
+  height:110px;
+
+  right:70px;
+  top:-60px;
+
+  border-radius:50%;
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+}
+
+.hero-content{
+  position:relative;
+  z-index:2;
+}
+
+.hero-label{
+  display:inline-flex;
+
+  align-items:center;
+
+  background:
+    rgba(255,255,255,.12);
+
+  border:
+    1px solid
+    rgba(255,255,255,.16);
+
+  padding:7px 11px;
+
+  border-radius:30px;
+
+  font-size:10px;
+  font-weight:700;
+
+  margin-bottom:14px;
+
+  backdrop-filter:blur(10px);
+}
+
+.hero h2{
+  font-size:clamp(28px,6vw,42px);
+
+  line-height:1.05;
+
+  letter-spacing:-1px;
+
+  margin-bottom:10px;
+
+  font-weight:900;
+}
+
+.hero p{
+  max-width:650px;
+
+  color:#dceaff;
+
+  line-height:1.6;
+
+  font-size:13px;
+}
+
+.hero-actions{
+  display:flex;
+
+  gap:10px;
+
+  margin-top:20px;
+
+  flex-wrap:wrap;
+}
+
+.hero-button{
+  border:none;
+
+  border-radius:12px;
+
+  padding:12px 16px;
+
+  background:#fff;
+
+  color:var(--primary-dark);
+
+  font-weight:850;
+
+  font-size:12px;
+
+  box-shadow:
+    0 7px 18px
+    rgba(0,0,0,.12);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.hero-button:hover{
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 10px 24px
+    rgba(0,0,0,.16);
+}
+
+.hero-button:active{
+  transform:scale(.97);
+}
+
+
+/* =========================================================
+   HOME
+========================================================= */
+
+.home-section{
+  padding:0 20px 28px;
+}
+
+.section-heading{
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:12px;
+
+  margin-bottom:14px;
+}
+
+.section-heading h2{
+  font-size:19px;
+
+  font-weight:850;
+
+  letter-spacing:-.3px;
+}
+
+.section-heading span{
+  font-size:10px;
+
+  color:var(--muted);
+
+  font-weight:600;
+}
+
+
+/* =========================================================
+   SERVICES
+========================================================= */
+
+.services{
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+
+  gap:14px;
+
+  width:100%;
+}
+
+.service-card{
+  width:100%;
+  min-width:0;
+  min-height:145px;
+
+  padding:17px;
+
+  text-align:left;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:19px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #fbfcff 100%
+    );
+
+  color:var(--text);
+
+  position:relative;
+  overflow:hidden;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 3px 12px
+    rgba(16,24,40,.025);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease;
+}
+
+.service-card::after{
+  content:"";
+
+  position:absolute;
+
+  width:80px;
+  height:80px;
+
+  right:-35px;
+  top:-35px;
+
+  border-radius:50%;
+
+  background:
+    var(--primary-light);
+
+  opacity:.45;
+}
+
+.service-card:hover{
+  transform:translateY(-4px);
+
+  border-color:#b8d0ff;
+
+  box-shadow:
+    0 14px 32px
+    rgba(16,24,40,.09);
+}
+
+.service-card:active{
+  transform:scale(.98);
+}
+
+.service-icon{
+  width:46px;
+  height:46px;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #edf4ff,
+      #e3eeff
+    );
+
+  color:var(--primary);
+
+  font-size:22px;
+
+  margin-bottom:13px;
+
+  position:relative;
+  z-index:2;
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(23,105,255,.05);
+}
+
+.service-card strong{
+  display:block;
+
+  font-size:14px;
+
+  font-weight:800;
+
+  margin-bottom:5px;
+
+  position:relative;
+  z-index:2;
+}
+
+.service-card small{
+  display:block;
+
+  color:var(--muted);
+
+  font-size:10px;
+
+  line-height:1.45;
+
+  padding-right:20px;
+
+  position:relative;
+  z-index:2;
+}
+
+.service-arrow{
+  position:absolute;
+
+  right:14px;
+  bottom:14px;
+
+  width:25px;
+  height:25px;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:50%;
+
+  background:#f3f6fb;
+
+  color:#667085;
+
+  font-size:15px;
+
+  z-index:3;
+}
+
+
+/* =========================================================
+   MOBILE SERVICE CARDS
+========================================================= */
+
+@media (max-width:700px){
+
+  .services{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+
+    gap:12px;
+  }
+
+  .service-card{
+    min-height:143px;
+
+    padding:15px;
+
+    border-radius:18px;
+  }
+
+  .service-icon{
+    width:43px;
+    height:43px;
+
+    font-size:21px;
+
+    margin-bottom:11px;
+  }
+
+  .service-card strong{
+    font-size:14px;
+  }
+
+  .service-card small{
+    font-size:10px;
+  }
+
+  .service-arrow{
+    right:12px;
+    bottom:12px;
+  }
+}
+
+
+/* =========================================================
+   INFO CARDS
+========================================================= */
+
+.info-grid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:12px;
+
+  margin-top:20px;
+}
+
+.info-card{
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #fbfcff
+    );
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:17px;
+
+  padding:16px;
+
+  box-shadow:
+    0 4px 15px
+    rgba(16,24,40,.03);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.info-card:hover{
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 10px 25px
+    rgba(16,24,40,.07);
+}
+
+.info-icon{
+  width:36px;
+  height:36px;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:11px;
+
+  background:var(--primary-light);
+
+  font-size:18px;
+
+  margin-bottom:9px;
+}
+
+.info-card strong{
+  display:block;
+
+  font-size:13px;
+
+  font-weight:800;
+}
+
+.info-card span{
+  display:block;
+
+  color:var(--muted);
+
+  font-size:10px;
+
+  line-height:1.5;
+
+  margin-top:4px;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.page{
+  padding:18px 20px 35px;
+}
+
+.back-button{
+  border:
+    1px solid
+    var(--border);
+
+  background:#fff;
+
+  color:var(--text);
+
+  border-radius:12px;
+
+  padding:10px 14px;
+
+  font-weight:750;
+
+  margin-bottom:18px;
+
+  box-shadow:
+    0 3px 10px
+    rgba(16,24,40,.03);
+
+  transition:
+    transform .15s ease,
+    border-color .15s ease;
+}
+
+.back-button:hover{
+  border-color:#bdd2ff;
+}
+
+.back-button:active{
+  transform:scale(.98);
+}
+
+.page-title{
+  margin-bottom:19px;
+}
+
+.page-title h2{
+  font-size:25px;
+
+  letter-spacing:-.5px;
+
+  margin-bottom:5px;
+
+  font-weight:900;
+}
+
+.page-title p{
+  color:var(--muted);
+
+  font-size:12px;
+
+  line-height:1.5;
+}
+
+
+/* =========================================================
+   NETWORK TABS
+========================================================= */
+
+.network-tabs{
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,1fr);
+
+  gap:8px;
+
+  margin-bottom:17px;
+}
+
+.network{
+  border:
+    1px solid
+    var(--border);
+
+  background:#fff;
+
+  color:var(--text);
+
+  padding:12px 7px;
+
+  border-radius:12px;
+
+  font-weight:800;
+
+  font-size:12px;
+
+  transition:
+    background .18s ease,
+    color .18s ease,
+    transform .18s ease;
+}
+
+.network:hover{
+  transform:translateY(-1px);
+}
+
+.network.active{
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      #0b52cf
+    );
+
+  border-color:var(--primary);
+
+  color:#fff;
+
+  box-shadow:
+    0 7px 18px
+    rgba(18,100,245,.20);
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-card{
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:20px;
+
+  padding:19px;
+
+  margin-bottom:18px;
+
+  box-shadow:
+    0 5px 18px
+    rgba(16,24,40,.035);
+}
+
+.form-card-title{
+  font-weight:850;
+
+  margin-bottom:15px;
+
+  font-size:16px;
+}
+
+.field{
+  margin-bottom:15px;
+}
+
+.field:last-child{
+  margin-bottom:0;
+}
+
+.field label{
+  display:block;
+
+  font-size:11px;
+
+  font-weight:750;
+
+  margin-bottom:7px;
+
+  color:var(--text-2);
+}
+
+.field input,
+.field select{
+  width:100%;
+
+  padding:13px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:12px;
+
+  outline:none;
+
+  background:#fff;
+
+  color:var(--text);
+
+  transition:
+    border-color .18s ease,
+    box-shadow .18s ease;
+}
+
+.field input::placeholder{
+  color:#98a2b3;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:var(--primary);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(18,100,245,.09);
+}
+
+.input-hint{
+  color:var(--muted);
+
+  font-size:10px;
+
+  margin-top:5px;
+}
+
+
+/* =========================================================
+   PLANS
+========================================================= */
+
+.plans-header{
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  margin-bottom:12px;
+
+  gap:10px;
+}
+
+.plans-header h3{
+  font-size:17px;
+
+  font-weight:850;
+}
+
+.plan-count{
+  font-size:10px;
+
+  color:var(--muted);
+}
+
+.plans{
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:12px;
+}
+
+.plan{
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #fbfcff
+    );
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:17px;
+
+  padding:16px;
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease;
+}
+
+.plan:hover{
+  transform:translateY(-2px);
+
+  border-color:#a9c7ff;
+
+  box-shadow:
+    var(--shadow);
+}
+
+.plan.selected{
+  border-color:var(--primary);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(18,100,245,.10),
+    0 10px 25px
+    rgba(18,100,245,.08);
+}
+
+.plan-name{
+  font-weight:850;
+
+  font-size:14px;
+
+  min-height:20px;
+}
+
+.plan-meta{
+  color:var(--muted);
+
+  font-size:10px;
+
+  margin-top:5px;
+
+  min-height:32px;
+
+  line-height:1.45;
+}
+
+.plan-price{
+  font-size:20px;
+
+  font-weight:900;
+
+  margin:11px 0;
+
+  color:var(--text);
+}
+
+.plan-button{
+  width:100%;
+
+  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      #0b50cf
+    );
+
+  color:#fff;
+
+  padding:11px;
+
+  border-radius:11px;
+
+  font-size:11px;
+
+  font-weight:850;
+
+  box-shadow:
+    0 6px 14px
+    rgba(18,100,245,.15);
+
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease;
+}
+
+.plan-button:hover{
+  background:
+    linear-gradient(
+      135deg,
+      #0f5be0,
+      var(--primary-dark)
+    );
+
+  box-shadow:
+    0 9px 18px
+    rgba(18,100,245,.22);
+}
+
+.plan-button:active{
+  transform:scale(.98);
+}
+
+
+/* =========================================================
+   CHECKOUT
+========================================================= */
+
+.checkout{
+  display:none;
+
+  margin-top:18px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:20px;
+
+  padding:19px;
+
+  box-shadow:
+    var(--shadow-lg);
+}
+
+.checkout.show{
+  display:block;
+  animation:viewIn .2s ease;
+}
+
+.checkout-title{
+  font-size:17px;
+
+  font-weight:900;
+
+  margin-bottom:4px;
+}
+
+.checkout-subtitle{
+  color:var(--muted);
+
+  font-size:10px;
+
+  margin-bottom:12px;
+}
+
+.checkout-row{
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:15px;
+
+  padding:10px 0;
+
+  font-size:12px;
+
+  border-bottom:
+    1px solid
+    var(--border-light);
+}
+
+.checkout-row span{
+  color:var(--muted);
+}
+
+.checkout-row strong{
+  text-align:right;
+
+  word-break:break-word;
+}
+
+.total-row{
+  margin-top:4px;
+
+  padding-top:13px;
+
+  border-top:
+    1px solid
+    var(--border);
+
+  font-size:16px;
+}
+
+.pay-button{
+  width:100%;
+
+  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      #12b76a,
+      #079455
+    );
+
+  color:#fff;
+
+  padding:14px;
+
+  border-radius:12px;
+
+  font-weight:900;
+
+  margin-top:14px;
+
+  box-shadow:
+    0 8px 20px
+    rgba(18,183,106,.18);
+
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease;
+}
+
+.pay-button:hover{
+  background:
+    linear-gradient(
+      135deg,
+      #0fa963,
+      #067647
+    );
+
+  box-shadow:
+    0 11px 24px
+    rgba(18,183,106,.25);
+}
+
+.pay-button:active{
+  transform:scale(.985);
+}
+
+.pay-button:disabled{
+  opacity:.6;
+
+  cursor:wait;
+
+  box-shadow:none;
+}
+
+.secure-checkout-note{
+  text-align:center;
+
+  color:var(--muted);
+
+  font-size:10px;
+
+  margin-top:10px;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status{
+  display:none;
+
+  margin-top:15px;
+
+  padding:13px;
+
+  border-radius:12px;
+
+  font-size:11px;
+
+  line-height:1.5;
+}
+
+.status.show{
+  display:block;
+
+  animation:viewIn .2s ease;
+}
+
+.status.info{
+  color:#175cd3;
+
+  background:#eff8ff;
+
+  border:
+    1px solid
+    #b2ddff;
+}
+
+.status.success{
+  color:#067647;
+
+  background:#ecfdf3;
+
+  border:
+    1px solid
+    #abefc6;
+}
+
+.status.error{
+  color:#b42318;
+
+  background:#fef3f2;
+
+  border:
+    1px solid
+    #fecdca;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading,
+.empty{
+  grid-column:1/-1;
+
+  text-align:center;
+
+  color:var(--muted);
+
+  padding:35px 15px;
+
+  font-size:11px;
+}
+
+.spinner{
+  width:29px;
+  height:29px;
+
+  border:
+    3px solid
+    #dbe4f2;
+
+  border-top-color:
+    var(--primary);
+
+  border-radius:50%;
+
+  animation:
+    spin .8s linear infinite;
+
+  margin:
+    auto auto 10px;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   RECEIPT
+========================================================= */
+
+.receipt-wrap{
+  max-width:650px;
+
+  margin:auto;
+}
+
+.receipt-card{
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:24px;
+
+  overflow:hidden;
+
+  box-shadow:
+    var(--shadow-lg);
+}
+
+.receipt-top{
+  padding:31px 25px;
+
+  text-align:center;
+
+  background:
+    radial-gradient(
+      circle at 50% -30%,
+      rgba(18,183,106,.10),
+      transparent 50%
+    ),
+
+    linear-gradient(
+      180deg,
+      #ecfdf3,
+      #f8fffb
+    );
+
+  border-bottom:
+    1px solid
+    #d1fadf;
+}
+
+.receipt-icon{
+  width:66px;
+  height:66px;
+
+  margin:
+    auto auto 13px;
+
+  border-radius:50%;
+
+  display:grid;
+  place-items:center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #12b76a,
+      #079455
+    );
+
+  color:#fff;
+
+  font-size:31px;
+
+  font-weight:900;
+
+  box-shadow:
+    0 10px 25px
+    rgba(18,183,106,.24);
+}
+
+.receipt-top h2{
+  font-size:24px;
+
+  margin-bottom:6px;
+
+  font-weight:900;
+}
+
+.receipt-top p{
+  color:var(--success-dark);
+
+  font-size:11px;
+
+  font-weight:600;
+}
+
+.receipt-body{
+  padding:23px;
+}
+
+.receipt-section-title{
+  font-size:10px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.8px;
+
+  color:var(--muted);
+
+  font-weight:850;
+
+  margin-bottom:10px;
+}
+
+.receipt-row{
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:15px;
+
+  padding:11px 0;
+
+  border-bottom:
+    1px solid
+    var(--border-light);
+
+  font-size:12px;
+}
+
+.receipt-row span{
+  color:var(--muted);
+}
+
+.receipt-row strong{
+  text-align:right;
+
+  word-break:break-word;
+}
+
+.receipt-reference{
+  margin-top:18px;
+
+  padding:14px;
+
+  background:#f8fafc;
+
+  border:
+    1px dashed
+    #d0d5dd;
+
+  border-radius:13px;
+}
+
+.receipt-reference-label{
+  color:var(--muted);
+
+  font-size:9px;
+
+  margin-bottom:5px;
+}
+
+.receipt-reference-value{
+  font-size:12px;
+
+  font-weight:800;
+
+  word-break:break-all;
+}
+
+
+/* =========================================================
+   RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width:900px){
+
+  .services{
+    grid-template-columns:
+      repeat(3,minmax(0,1fr));
+  }
+
+  .plans{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+  }
+
+  .info-grid{
+    grid-template-columns:
+      repeat(3,minmax(0,1fr));
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE MOBILE
+========================================================= */
+
+@media (max-width:700px){
+
+  header{
+    padding:
+      12px 14px;
+  }
+
+  .header-inner{
+    gap:9px;
+  }
+
+  .logo{
+    width:42px;
+    height:42px;
+
+    border-radius:13px;
+
+    font-size:20px;
+  }
+
+  .brand-name{
+    font-size:16px;
+  }
+
+  .brand-subtitle{
+    font-size:9px;
+  }
+
+  .secure-badge{
+    padding:7px 8px;
+
+    font-size:9px;
+  }
+
+  .hero{
+    margin:15px;
+
+    padding:
+      25px 20px;
+
+    border-radius:22px;
+  }
+
+  .hero h2{
+    font-size:30px;
+  }
+
+  .hero p{
+    font-size:12px;
+  }
+
+  .hero-button{
+    padding:
+      11px 14px;
+
+    font-size:11px;
+  }
+
+  .home-section{
+    padding:
+      0 15px 25px;
+  }
+
+  .section-heading h2{
+    font-size:17px;
+  }
+
+  .section-heading span{
+    font-size:9px;
+  }
+
+  .services{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+
+    gap:11px;
+  }
+
+  .service-card{
+    min-height:142px;
+
+    padding:15px;
+
+    border-radius:17px;
+  }
+
+  .service-icon{
+    width:42px;
+    height:42px;
+
+    font-size:20px;
+  }
+
+  .service-card strong{
+    font-size:14px;
+  }
+
+  .service-card small{
+    font-size:10px;
+  }
+
+  .info-grid{
+    grid-template-columns:
+      1fr;
+
+    gap:10px;
+
+    margin-top:16px;
+  }
+
+  .info-card{
+    padding:14px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:11px;
+  }
+
+  .info-icon{
+    flex-shrink:0;
+
+    margin-bottom:0;
+  }
+
+  .info-card span{
+    margin-top:3px;
+  }
+
+  .page{
+    padding:
+      15px 15px 30px;
+  }
+
+  .page-title h2{
+    font-size:23px;
+  }
+
+  .plans{
+    grid-template-columns:
+      1fr;
+  }
+
+  .plan{
+    padding:16px;
+  }
+
+  .checkout{
+    padding:17px;
+
+    border-radius:18px;
+  }
+
+  .receipt-card{
+    border-radius:20px;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width:380px){
+
+  .brand-name{
+    font-size:15px;
+  }
+
+  .secure-badge{
+    display:none;
+  }
+
+  .hero{
+    margin:12px;
+
+    padding:
+      22px 17px;
+  }
+
+  .hero h2{
+    font-size:27px;
+  }
+
+  .services{
+    gap:9px;
+  }
+
+  .service-card{
+    min-height:136px;
+
+    padding:13px;
+
+    border-radius:16px;
+  }
+
+  .service-icon{
+    width:39px;
+    height:39px;
+
+    font-size:19px;
+
+    margin-bottom:9px;
+  }
+
+  .service-card strong{
+    font-size:13px;
+  }
+
+  .service-card small{
+    font-size:9px;
+  }
+
+  .page-title h2{
+    font-size:21px;
+  }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY / TOUCH
+========================================================= */
+
+button,
+.service-card,
+.plan,
+.network{
+  -webkit-user-select:none;
+  user-select:none;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible{
+  outline:
+    3px solid
+    rgba(23,105,255,.22);
+
+  outline-offset:2px;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion:reduce){
+
+  *,
+  *::before,
+  *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="app">
+
 <header>
 
-<div class="head">
+  <div class="header-inner">
 
-<div class="brand">
+    <div class="brand">
 
-<div class="logo">
-M
-</div>
+      <div class="logo">A</div>
 
-<div>
-<h1>M.Awaji LiveScores</h1>
+      <div>
 
-<p>
-LIVE FOOTBALL • FIXTURES • RESULTS • STANDINGS
-</p>
-</div>
+        <div class="brand-name">
+          Awaji Magic Data
+        </div>
 
-<div class="live-badge">
-● REAL DATA
-</div>
+        <div class="brand-subtitle">
+          Fast • Affordable • Reliable
+        </div>
 
-</div>
+      </div>
 
-<nav id="nav"></nav>
+    </div>
 
-</div>
+    <div class="secure-badge">
+      🔒 Secure Payments
+    </div>
+
+  </div>
 
 </header>
 
 
-<main>
+<!-- =========================
+     HOME
+========================= -->
 
-<div id="content"></div>
+<main id="homeView" class="view active">
 
-</main>
+<section class="hero">
+
+  <div class="hero-content">
+
+    <div class="hero-label">
+      ⚡ Digital Services
+    </div>
+
+    <h2>
+      Stay Connected.
+    </h2>
+
+    <p>
+      Buy data, airtime and digital services
+      quickly and securely with
+      Awaji Magic Data.
+    </p>
+
+    <div class="hero-actions">
+
+      <button
+        type="button"
+        class="hero-button"
+        onclick="openService('data')"
+      >
+        Buy Data →
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
 
 
-<footer>
+<section class="home-section">
 
-<b>M.Awaji LiveScores</b>
-<br>
+<div class="section-heading">
 
-Live football scores • Fixtures • Results • Standings
+  <h2>
+    Our Services
+  </h2>
 
-<br>
+  <span>
+    Choose a service
+  </span>
 
-Match information provided by the football data service
-
-</footer>
+</div>
 
 
-<!-- MATCH DETAILS -->
+<div class="services">
 
-<div id="modal" class="modal">
+<button type="button" class="service-card"
+  onclick="openService('data')">
 
-<div class="modal-box">
+  <div class="service-icon">📶</div>
 
-<div class="modal-head">
+  <strong>Data</strong>
 
-<h2>
-⚽ Match Information
-</h2>
+  <small>Internet bundles</small>
 
-<button
-class="close"
-onclick="closeModal()">
-×
+  <span class="service-arrow">→</span>
+
+</button>
+
+
+<button type="button" class="service-card"
+  onclick="openService('airtime')">
+
+  <div class="service-icon">📱</div>
+
+  <strong>Airtime</strong>
+
+  <small>Recharge your line</small>
+
+  <span class="service-arrow">→</span>
+
+</button>
+
+
+<button type="button" class="service-card"
+  onclick="openService('cable')">
+
+  <div class="service-icon">📺</div>
+
+  <strong>Cable TV</strong>
+
+  <small>Pay TV subscription</small>
+
+  <span class="service-arrow">→</span>
+
+</button>
+
+
+<button type="button" class="service-card"
+  onclick="openService('electricity')">
+
+  <div class="service-icon">💡</div>
+
+  <strong>Electricity</strong>
+
+  <small>Pay electricity bills</small>
+
+  <span class="service-arrow">→</span>
+
+</button>
+
+
+<button type="button" class="service-card"
+  onclick="openService('education')">
+
+  <div class="service-icon">🎓</div>
+
+  <strong>Education</strong>
+
+  <small>Education services</small>
+
+  <span class="service-arrow">→</span>
+
+</button>
+
+<button type="button" class="service-card"
+  onclick="openService('water')">
+
+  <div class="service-icon">💧</div>
+
+  <strong>Water Bill</strong>
+
+  <small>Water bill payment</small>
+
+  <span class="service-arrow">→</span>
+
+</button>
+
+
+<button type="button" class="service-card"
+  onclick="openService('ai')">
+
+  <div class="service-icon">🤖</div>
+
+  <strong>AI Help</strong>
+
+  <small>Smart assistance</small>
+
+  <span class="service-arrow">→</span>
+
 </button>
 
 </div>
 
-<div id="details"></div>
+<!-- =========================
+     TRANSACTION HISTORY
+     ========================= -->
+
+<div
+<!-- =========================
+     TRANSACTION HISTORY
+     NATIVE PANEL
+     ========================= -->
+
+<details
+  id="awajiTransactionHistoryDetails"
+  style="
+    margin-bottom:18px;
+  "
+>
+
+  <summary
+    style="
+      list-style:none;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    "
+  >
+
+    <div
+      class="info-card"
+      style="
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        gap:16px;
+        margin-bottom:0;
+      "
+    >
+
+      <div
+        class="info-icon"
+        style="
+          font-size:28px;
+          flex-shrink:0;
+        "
+      >
+        🧾
+      </div>
+
+      <div style="flex:1;">
+
+        <strong>
+          Transaction History
+        </strong>
+
+        <span>
+          View your previous payments and service transactions.
+        </span>
+
+      </div>
+
+      <span
+        style="
+          font-size:24px;
+          flex-shrink:0;
+        "
+      >
+        →
+      </span>
+
+    </div>
+
+  </summary>
+
+
+  <!-- HISTORY CONTENT -->
+
+  <div
+    style="
+      margin-top:12px;
+      padding:20px;
+      background:#ffffff;
+      border:1px solid #e1e7f0;
+      border-radius:20px;
+      box-shadow:0 5px 20px rgba(0,0,0,.06);
+    "
+  >
+
+    <div
+      style="
+        font-size:19px;
+        font-weight:800;
+        color:#111827;
+        margin-bottom:6px;
+      "
+    >
+      Your Transactions
+    </div>
+
+    <div
+      style="
+        font-size:13px;
+        color:#6b7280;
+        margin-bottom:16px;
+      "
+    >
+      Enter the email or phone number used for your purchase.
+    </div>
+
+
+    <input
+      id="awajiNativeHistoryIdentifier"
+      type="text"
+      placeholder="Email or phone number"
+      autocomplete="off"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding:14px;
+        border:1px solid #d7dce5;
+        border-radius:12px;
+        font-size:15px;
+        outline:none;
+        margin-bottom:12px;
+      "
+    >
+
+
+    <button
+      id="awajiNativeHistorySearch"
+      type="button"
+      style="
+        width:100%;
+        border:none;
+        border-radius:12px;
+        padding:14px;
+        background:#0757d9;
+        color:#fff;
+        font-size:15px;
+        font-weight:700;
+        cursor:pointer;
+      "
+    >
+      View Transactions
+    </button>
+
+
+    <div
+      id="awajiNativeHistoryStatus"
+      style="
+        margin-top:15px;
+        font-size:14px;
+      "
+    ></div>
+
+
+    <div
+      id="awajiNativeHistoryResults"
+      style="
+        margin-top:15px;
+      "
+    ></div>
+
+  </div>
+
+</details>
+    
+  <div style="flex:1;">
+
+    <strong>
+      Transaction History
+    </strong>
+
+    <span>
+      View your previous payments and service transactions.
+    </span>
+
+  </div>
+
+  <span
+    class="service-arrow"
+    style="
+      font-size:24px;
+      flex-shrink:0;
+    "
+  >
+    →
+  </span>
 
 </div>
+<div class="info-grid">
+
+<div class="info-card">
+
+  <div class="info-icon">⚡</div>
+
+  <strong>Fast Processing</strong>
+
+  <span>
+    Your payment and service request
+    are processed through our
+    connected service systems.
+  </span>
+
+</div>
+
+
+<div class="info-card">
+
+  <div class="info-icon">🔒</div>
+
+  <strong>Secure Payments</strong>
+
+  <span>
+    Payments are securely handled
+    by Paystack.
+  </span>
+
+</div>
+
+
+<div class="info-card">
+
+  <div class="info-icon">💙</div>
+
+  <strong>Awaji Support</strong>
+
+  <span>
+    Reliable digital services from
+    Awaji Magic Data.
+  </span>
+
+</div>
+
+</div>
+
+</section>
+
+
+<footer>
+© <span id="year"></span>
+Awaji Magic Data.
+All rights reserved.
+</footer>
+
+</main>
+
+
+<!-- =========================
+     DATA VIEW
+========================= -->
+
+<main id="dataView" class="view">
+
+<section class="page">
+
+<button type="button"
+  class="back-button"
+  onclick="goHome()">
+  ← Back to Services
+</button>
+
+
+<div class="page-title">
+
+<h2>Buy Data</h2>
+
+<p>
+  Select your network and choose a data plan.
+</p>
+
+</div>
+
+
+<div class="network-tabs">
+
+<button type="button"
+  class="network active"
+  onclick="selectNetwork('mtn', this)">
+  MTN
+</button>
+
+<button type="button"
+  class="network"
+  onclick="selectNetwork('glo', this)">
+  Glo
+</button>
+
+<button type="button"
+  class="network"
+  onclick="selectNetwork('airtel', this)">
+  Airtel
+</button>
+
+<button type="button"
+  class="network"
+  onclick="selectNetwork('9mobile', this)">
+  9mobile
+</button>
+
+</div>
+
+
+<div class="form-card">
+
+<div class="form-card-title">
+Customer Details
+</div>
+
+<div class="field">
+
+<label for="phone">
+Phone Number
+</label>
+
+<input
+  id="phone"
+  type="tel"
+  inputmode="numeric"
+  maxlength="11"
+  placeholder="08012345678"
+  autocomplete="tel"
+>
+
+<div class="input-hint">
+Enter the Nigerian number that will receive the data.
+</div>
+
+</div>
+
+
+<div class="field">
+
+<label for="email">
+Email Address
+</label>
+
+<input
+  id="email"
+  type="email"
+  placeholder="you@example.com"
+  autocomplete="email"
+>
+
+<div class="input-hint">
+Your payment receipt will be associated with this email.
+</div>
+
+</div>
+
+</div>
+
+
+<div class="plans-header">
+
+<h3>Available Plans</h3>
+
+<span id="planCount" class="plan-count"></span>
+
+</div>
+
+
+<div id="plans" class="plans">
+
+<div class="loading">
+
+<div class="spinner"></div>
+
+Loading data plans...
+
+</div>
+
+</div>
+
+
+<div id="checkout" class="checkout">
+
+<div class="checkout-title">
+Order Summary
+</div>
+
+<div class="checkout-subtitle">
+Check your details before continuing to payment.
+</div>
+
+
+<div class="checkout-row">
+<span>Network</span>
+<strong id="summaryNetwork">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Plan</span>
+<strong id="summaryPlan">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Phone</span>
+<strong id="summaryPhone">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Email</span>
+<strong id="summaryEmail">-</strong>
+</div>
+
+
+<div class="checkout-row total-row">
+<span>Total</span>
+<strong id="summaryPrice">₦0</strong>
+</div>
+
+
+<button
+  type="button"
+  id="payButton"
+  class="pay-button"
+  onclick="startPayment()"
+>
+Continue to Paystack
+</button>
+
+
+<div class="secure-checkout-note">
+🔒 Secure payment powered by Paystack
+</div>
+
+</div>
+
+
+<div id="status" class="status"></div>
+
+</section>
+
+
+<footer>
+© <span id="yearData"></span>
+Awaji Magic Data.
+</footer>
+
+</main>
+
+
+<!-- =========================
+     AIRTIME VIEW
+========================= -->
+
+<main id="airtimeView" class="view">
+
+<section class="page">
+
+<button type="button"
+  class="back-button"
+  onclick="goHome()">
+  ← Back to Services
+</button>
+
+
+<div class="page-title">
+
+<h2>Buy Airtime</h2>
+
+<p>
+Recharge any Nigerian mobile network quickly and securely.
+</p>
+
+</div>
+
+
+<div class="network-tabs">
+
+<button type="button"
+  class="network active"
+  onclick="selectAirtimeNetwork('mtn', this)">
+  MTN
+</button>
+
+<button type="button"
+  class="network"
+  onclick="selectAirtimeNetwork('airtel', this)">
+  Airtel
+</button>
+
+<button type="button"
+  class="network"
+  onclick="selectAirtimeNetwork('glo', this)">
+  Glo
+</button>
+
+<button type="button"
+  class="network"
+  onclick="selectAirtimeNetwork('9mobile', this)">
+  9mobile
+</button>
+
+</div>
+
+
+<div class="form-card">
+
+<div class="form-card-title">
+Airtime Details
+</div>
+
+
+<div class="field">
+
+<label for="airtimePhone">
+Phone Number
+</label>
+
+<input
+  id="airtimePhone"
+  type="tel"
+  inputmode="numeric"
+  maxlength="11"
+  placeholder="08012345678"
+  autocomplete="tel"
+>
+
+<div class="input-hint">
+Enter the Nigerian number that will receive the airtime.
+</div>
+
+</div>
+
+
+<div class="field">
+
+<label for="airtimeAmount">
+Airtime Amount
+</label>
+
+<input
+  id="airtimeAmount"
+  type="number"
+  min="50"
+  step="1"
+  placeholder="500"
+>
+
+<div class="input-hint">
+Minimum airtime purchase is ₦50.
+</div>
+
+</div>
+
+
+<div class="field">
+
+<label for="airtimeEmail">
+Email Address
+</label>
+
+<input
+  id="airtimeEmail"
+  type="email"
+  placeholder="you@example.com"
+  autocomplete="email"
+>
+
+<div class="input-hint">
+Used for your payment transaction.
+</div>
+
+</div>
+
+</div>
+
+
+<div id="airtimeCheckout" class="checkout show">
+
+<div class="checkout-title">
+Airtime Order
+</div>
+
+<div class="checkout-subtitle">
+Confirm your details before payment.
+</div>
+
+
+<div class="checkout-row">
+<span>Network</span>
+<strong id="airtimeSummaryNetwork">MTN</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Phone</span>
+<strong id="airtimeSummaryPhone">Not entered</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Airtime</span>
+<strong id="airtimeSummaryAmount">₦0</strong>
+</div>
+
+
+<div class="checkout-row total-row">
+<span>Total</span>
+<strong id="airtimeSummaryTotal">₦0</strong>
+</div>
+
+
+<button
+  type="button"
+  id="airtimePayButton"
+  class="pay-button"
+  onclick="startAirtimePayment()"
+>
+Continue to Paystack
+</button>
+
+
+<div class="secure-checkout-note">
+🔒 Secure payment powered by Paystack
+</div>
+
+</div>
+
+
+<div id="airtimeStatus" class="status"></div>
+
+</section>
+
+
+<footer>
+© <span id="yearAirtime"></span>
+Awaji Magic Data.
+</footer>
+
+</main>
+
+
+<!-- =========================
+     CABLE TV VIEW
+========================= -->
+
+<main id="cableView" class="view">
+
+<section class="page">
+
+<button type="button"
+  class="back-button"
+  onclick="goHome()">
+  ← Back to Services
+</button>
+
+
+<div class="page-title">
+
+<h2>Cable TV</h2>
+
+<p>
+Verify your Cable TV account before continuing to subscription payment.
+</p>
+
+</div>
+
+
+<div class="network-tabs">
+
+<button
+  type="button"
+  class="network active"
+  onclick="selectCableProvider('gotv', this)"
+>
+GOtv
+</button>
+
+<button
+  type="button"
+  class="network"
+  onclick="selectCableProvider('dstv', this)"
+>
+DStv
+</button>
+
+<button
+  type="button"
+  class="network"
+  onclick="selectCableProvider('startimes', this)"
+>
+Startimes
+</button>
+
+</div>
+
+
+<div class="form-card">
+
+<div class="form-card-title">
+Cable TV Account
+</div>
+
+
+<div class="field">
+
+<label for="cableSmartcard">
+Smartcard / IUC Number
+</label>
+
+<input
+  id="cableSmartcard"
+  type="text"
+  inputmode="numeric"
+  maxlength="20"
+  placeholder="Enter Smartcard / IUC number"
+>
+
+<div class="input-hint">
+Enter the Smartcard or IUC number registered with your provider.
+</div>
+
+</div>
+
+
+<div class="field">
+
+<label for="cablePhone">
+Phone Number
+</label>
+
+<input
+  id="cablePhone"
+  type="tel"
+  inputmode="numeric"
+  maxlength="11"
+  placeholder="08012345678"
+  autocomplete="tel"
+>
+
+<div class="input-hint">
+Enter the Nigerian phone number associated with the account.
+</div>
+
+</div>
+
+
+<div class="field">
+
+<label for="cableEmail">
+Email Address
+</label>
+
+<input
+  id="cableEmail"
+  type="email"
+  placeholder="you@example.com"
+  autocomplete="email"
+>
+
+<div class="input-hint">
+Your Paystack payment receipt will be associated with this email.
+</div>
+
+</div>
+
+
+<button
+  type="button"
+  id="verifyCableButton"
+  class="pay-button"
+  onclick="verifyCableAccount()"
+>
+Verify Account
+</button>
+
+</div>
+
+
+<div id="cableStatus" class="status"></div>
+
+
+<div id="cableCustomer" class="checkout">
+
+<div class="checkout-title">
+Verified Account Details
+</div>
+
+<div class="checkout-subtitle">
+Confirm the information returned by your Cable TV provider.
+</div>
+
+
+<div class="checkout-row">
+<span>Provider</span>
+<strong id="cableProviderName">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Customer</span>
+<strong id="cableCustomerName">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Smartcard / IUC</span>
+<strong id="cableCustomerNumber">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Current Package</span>
+<strong id="cablePackageName">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Current Price</span>
+<strong id="cablePackagePrice">₦0</strong>
+</div>
+
+</div>
+
+
+<div
+  id="cablePlansSection"
+  style="display:none;margin-top:18px"
+>
+
+<div class="plans-header">
+
+<h3>
+Choose Subscription
+</h3>
+
+<span
+  id="cablePlanCount"
+  class="plan-count"
+></span>
+
+</div>
+
+
+<div
+  id="cablePlans"
+  class="plans"
+></div>
+
+</div>
+
+
+<div
+  id="cableCheckout"
+  class="checkout"
+>
+
+<div class="checkout-title">
+Cable TV Order
+</div>
+
+<div class="checkout-subtitle">
+Confirm your selected subscription before payment.
+</div>
+
+
+<div class="checkout-row">
+<span>Provider</span>
+<strong id="cableSummaryProvider">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Customer</span>
+<strong id="cableSummaryCustomer">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Smartcard / IUC</span>
+<strong id="cableSummarySmartcard">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Package</span>
+<strong id="cableSummaryPlan">-</strong>
+</div>
+
+
+<div class="checkout-row">
+<span>Email</span>
+<strong id="cableSummaryEmail">-</strong>
+</div>
+
+
+<div class="checkout-row total-row">
+<span>Total</span>
+<strong id="cableSummaryPrice">₦0</strong>
+</div>
+
+
+<button
+  type="button"
+  id="cablePayButton"
+  class="pay-button"
+  onclick="startCablePayment()"
+>
+Continue to Paystack
+</button>
+
+
+<div class="secure-checkout-note">
+🔒 Secure payment powered by Paystack
+</div>
+
+</div>
+
+
+</section>
+
+
+<footer>
+© <span id="yearCable"></span>
+Awaji Magic Data.
+</footer>
+
+</main>
+
+
+<!-- =========================
+     RECEIPT VIEW
+========================= -->
+
+<main id="receiptView" class="view">
+
+<section class="page">
+
+<div class="receipt-wrap">
+
+<button
+  type="button"
+  class="back-button"
+  onclick="goHome()"
+>
+← Back to Home
+</button>
+
+
+<div id="receiptContent" class="receipt-card">
+
+<div class="receipt-loading">
+
+<div class="spinner"></div>
+
+<h2>
+Verifying Payment
+</h2>
+
+<p>
+Please wait while we securely verify your Paystack transaction.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<footer>
+© <span id="yearReceipt"></span>
+Awaji Magic Data.
+</footer>
+
+</main>
+  
+
+
+<!-- =========================
+     ELECTRICITY PAGE
+========================= -->
+
+<main id="electricityView" class="view">
+
+  <section class="page">
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="goHome()"
+    >
+      ← Back to Services
+    </button>
+
+    <div class="page-title">
+      <h2>Electricity Bill Payment</h2>
+      <p>Verify your meter and pay your electricity bill.</p>
+    </div>
+
+    <div class="form-card">
+
+      <!-- ELECTRICITY PROVIDER -->
+
+      <div class="field">
+        <label for="electricityDisco">
+          Electricity Provider
+        </label>
+
+        <select id="electricityDisco">
+          <option value="">Select your electricity provider</option>
+          <option value="ikeja">Ikeja Electric</option>
+          <option value="eko">Eko Electric</option>
+          <option value="abuja">Abuja Electric</option>
+          <option value="kano">Kano Electric</option>
+          <option value="ibadan">Ibadan Electric</option>
+          <option value="jos">Jos Electric</option>
+          <option value="kaduna">Kaduna Electric</option>
+          <option value="enugu">Enugu Electric</option>
+          <option value="portharcourt">Port Harcourt Electric</option>
+          <option value="benin">Benin Electric</option>
+          <option value="yola">Yola Electric</option>
+        </select>
+      </div>
+
+      <!-- METER TYPE -->
+
+      <div class="field">
+        <label for="electricityMeterType">
+          Meter Type
+        </label>
+
+        <select id="electricityMeterType">
+          <option value="">Select meter type</option>
+          <option value="prepaid">Prepaid</option>
+          <option value="postpaid">Postpaid</option>
+        </select>
+      </div>
+
+      <!-- METER NUMBER -->
+
+      <div class="field">
+        <label for="electricityMeter">
+          Meter Number
+        </label>
+
+        <input
+          id="electricityMeter"
+          type="text"
+          inputmode="numeric"
+          placeholder="Enter meter number"
+          maxlength="20"
+        >
+      </div>
+
+      <!-- PHONE NUMBER -->
+
+      <div class="field">
+        <label for="electricityPhone">
+          Phone Number
+        </label>
+
+        <input
+          id="electricityPhone"
+          type="tel"
+          inputmode="numeric"
+          placeholder="08012345678"
+          maxlength="11"
+        >
+      </div>
+
+      <!-- AMOUNT -->
+
+      <div class="field">
+        <label for="electricityAmount">
+          Amount (₦)
+        </label>
+
+        <input
+          id="electricityAmount"
+          type="number"
+          min="100"
+          placeholder="Enter amount"
+        >
+      </div>
+
+      <!-- EMAIL -->
+
+      <div class="field">
+        <label for="electricityEmail">
+          Email Address
+        </label>
+
+        <input
+          id="electricityEmail"
+          type="email"
+          placeholder="you@example.com"
+        >
+      </div>
+
+      <!-- VERIFY METER -->
+
+      <button
+        type="button"
+        id="verifyElectricityButton"
+        class="pay-button"
+        onclick="verifyElectricityMeter()"
+      >
+        Verify Meter
+      </button>
+
+      <div
+        id="electricityStatus"
+        class="status"
+      ></div>
+
+      <!-- VERIFIED CUSTOMER DETAILS -->
+
+      <div
+        id="electricityCustomer"
+        class="checkout"
+        style="display:none;"
+      >
+
+        <div class="checkout-title">
+          Verified Meter Details
+        </div>
+
+        <div class="checkout-row">
+          <span>Customer</span>
+          <strong id="electricityCustomerName">-</strong>
+        </div>
+
+        <div class="checkout-row">
+          <span>Address</span>
+          <strong id="electricityCustomerAddress">-</strong>
+        </div>
+
+        <div class="checkout-row">
+          <span>Meter Number</span>
+          <strong id="electricityVerifiedMeter">-</strong>
+        </div>
+
+        <!-- PAYMENT -->
+
+        <button
+          type="button"
+          id="payElectricityButton"
+          class="pay-button"
+          onclick="payElectricityBill()"
+        >
+          Continue to Payment
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <footer>
+    © <span id="yearElectricity"></span>
+    Awaji Magic Data.
+  </footer>
+
+</main>
+
+  <!-- ============================
+     EDUCATION VIEW
+============================ -->
+
+<main id="educationView" class="view">
+
+  <section class="page">
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="goHome()"
+    >
+      ← Back to Services
+    </button>
+
+    <div class="page-title">
+      <h2>Education Services</h2>
+      <p>
+        Purchase examination PINs and education services
+        securely with Awaji Magic Data.
+      </p>
+    </div>
+
+    <div class="form-card">
+
+      <h3>Buy Education PIN</h3>
+
+      <p>
+        Select your examination service and enter
+        the required details.
+      </p>
+
+      <div class="form-group">
+        <label for="educationService">
+          Examination Service
+        </label>
+<select id="educationService">
+  <option value="">Select examination service</option>
+<option value="1">WAEC</option>
+<option value="2">NECO</option>
+<option value="3">NABTEB</option>
+<option value="4">JAMB</option>
+</select>
+      </div>
+
+      <div class="form-group">
+        <label for="educationProduct">
+          Examination Product
+        </label>
+<select id="educationProduct">
+  <option value="">Select a product</option>
+  <option value="waec">WAEC PIN</option>
+</select>
+      </div>
+
+      <div class="form-group">
+        <label for="educationQuantity">
+          Quantity
+        </label>
+
+        <input
+          type="number"
+          id="educationQuantity"
+          min="1"
+          max="10"
+          value="1"
+          placeholder="Enter quantity"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="educationPhone">
+          Phone Number
+        </label>
+
+        <input
+          type="tel"
+          id="educationPhone"
+          placeholder="08012345678"
+          inputmode="tel"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="educationEmail">
+          Email Address
+        </label>
+
+        <input
+          type="email"
+          id="educationEmail"
+          placeholder="Enter your email address"
+        >
+      </div>
+
+      <div class="checkout-summary">
+
+        <div class="checkout-row">
+          <span>Service</span>
+          <strong id="educationSelectedService">
+            Not selected
+          </strong>
+        </div>
+
+        <div class="checkout-row">
+          <span>Quantity</span>
+          <strong id="educationSelectedQuantity">
+            1
+          </strong>
+        </div>
+
+        <div class="checkout-row">
+          <span>Total Amount</span>
+          <strong id="educationAmount">
+            ₦0.00
+          </strong>
+        </div>
+
+      </div>
+
+      <p
+        id="educationStatus"
+        role="status"
+        aria-live="polite"
+      ></p>
+
+      <button
+        type="button"
+        id="payEducationButton"
+        class="pay-button"
+        onclick="payEducation()"
+      >
+        Continue to Payment
+      </button>
+
+    </div>
+
+  </section>
+
+  <footer>
+    © <span id="yearEducation"></span>
+    Awaji Magic Data.
+  </footer>
+
+</main>
+
+<!-- END EDUCATION VIEW -->
+<!-- =========================
+     COMING SOON PAGE
+========================= -->
+
+<main id="aiView" class="view">
+
+  <section class="page">
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="goHome()"
+    >
+      ← Back to Services
+    </button>
+
+    <div class="coming-card">
+
+      <div
+        class="coming-icon"
+        style="font-size:42px;"
+      >
+        🤖
+      </div>
+
+      <h2>Awaji AI Assistant</h2>
+
+      <p>
+        Ask questions, get explanations,
+        write better, calculate, learn,
+        and get helpful assistance.
+      </p>
+
+      <div style="
+        margin-top:20px;
+        width:100%;
+      ">
+        <div style="
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:14px;
+">
+
+  <button
+    type="button"
+    class="aiQuickButton"
+    data-question="Explain this topic to me in simple words:"
+    style="
+      padding:11px 8px;
+      border:1px solid #dbe3ef;
+      border-radius:12px;
+      background:#f8fafc;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+    "
+  >
+    💡 Explain
+  </button>
+
+  <button
+    type="button"
+    class="aiQuickButton"
+    data-question="Help me calculate this:"
+    style="
+      padding:11px 8px;
+      border:1px solid #dbe3ef;
+      border-radius:12px;
+      background:#f8fafc;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+    "
+  >
+    🧮 Calculate
+  </button>
+
+  <button
+    type="button"
+    class="aiQuickButton"
+    data-question="Help me write this better:"
+    style="
+      padding:11px 8px;
+      border:1px solid #dbe3ef;
+      border-radius:12px;
+      background:#f8fafc;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+    "
+  >
+    ✍️ Write
+  </button>
+
+  <button
+    type="button"
+    class="aiQuickButton"
+    data-question="Teach me about this topic:"
+    style="
+      padding:11px 8px;
+      border:1px solid #dbe3ef;
+      border-radius:12px;
+      background:#f8fafc;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+    "
+  >
+    📚 Learn
+  </button>
+
+  <button
+    type="button"
+    class="aiQuickButton"
+    data-question="Help me solve this technology problem:"
+    style="
+      padding:11px 8px;
+      border:1px solid #dbe3ef;
+      border-radius:12px;
+      background:#f8fafc;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+    "
+  >
+    💻 Technology
+  </button>
+
+  <button
+    type="button"
+    class="aiQuickButton"
+    data-question="Give me useful advice about:"
+    style="
+      padding:11px 8px;
+      border:1px solid #dbe3ef;
+      border-radius:12px;
+      background:#f8fafc;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+    "
+  >
+    💬 Advice
+  </button>
+
+        </div>
+
+        <textarea
+          id="aiQuestion"
+          rows="4"
+          placeholder="Ask Awaji AI anything..."
+          style="
+            width:100%;
+            box-sizing:border-box;
+            padding:14px;
+            border:1px solid #dbe3ef;
+            border-radius:14px;
+            resize:vertical;
+            font:inherit;
+            background:#fff;
+          "
+        ></textarea>
+
+        <button
+          type="button"
+          id="aiAskButton"
+          style="
+            width:100%;
+            margin-top:12px;
+            padding:14px;
+            border:0;
+            border-radius:14px;
+            font-weight:700;
+            font-size:16px;
+            cursor:pointer;
+          "
+        >
+          🤖 Ask Awaji AI
+        </button>
+
+        <div
+          id="aiResponse"
+          style="
+            display:none;
+            margin-top:16px;
+            padding:16px;
+            border-radius:14px;
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            text-align:left;
+            white-space:pre-wrap;
+            line-height:1.6;
+          "
+        ></div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+  <footer>
+    © <span id="yearComing"></span>
+    Awaji Magic Data.
+  </footer>
+
+</main>
 
 </div>
 
 
 <script>
 
-/* =====================================================
-   M.AWAJI LIVESCORES
-   EXISTING VERCEL BACKEND
-===================================================== */
-
-const API_BASE =
-"https://football-livescore-backend-new.vercel.app/api";
-
-
-/* =====================================================
-   LEAGUES
-===================================================== */
-
-const LEAGUES = [
-
-{
-id:39,
-name:"Premier League",
-country:"England",
-flag:"🇬🇧",
-season:2026
-},
-
-{
-id:40,
-name:"Championship",
-country:"England",
-flag:"🇬🇧",
-season:2026
-},
-
-{
-id:41,
-name:"League One",
-country:"England",
-flag:"🇬🇧",
-season:2026
-},
-
-{
-id:42,
-name:"League Two",
-country:"England",
-flag:"🇬🇧",
-season:2026
-},
-
-{
-id:140,
-name:"La Liga",
-country:"Spain",
-flag:"🇪🇸",
-season:2026
-},
-
-{
-id:141,
-name:"La Liga 2",
-country:"Spain",
-flag:"🇪🇸",
-season:2026
-},
-
-{
-id:135,
-name:"Serie A",
-country:"Italy",
-flag:"🇮🇹",
-season:2026
-},
-
-{
-id:136,
-name:"Serie B",
-country:"Italy",
-flag:"🇮🇹",
-season:2026
-},
-
-{
-id:78,
-name:"Bundesliga",
-country:"Germany",
-flag:"🇩🇪",
-season:2026
-},
-
-{
-id:79,
-name:"2. Bundesliga",
-country:"Germany",
-flag:"🇩🇪",
-season:2026
-},
-
-{
-id:61,
-name:"Ligue 1",
-country:"France",
-flag:"🇫🇷",
-season:2026
-},
-
-{
-id:62,
-name:"Ligue 2",
-country:"France",
-flag:"🇫🇷",
-season:2026
-},
-
-{
-id:399,
-name:"NPFL",
-country:"Nigeria",
-flag:"🇳🇬",
-season:2026
-},
-
-{
-id:2,
-name:"Champions League",
-country:"Europe",
-flag:"🇪🇺",
-season:2026
-},
-
-{
-id:3,
-name:"Europa League",
-country:"Europe",
-flag:"🇪🇺",
-season:2026
-},
-
-{
-id:848,
-name:"Conference League",
-country:"Europe",
-flag:"🇪🇺",
-season:2026
-},
-
-{
-id:88,
-name:"Eredivisie",
-country:"Netherlands",
-flag:"🇳🇱",
-season:2026
-},
-
-{
-id:94,
-name:"Primeira Liga",
-country:"Portugal",
-flag:"🇵🇹",
-season:2026
-},
-
-{
-id:144,
-name:"Jupiler Pro League",
-country:"Belgium",
-flag:"🇧🇪",
-season:2026
-},
-
-{
-id:203,
-name:"Super Lig",
-country:"Turkey",
-flag:"🇹🇷",
-season:2026
-},
-
-{
-id:179,
-name:"Premiership",
-country:"Scotland",
-flag:"🏴",
-season:2026
-},
-
-{
-id:218,
-name:"Bundesliga",
-country:"Austria",
-flag:"🇦🇹",
-season:2026
-},
-
-{
-id:207,
-name:"Super League",
-country:"Switzerland",
-flag:"🇨🇭",
-season:2026
-},
-
-{
-id:197,
-name:"Super League",
-country:"Greece",
-flag:"🇬🇷",
-season:2026
-},
-
-{
-id:119,
-name:"Superliga",
-country:"Denmark",
-flag:"🇩🇰",
-season:2026
-},
-
-{
-id:113,
-name:"Allsvenskan",
-country:"Sweden",
-flag:"🇸🇪",
-season:2026
-},
-
-{
-id:103,
-name:"Eliteserien",
-country:"Norway",
-flag:"🇳🇴",
-season:2026
-},
-
-{
-id:106,
-name:"Ekstraklasa",
-country:"Poland",
-flag:"🇵🇱",
-season:2026
-},
-
-{
-id:345,
-name:"Czech Liga",
-country:"Czech Republic",
-flag:"🇨🇿",
-season:2026
-},
-
-{
-id:210,
-name:"HNL",
-country:"Croatia",
-flag:"🇭🇷",
-season:2026
-},
-
-{
-id:283,
-name:"Liga I",
-country:"Romania",
-flag:"🇷🇴",
-season:2026
-},
-
-{
-id:71,
-name:"Serie A",
-country:"Brazil",
-flag:"🇧🇷",
-season:2026
-},
-
-{
-id:128,
-name:"Liga Profesional",
-country:"Argentina",
-flag:"🇦🇷",
-season:2026
-},
-
-{
-id:253,
-name:"MLS",
-country:"USA",
-flag:"🇺🇸",
-season:2026
-},
-
-{
-id:307,
-name:"Saudi Pro League",
-country:"Saudi Arabia",
-flag:"🇸🇦",
-season:2026
-},
-
-{
-id:288,
-name:"PSL",
-country:"South Africa",
-flag:"🇿🇦",
-season:2026
-},
-
-{
-id:233,
-name:"Premier League",
-country:"Egypt",
-flag:"🇪🇬",
-season:2026
-},
-
-{
-id:200,
-name:"Botola Pro",
-country:"Morocco",
-flag:"🇲🇦",
-season:2026
-},
-
-{
-id:98,
-name:"J1 League",
-country:"Japan",
-flag:"🇯🇵",
-season:2026
-},
-
-{
-id:292,
-name:"K League 1",
-country:"South Korea",
-flag:"🇰🇷",
-season:2026
-},
-
-{
-id:169,
-name:"Super League",
-country:"China",
-flag:"🇨🇳",
-season:2026
-},
-
-{
-id:188,
-name:"A-League",
-country:"Australia",
-flag:"🇦🇺",
-season:2026
-},
-
-{
-id:323,
-name:"Indian Super League",
-country:"India",
-flag:"🇮🇳",
-season:2026
-},
-
-{
-id:305,
-name:"Stars League",
-country:"Qatar",
-flag:"🇶🇦",
-season:2026
-},
-
-{
-id:301,
-name:"UAE Pro League",
-country:"UAE",
-flag:"🇦🇪",
-season:2026
-}
-
-];
-
-
-/* =====================================================
-   APP STATE
-===================================================== */
-
-let page = "live";
-
-let date = today();
-
-let selectedLeague = 39;
-
-let currentMatches = [];
-
-
-/* =====================================================
-   NAVIGATION
-===================================================== */
-
-const navItems = [
-
-["live","LIVE"],
-
-["fixtures","FIXTURES"],
-
-["results","RESULTS"],
-
-["standings","STANDINGS"],
-
-["leagues","🌍 LEAGUES"]
-
-];
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function esc(value){
-
-return String(value ?? "")
-
-.replace(/&/g,"&amp;")
-
-.replace(/</g,"&lt;")
-
-.replace(/>/g,"&gt;")
-
-.replace(/"/g,"&quot;")
-
-.replace(/'/g,"&#039;");
-
-}
-
-
-function today(){
-
-const d = new Date();
-
-return iso(d);
-
-}
-
-
-function iso(d){
-
-return d.getFullYear()
-
-+
-
-"-"
-
-+
-
-String(
-d.getMonth()+1
-).padStart(2,"0")
-
-+
-
-"-"
-
-+
-
-String(
-d.getDate()
-).padStart(2,"0");
-
-}
-
-
-function fmtTime(value){
-
-if(!value){
-
-return "-";
-
-}
-
-const d = new Date(value);
-
-if(isNaN(d)){
-
-return "-";
-
-}
-
-return d.toLocaleTimeString(
-
-"en-NG",
-
-{
-
-hour:"2-digit",
-
-minute:"2-digit",
-
-hour12:false,
-
-timeZone:"Africa/Lagos"
-
-}
-
-);
-
-}
-
-
-function fmtDate(value){
-
-if(!value){
-
-return "-";
-
-}
-
-const d = new Date(value);
-
-if(isNaN(d)){
-
-return "-";
-
-}
-
-return d.toLocaleDateString(
-
-"en-NG",
-
-{
-
-weekday:"short",
-
-day:"2-digit",
-
-month:"short",
-
-timeZone:"Africa/Lagos"
-
-}
-
-);
-
-}
-
-
-function leagueInfo(
-id,
-name,
-country
-){
-
-return (
-
-LEAGUES.find(
-
-x => String(x.id) === String(id)
-
-)
-
-||
-
-{
-
-id,
-
-name:name || "Football",
-
-country:country || "International",
-
-flag:"🌍",
-
-season:2026
-
-}
-
-);
-
-}
-
-
-/* =====================================================
-   LOGO
-===================================================== */
-
-function logo(
-url,
-name
-){
-
-if(url){
-
-return `
-
-<img
-
-src="${esc(url)}"
-
-alt=""
-
-onerror="this.style.display='none'"
-
->
-
-`;
-
-}
-
-return `
-
-<span
-
-style="
-width:22px;
-height:22px;
-display:inline-grid;
-place-items:center;
-border-radius:50%;
-background:#202a33;
-color:#73808a;
-font-size:8px;
-font-weight:800;
-"
-
->
-
-${esc(
-(name || "?").slice(0,1)
-)}
-
-</span>
-
-`;
-
-}
-
-
-/* =====================================================
-   NAV RENDER
-===================================================== */
-
-function renderNav(){
-
-document.getElementById(
-"nav"
-).innerHTML =
-
-navItems.map(
-
-item => `
-
-<button
-
-class="nav ${
-page === item[0]
-? "active"
-: ""
-}"
-
-onclick="setPage('${item[0]}')"
-
->
-
-${item[1]}
-
-</button>
-
-`
-
-).join("");
-
-}
-
-
-function setPage(p){
-
-page = p;
-
-renderNav();
-
-render();
-
-}
-
-
-/* =====================================================
-   DATE CONTROLS
-===================================================== */
-
-function dateControls(){
-
-const d =
-new Date(
-date + "T12:00:00"
-);
-
-const arr = [];
-
-for(
-let i=-1;
-i<=3;
-i++
-){
-
-const x =
-new Date(d);
-
-x.setDate(
-d.getDate()+i
-);
-
-const s =
-iso(x);
-
-let label;
-
-if(i === 0){
-
-label = "Today";
-
-}
-
-else if(i === -1){
-
-label = "Yesterday";
-
-}
-
-else if(i === 1){
-
-label = "Tomorrow";
-
-}
-
-else{
-
-label =
-x.toLocaleDateString(
-"en-NG",
-{
-weekday:"short"
-}
-);
-
-}
-
-arr.push(`
-
-<button
-
-class="date ${
-s === date
-? "active"
-: ""
-}"
-
-onclick="setDate('${s}')"
-
->
-
-<b>
-${esc(label)}
-</b>
-
-<small>
-
-${esc(
-x.toLocaleDateString(
-"en-NG",
-{
-day:"2-digit",
-month:"short"
-}
-)
-)}
-
-</small>
-
-</button>
-
-`);
-
-}
-
-return `
-
-<div class="datebar">
-
-${arr.join("")}
-
-</div>
-
-`;
-
-}
-
-
-function setDate(d){
-
-date = d;
-
-render();
-
-}
-
-
-/* =====================================================
-   ACTION BUTTONS
-===================================================== */
-
-function controls(){
-
-return `
-
-<div class="actions">
-
-<button
-
-class="action primary"
-
-onclick="loadData()"
-
->
-
-↻ Refresh
-
-</button>
-
-
-<button
-
-class="action"
-
-onclick="setDate(today())"
-
->
-
-📅 Today
-
-</button>
-
-</div>
-
-`;
-
-}
-
-
-/* =====================================================
-   API
-===================================================== */
-
-async function fetchAPI(
-action,
-extra=""
-){
-
-const response =
-await fetch(
-
-API_BASE +
-
-"?action=" +
-
-action +
-
-extra
-
-);
-
-const data =
-await response.json();
-
-if(!response.ok){
-
-throw new Error(
-
-data?.error ||
-
-"API request failed"
-
-);
-
-}
-
-return data;
-
-}
-
-
-/* =====================================================
-   RESPONSE NORMALIZER
-===================================================== */
-
-function responseArray(data){
-
-return (
-
-data?.response
-
-||
-
-data?.data?.response
-
-||
-
-data?.data
-
-||
-
-[]
-
-);
-
-}
-
-
-function rawMatch(x){
-
-const fixture =
-x?.fixture || x;
-
-const league =
-x?.league || {};
-
-const teams =
-x?.teams || {};
-
-const goals =
-x?.goals || {};
-
-const score =
-x?.score || {};
-
-return {
-
-id:
-fixture?.id ||
-x?.id,
-
-date:
-fixture?.date ||
-x?.date ||
-x?.utcDate,
-
-status:
-fixture?.status?.short ||
-x?.status?.short ||
-x?.status ||
-"",
-
-elapsed:
-fixture?.status?.elapsed ||
-x?.status?.elapsed,
-
-leagueId:
-league?.id ||
-x?.leagueId,
-
-leagueName:
-league?.name ||
-x?.leagueName ||
-"Football",
-
-country:
-league?.country ||
-x?.country ||
-"",
-
-home:
-teams?.home?.name ||
-x?.homeTeam?.name ||
-x?.homeTeam ||
-"Home",
-
-away:
-teams?.away?.name ||
-x?.awayTeam?.name ||
-x?.awayTeam ||
-"Away",
-
-homeLogo:
-teams?.home?.logo ||
-x?.homeTeam?.crest ||
-x?.homeLogo,
-
-awayLogo:
-teams?.away?.logo ||
-x?.awayTeam?.crest ||
-x?.awayLogo,
-
-homeScore:
-goals?.home ??
-score?.fulltime?.home ??
-x?.homeScore,
-
-awayScore:
-goals?.away ??
-score?.fulltime?.away ??
-x?.awayScore,
-
-venue:
-fixture?.venue?.name ||
-x?.venue?.name ||
-x?.venue ||
-"Not available",
-
-city:
-fixture?.venue?.city ||
-x?.venue?.city ||
-"",
-
-referee:
-fixture?.referee?.name ||
-x?.referee?.name ||
-"",
-
-raw:x
-
-};
-
-}
-
-
-function normalize(data){
-
-return responseArray(data)
-
-.map(rawMatch)
-
-.filter(
-x => x.id
-);
-
-}
-
-
-/* =====================================================
-   STATUS
-===================================================== */
-
-function liveStatus(status){
-
-return [
-
-"1H",
-"HT",
-"2H",
-"ET",
-"BT",
-"P",
-"LIVE"
-
-].includes(
-
-String(status)
-.toUpperCase()
-
-);
-
-}
-
-
-function finished(status){
-
-return [
-
-"FT",
-"AET",
-"PEN",
-"CANC",
-"ABD",
-"AWD",
-"WO"
-
-].includes(
-
-String(status)
-.toUpperCase()
-
-);
-
-}
-
-
-/* =====================================================
-   MATCH ROW
-===================================================== */
-
-function matchRow(m){
-
-const info =
-leagueInfo(
-m.leagueId,
-m.leagueName,
-m.country
-);
-
-const live =
-liveStatus(m.status);
-
-const fin =
-finished(m.status);
-
-let middle;
-
-if(live || fin){
-
-middle =
-
-(m.homeScore ?? 0)
-
-+
-
-" - "
-
-+
-
-(m.awayScore ?? 0);
-
-}
-
-else{
-
-middle = "VS";
-
-}
-
-
-let sub;
-
-if(live){
-
-sub =
-m.elapsed
-?
-m.elapsed + "′ LIVE"
-:
-"LIVE";
-
-}
-
-else if(fin){
-
-sub = "FT";
-
-}
-
-else{
-
-sub = fmtTime(m.date);
-
-}
-
-
-return `
-
-<div
-
-class="match"
-
-onclick="openMatch(${esc(m.id)})"
-
->
-
-<div class="kick ${
-live ? "live" : ""
-}">
-
-${
-
-live
-
-?
-
-"🔴 " +
-
-esc(
-m.elapsed
-?
-m.elapsed + "′"
-:
-"LIVE"
-)
-
-:
-
-esc(
-fmtTime(m.date)
-)
-
-}
-
-</div>
-
-
-<div class="team home">
-
-<span class="team-name">
-
-${esc(m.home)}
-
-</span>
-
-${logo(
-m.homeLogo,
-m.home
-)}
-
-</div>
-
-
-<div class="score">
-
-${esc(middle)}
-
-<span class="sub">
-
-${esc(sub)}
-
-</span>
-
-</div>
-
-
-<div class="team away">
-
-${logo(
-m.awayLogo,
-m.away
-)}
-
-<span class="team-name">
-
-${esc(m.away)}
-
-</span>
-
-</div>
-
-
-<div class="arrow">
-
-›
-
-</div>
-
-</div>
-
-`;
-
-}
-
-
-/* =====================================================
-   GROUP MATCHES
-===================================================== */
-
-function grouped(matches){
-
-const groups = {};
-
-matches.forEach(
-
-m => {
-
-const key =
-
-(m.country || "International")
-
-+
-
-"|"
-
-+
-
-m.leagueId
-
-+
-
-"|"
-
-+
-
-m.leagueName;
-
-
-if(!groups[key]){
-
-groups[key] = {
-
-country:
-m.country ||
-"International",
-
-leagueId:
-m.leagueId,
-
-leagueName:
-m.leagueName,
-
-items:[]
-
-};
-
-}
-
-groups[key].items.push(m);
-
-}
-
-);
-
-
-return Object.values(groups)
-
-.sort(
-
-(a,b) =>
-
-a.country.localeCompare(
-b.country
-)
-
-)
-
-.map(
-
-group => `
-
-<section class="league">
-
-<div class="league-head">
-
-<span class="country">
-
-${esc(
-leagueInfo(
-group.leagueId,
-group.leagueName,
-group.country
-).flag
-)}
-
-${esc(group.country)}
-
-</span>
-
-
-<span>
-
-🏆
-
-${esc(group.leagueName)}
-
-</span>
-
-
-<button
-
-class="star ${
-String(selectedLeague) ===
-String(group.leagueId)
-? "on"
-: ""
-}"
-
-onclick="
-event.stopPropagation();
-selectLeague(${group.leagueId})
-"
-
->
-
-★
-
-</button>
-
-</div>
-
-
-${group.items.map(
-matchRow
-).join("")}
-
-</section>
-
-`
-
-).join("");
-
-}
-
-
-/* =====================================================
-   SELECT LEAGUE
-===================================================== */
-
-function selectLeague(id){
-
-selectedLeague =
-Number(id);
-
-page =
-"fixtures";
-
-renderNav();
-
-render();
-
-}
-
-
-/* =====================================================
-   MATCH LIST
-===================================================== */
-
-function renderMatches(
-matches,
-title
-){
-
-if(!matches.length){
-
-return `
-
-<div class="empty">
-
-<div class="ball">
-⚽
-</div>
-
-<b>
-No matches available
-</b>
-
-<p>
-Try another date, league or section.
-</p>
-
-</div>
-
-`;
-
-}
-
-return `
-
-<div class="page-title">
-
-<h2>
-${esc(title)}
-</h2>
-
-<span>
-
-${matches.length}
-
-match${
-
-matches.length === 1
-? ""
-: "es"
-
-}
-
-</span>
-
-</div>
-
-${grouped(matches)}
-
-`;
-
-}
-
-
-/* =====================================================
-   LOAD DATA
-===================================================== */
-
-async function loadData(){
-
-const content =
-document.getElementById(
-"content"
-);
-
-content.innerHTML = `
-
-<div class="loading">
-
-<div class="spinner"></div>
-
-Loading real football data...
-
-</div>
-
-`;
-
-try{
-
-let data;
-
-
-if(page === "live"){
-
-data =
-await fetchAPI(
-"live"
-);
-
-}
-
-else if(page === "fixtures"){
-
-data =
-await fetchAPI(
-"fixtures",
-"&date=" +
-encodeURIComponent(date)
-);
-
-}
-
-else if(page === "results"){
-
-data =
-await fetchAPI(
-"results",
-"&date=" +
-encodeURIComponent(date)
-);
-
-}
-
-else{
-
-return render();
-
-}
-
-
-let matches =
-normalize(data);
+/* ==================================================
+   GLOBAL STATE
+================================================== */
+
+let selectedNetwork = "mtn";
+let selectedPlan = null;
+let currentPlans = [];
+
+let selectedAirtimeNetwork = "mtn";
+
+let selectedCableProvider = "gotv";
+let cablePlans = [];
+let selectedCablePlan = null;
+let verifiedCableAccount = null;
 
 
 /*
-FILTER ONLY WHEN
-A LEAGUE IS SELECTED
-FOR FIXTURES / RESULTS
+  Cable TV payment state is preserved during the
+  Paystack redirect.
+
+  This is important because the customer leaves
+  Awaji Magic Data and returns after payment.
 */
 
-if(
+const CABLE_PENDING_KEY =
+  "awaji_magic_data_cable_pending";
 
-page !== "live" &&
 
-selectedLeague
+const CABLE_FULFILLMENT_PREFIX =
+  "awaji_magic_data_cable_fulfillment_";
 
-){
 
-matches =
-matches.filter(
+/* ==================================================
+   SERVICE IDS
+================================================== */
 
-m =>
+const serviceIds = {
+  mtn:"317",
+  airtel:"316",
+  glo:"318",
+  "9mobile":"319"
+};
 
-String(m.leagueId)
 
-===
+const networkNames = {
+  mtn:"MTN",
+  airtel:"Airtel",
+  glo:"Glo",
+  "9mobile":"9mobile"
+};
 
-String(selectedLeague)
 
-);
+const airtimeNetworkNames = {
+  mtn:"MTN",
+  airtel:"Airtel",
+  glo:"Glo",
+  "9mobile":"9mobile"
+};
 
+
+/* ==================================================
+   CABLE TV CONFIGURATION
+================================================== */
+
+const cableServiceIds = {
+  gotv:"278",
+  dstv:"276",
+  startimes:"277"
+};
+
+
+const cableProviderNames = {
+  gotv:"GOtv",
+  dstv:"DStv",
+  startimes:"Startimes"
+};
+
+
+/* ==================================================
+   VIEW NAVIGATION
+================================================== */
+
+window.openService = function(service){
+
+  try{
+
+    if(service === "data"){
+
+      showView("dataView");
+
+      window.scrollTo({
+        top:0,
+        behavior:"smooth"
+      });
+
+      loadPlans();
+
+      return;
+    }
+
+
+    if(service === "airtime"){
+
+      showView("airtimeView");
+
+      updateAirtimeSummary();
+
+      window.scrollTo({
+        top:0,
+        behavior:"smooth"
+      });
+
+      return;
+    }
+
+
+    if(service === "cable"){
+
+      showView("cableView");
+
+      window.scrollTo({
+        top:0,
+        behavior:"smooth"
+      });
+
+      return;
+    }
+
+if(service === "education"){
+  showView("educationView");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+  return;
 }
+if(service === "ai"){
+  showView("aiView");
 
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
-currentMatches =
-matches;
+  return;
+}    
+ if(service === "electricity"){
+  showView("electricityView");
 
-renderContent(matches);
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 
+  return;
+ }
+if(service === "bills"){
+  const iconElement =
+    document.getElementById("comingIcon");
+
+  const titleElement =
+    document.getElementById("comingTitle");
+
+  const textElement =
+    document.getElementById("comingText");
+
+  if(iconElement){
+    iconElement.textContent = "📋";
+  }
+
+  if(titleElement){
+    titleElement.textContent = "Other Bills";
+  }
+
+  if(textElement){
+    textElement.innerHTML =
+      "🪪 NIN Services<br><br>" +
+      "🏦 BVN Services<br><br>" +
+      "✍️ Change of Name<br><br>" +
+      "💧 Water Bill<br><br>" +
+      "<small>These services will be activated only when a legitimate provider/API is connected.</small>";
+  }
+
+  showView("comingView");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+  return;
 }
+    const services = {
 
-catch(error){
+      electricity:{
+        icon:"💡",
+        title:"Electricity",
+        text:
+          "Electricity bill payment is coming soon."
+      },
 
-content.innerHTML = `
+      education:{
+        icon:"🎓",
+        title:"Education",
+        text:
+          "Education payment services are coming soon."
+      },
 
-<div class="status show error">
+      bills:{
+        icon:"🧾",
+        title:"Other Bills",
+        text:
+          "More bill payment services are coming soon."
+      },
 
-Unable to load football data:
+      ai:{
+        icon:"🤖",
+        title:"AI Help",
+        text:
+          "Awaji Magic AI assistance is coming soon."
+      }
 
-${esc(error.message)}
+    };
 
-</div>
 
-`;
+    const selected =
+      services[service] || {
+        icon:"🚀",
+        title:"Coming Soon",
+        text:
+          "This service is currently being prepared for Awaji Magic Data."
+      };
 
-}
 
-}
+    const iconElement =
+      document.getElementById("comingIcon");
 
+    const titleElement =
+      document.getElementById("comingTitle");
 
-/* =====================================================
-   RENDER MATCH CONTENT
-===================================================== */
+    const textElement =
+      document.getElementById("comingText");
 
-function renderContent(matches){
 
-document.getElementById(
-"content"
-).innerHTML =
+    if(iconElement){
+      iconElement.textContent = selected.icon;
+    }
 
-(
+    if(titleElement){
+      titleElement.textContent = selected.title;
+    }
 
-page === "live"
+    if(textElement){
+      textElement.textContent = selected.text;
+    }
 
-?
 
-controls()
+    showView("comingView");
 
-:
 
-dateControls() +
-controls()
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
 
-)
+  }catch(error){
 
-+
+    console.error(
+      "openService error:",
+      error
+    );
 
-renderMatches(
+  }
 
-matches,
+};
 
-page === "live"
 
-?
+window.goHome = function(){
 
-"Live Matches"
+  showView("homeView");
 
-:
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
-page === "fixtures"
+};
 
-?
 
-"Fixtures • " +
-fmtDate(date)
-
-:
-
-"Results • " +
-fmtDate(date)
-
-);
-
-}
-
-
-/* =====================================================
-   MAIN RENDER
-===================================================== */
-
-function render(){
-
-renderNav();
-
-
-const content =
-document.getElementById(
-"content"
-);
-
-
-if(page === "leagues"){
-
-return renderLeagues(
-content
-);
-
-}
-
-
-if(page === "standings"){
-
-return renderStandingsPage(
-content
-);
-
-}
-
-
-loadData();
-
-}
-
-
-/* =====================================================
-   LEAGUE BROWSER
-===================================================== */
-
-function renderLeagues(c){
-
-const by = {};
-
-LEAGUES.forEach(
-
-league => {
-
-if(!by[league.country]){
-
-by[league.country] = [];
-
-}
-
-by[league.country].push(
-league
-);
-
-}
-
-);
-
-
-c.innerHTML = `
-
-<div class="page-title">
-
-<h2>
-🌍 League Browser
-</h2>
-
-<span>
-${LEAGUES.length}
-competitions
-</span>
-
-</div>
-
-
-${
-
-Object.entries(by)
-
-.map(
-
-([country,list]) => `
-
-<section class="country-box">
-
-<div
-
-class="country-head"
-
-onclick="
-this.parentElement.classList.toggle('open')
-"
-
->
-
-${list[0].flag}
-
-${esc(country)}
-
-<span>
-
-${list.length}
-
-leagues ▾
-
-</span>
-
-</div>
-
-
-<div class="league-list">
-
-${
-
-list.map(
-
-league => `
-
-<button
-
-class="league-choice"
-
-onclick="
-chooseLeague(${league.id})
-"
-
->
-
-${league.flag}
-
-${esc(league.name)}
-
-</button>
-
-`
-
-).join("")
-
-}
-
-</div>
-
-</section>
-
-`
-
-).join("")
-
-}
-
-`;
-
-}
-
-
-function chooseLeague(id){
-
-selectedLeague =
-Number(id);
-
-page =
-"fixtures";
-
-date =
-today();
-
-renderNav();
-
-render();
-
-}
-
-
-/* =====================================================
-   STANDINGS
-===================================================== */
-
-async function renderStandingsPage(c){
-
-const league =
-leagueInfo(
-selectedLeague
-);
-
-
-c.innerHTML = `
-
-<div class="page-title">
-
-<h2>
-📊 Standings
-</h2>
-
-<span>
-
-${esc(
-league.flag +
-" " +
-league.name
-)}
-
-</span>
-
-</div>
-
-
-<div class="toolbar">
-
-${
-
-LEAGUES
-
-.slice(0,12)
-
-.map(
-
-league => `
-
-<button
-
-class="tool ${
-league.id === selectedLeague
-? "active"
-: ""
-}"
-
-onclick="
-selectedLeague=${league.id};
-render()
-"
-
->
-
-${esc(league.name)}
-
-</button>
-
-`
-
-).join("")
-
-}
-
-</div>
-
-
-<div class="loading">
-
-<div class="spinner"></div>
-
-Loading standings...
-
-</div>
-
-`;
-
-
-try{
-
-const data =
-await fetchAPI(
-
-"standings",
-
-"&league=" +
-
-encodeURIComponent(
-selectedLeague
-)
-
-+
-
-"&season=" +
-
-encodeURIComponent(
-league.season
-)
-
-);
-
-
-const rows =
-responseArray(data);
-
-
-const table =
-
-rows[0]
-?.league
-?.standings
-?.[0]
-
-||
-
-rows[0]
-?.standings
-?.[0]
-
-||
-
-rows;
-
-
-c.innerHTML = `
-
-<div class="page-title">
-
-<h2>
-📊 ${esc(league.name)}
-</h2>
-
-<span>
-Season ${esc(league.season)}
-</span>
-
-</div>
-
-${standingsTable(table)}
-
-`;
-
-}
-
-catch(error){
-
-c.innerHTML = `
-
-<div class="status show error">
-
-Unable to load standings:
-
-${esc(error.message)}
-
-</div>
-
-`;
-
-}
-
-}
-
-
-/* =====================================================
-   STANDINGS TABLE
-===================================================== */
-
-function standingsTable(rows){
-
-if(
-
-!Array.isArray(rows)
-
-||
-
-!rows.length
-
-){
-
-return `
-
-<div class="empty">
-
-<div class="ball">
-📊
-</div>
-
-<b>
-No standings available
-</b>
-
-<p>
-The selected competition has no standings data.
-</p>
-
-</div>
-
-`;
-
-}
-
-
-return `
-
-<div class="table-wrap">
-
-<table class="standings">
-
-<thead>
-
-<tr>
-
-<th>
-#
-</th>
-
-<th>
-TEAM
-</th>
-
-<th>
-P
-</th>
-
-<th>
-W
-</th>
-
-<th>
-D
-</th>
-
-<th>
-L
-</th>
-
-<th>
-GD
-</th>
-
-<th>
-PTS
-</th>
-
-</tr>
-
-</thead>
-
-
-<tbody>
-
-${
-
-rows.map(
-
-(row,index) => {
-
-const team =
-row.team || {};
-
-const all =
-row.all || {};
-
-return `
-
-<tr>
-
-<td class="pos">
-
-${esc(
-row.rank ??
-index + 1
-)}
-
-</td>
-
-
-<td>
-
-<div class="teamcell">
-
-${logo(
-team.logo,
-team.name
-)}
-
-<span>
-
-${esc(
-team.name ||
-"Team"
-)}
-
-</span>
-
-</div>
-
-</td>
-
-
-<td>
-
-${esc(
-all.played ??
-row.played ??
-"-"
-)}
-
-</td>
-
-
-<td>
-
-${esc(
-all.win ??
-row.win ??
-"-"
-)}
-
-</td>
-
-
-<td>
-
-${esc(
-all.draw ??
-row.draw ??
-"-"
-)}
-
-</td>
-
-
-<td>
-
-${esc(
-all.lose ??
-row.lose ??
-"-"
-)}
-
-</td>
-
-
-<td>
-
-${esc(
-row.goalsDiff ??
-"-"
-)}
-
-</td>
-
-
-<td>
-
-<b>
-
-${esc(
-row.points ??
-"-"
-)}
-
-</b>
-
-</td>
-
-</tr>
-
-`;
-
-}
-
-).join("")
-
-}
-
-</tbody>
-
-</table>
-
-</div>
-
-`;
-
-}
-
-
-/* =====================================================
-   MATCH DETAILS
-===================================================== */
-
-async function openMatch(id){
-
-document
-.getElementById("modal")
-.classList.add("show");
-
-
-document.body.style.overflow =
-"hidden";
-
-
-document.getElementById(
-"details"
-).innerHTML = `
-
-<div class="loading">
-
-<div class="spinner"></div>
-
-Loading match information...
-
-</div>
-
-`;
-
-
-try{
-
-const data =
-await fetchAPI(
-
-"match",
-
-"&id=" +
-
-encodeURIComponent(id)
-
-);
-
-
-const raw =
-
-responseArray(data)[0]
-
-||
-
-data?.match
-
-||
-
-data;
-
-
-showDetails(
-rawMatch(raw)
-);
-
-}
-
-catch(error){
-
-document.getElementById(
-"details"
-).innerHTML = `
-
-<div class="empty">
-
-⚠️
-
-<br>
-<br>
-
-<b>
-Match information unavailable
-</b>
-
-<p>
-
-${esc(
-error.message
-)}
-
-</p>
-
-</div>
-
-`;
-
-}
-
-}
-
-
-function closeModal(){
-
-document
-.getElementById("modal")
-.classList.remove("show");
-
-
-document.body.style.overflow =
-"";
-
-}
-
-
-/* =====================================================
-   MATCH DETAILS UI
-===================================================== */
-
-function showDetails(m){
-
-const live =
-liveStatus(m.status);
-
-const fin =
-finished(m.status);
-
-const raw =
-m.raw || {};
-
-const events =
-raw.events || [];
-
-const stats =
-raw.statistics || [];
-
-
-const score =
-
-live || fin
-
-?
-
-(m.homeScore ?? 0)
-
-+
-
-" - "
-
-+
-
-(m.awayScore ?? 0)
-
-:
-
-"VS";
-
-
-document.getElementById(
-"details"
-).innerHTML = `
-
-<div class="hero">
-
-<div class="hero-league">
-
-🏆
-
-${esc(m.leagueName)}
-
-•
-
-${esc(m.country)}
-
-</div>
-
-
-<div class="hero-status">
-
-${esc(
-
-live
-
-?
-
-(
-
-m.elapsed
-
-?
-
-m.elapsed + "′ • LIVE"
-
-:
-
-"LIVE"
-
-)
-
-:
-
-fin
-
-?
-
-"FINISHED"
-
-:
-
-"UPCOMING"
-
-)}
-
-</div>
-
-
-<div class="hero-teams">
-
-
-<div class="hero-team">
-
-${logo(
-m.homeLogo,
-m.home
-)}
-
-<br>
-
-${esc(m.home)}
-
-</div>
-
-
-<div>
-
-<div class="hero-score">
-
-${esc(score)}
-
-</div>
-
-
-<div class="hero-time">
-
-${esc(
-fmtDate(m.date)
-)}
-
-•
-
-${esc(
-fmtTime(m.date)
-)}
-
-WAT
-
-</div>
-
-</div>
-
-
-<div class="hero-team">
-
-${logo(
-m.awayLogo,
-m.away
-)}
-
-<br>
-
-${esc(m.away)}
-
-</div>
-
-
-</div>
-
-</div>
-
-
-<div class="detail-section">
-
-<div class="detail-title">
-
-📋 Match Information
-
-</div>
-
-
-<div class="info">
-
-
-<div>
-
-<small>
-Date
-</small>
-
-<b>
-${esc(fmtDate(m.date))}
-</b>
-
-</div>
-
-
-<div>
-
-<small>
-Kickoff
-</small>
-
-<b>
-${esc(fmtTime(m.date))}
-WAT
-</b>
-
-</div>
-
-
-<div>
-
-<small>
-Venue
-</small>
-
-<b>
-${esc(m.venue)}
-</b>
-
-</div>
-
-
-<div>
-
-<small>
-City
-</small>
-
-<b>
-${esc(
-m.city ||
-"Not available"
-)}
-</b>
-
-</div>
-
-
-<div>
-
-<small>
-Referee
-</small>
-
-<b>
-${esc(
-m.referee ||
-"Not available"
-)}
-</b>
-
-</div>
-
-
-<div>
-
-<small>
-Status
-</small>
-
-<b>
-${esc(
-m.status ||
-"Not available"
-)}
-</b>
-
-</div>
-
-
-</div>
-
-</div>
-
-
-${
-
-events.length
-
-?
-
-`
-
-<div class="detail-section">
-
-<div class="detail-title">
-
-⚡ Match Events
-
-</div>
-
-
-${
-
-events.map(
-
-event => `
-
-<div class="event">
-
-<div class="event-time">
-
-${esc(
-event.time?.elapsed ??
-""
-)}
-
-′
-
-</div>
-
-
-<div class="event-main">
-
-${esc(
-event.detail ||
-event.type ||
-"Event"
-)}
-
-<br>
-
-<span style="color:#71808a">
-
-${esc(
-event.player?.name ||
-""
-)}
-
-</span>
-
-</div>
-
-</div>
-
-`
-
-).join("")
-
-}
-
-</div>
-
-`
-
-:
-
-""
-
-}
-
-
-${
-
-stats.length
-
-?
-
-`
-
-<div class="detail-section">
-
-<div class="detail-title">
-
-📊 Match Statistics
-
-</div>
-
-
-${
-
-stats.flatMap(
-
-team =>
-
-team.statistics || []
-
-).map(
-
-stat => `
-
-<div class="stats-row">
-
-<b>
-
-${esc(
-stat.value ??
-"-"
-)}
-
-</b>
-
-<span>
-
-${esc(
-stat.type ||
-"Statistic"
-)}
-
-</span>
-
-<b></b>
-
-</div>
-
-`
-
-).join("")
-
-}
-
-</div>
-
-`
-
-:
-
-""
-
-}
-
-
-<div class="detail-section">
-
-<button
-
-class="share"
-
-onclick="shareMatch()"
-
->
-
-📤 Share Match
-
-</button>
-
-</div>
-
-`;
-
-}
-
-
-/* =====================================================
-   SHARE
-===================================================== */
-
-async function shareMatch(){
-
-try{
-
-await navigator.share({
-
-title:
-"M.Awaji LiveScores",
-
-text:
-"Check this football match on M.Awaji LiveScores",
-
-url:
-location.href
-
-});
-
-}
-
-catch(error){
-
-}
-
-}
-
-
-/* =====================================================
-   MODAL EVENTS
-===================================================== */
-
-document
-.getElementById("modal")
-.addEventListener(
-
-"click",
-
-event => {
-
-if(
-event.target.id === "modal"
-){
-
-closeModal();
-
-}
-
-}
-
-);
-
-
-document.addEventListener(
-
-"keydown",
-
-event => {
-
-if(
-event.key === "Escape"
-){
-
-closeModal();
-
-}
-
-}
-
-);
-
-
-/* =====================================================
-   START APP
-===================================================== */
-
-renderNav();
-
-render();
-
-
-/* =====================================================
-   AUTO REFRESH
-===================================================== */
-
-setInterval(
-
-() => {
-
-if(
-
-page === "live"
-
-||
-
-page === "fixtures"
-
-||
-
-page === "results"
-
-){
-
-loadData();
-
-}
-
-},
-
-30000
-
-);
-
-</script>
-
-</body>
-</html>
