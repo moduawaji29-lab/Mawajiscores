@@ -140,7 +140,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
   <main class="main">
     <div class="toolbar">
       <div class="search"><input id="search" type="search" placeholder="Search teams or competitions…" autocomplete="off"></div>
-      <button class="smallbtn" id="showAll">Show all</button>
+      <button class="smallbtn" id="showAll" aria-pressed="false">Show all leagues</button>
       <button class="smallbtn primary" id="refresh">↻ Refresh</button>
     </div>
 
@@ -151,7 +151,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
       <button class="compbtn" data-league="78" data-code="BL1">Bundesliga</button>
       <button class="compbtn" data-league="61" data-code="FL1">Ligue 1</button>
       <button class="compbtn" data-league="2" data-code="CL">Champions League</button>
-      <button class="compbtn" data-league=" african" data-code="AFCON">African competitions</button>
+      <button class="compbtn" data-league="all" data-code="ALL">All leagues</button>
     </div>
 
     <section class="panel content-panel">
@@ -291,19 +291,33 @@ function matchDate(item) {
   return localDateString(new Date(d));
 }
 function filterMatches(arr) {
-  let result=arr;
+  let result = Array.isArray(arr) ? [...arr] : [];
+
+  // Apply competition filtering unless the user explicitly chose "Show all leagues".
   if (!showAll && selectedLeague !== "all") {
-    result=result.filter(m=>{
-      const l=getLeague(m), id=String(l?.id ?? m?.competition?.id ?? "");
-      return id === selectedLeague || (leagues[selectedLeague] && compName(m).toLowerCase()===leagues[selectedLeague].name.toLowerCase());
+    result = result.filter(m => {
+      const league = getLeague(m);
+      const id = String(league?.id ?? m?.competition?.id ?? "");
+      return id === String(selectedLeague);
     });
   }
-  if (currentView==="fixtures") result=result.filter(m=>!["FT","AET","PEN","FINISHED","CANC","ABD","AWD","WO"].includes(String(statusShort(m)).toUpperCase()));
-  if (currentView==="results") result=result.filter(m=>["FT","AET","PEN","FINISHED"].includes(String(statusShort(m)).toUpperCase()));
-  if (currentView==="live") result=result.filter(m=>["1H","2H","HT","ET","P","LIVE","IN_PLAY","PAUSED"].includes(String(statusShort(m)).toUpperCase()));
-  if (currentView==="favorites") result=result.filter(m=>favorites.has(String(fixtureId(m))));
-  const term=searchInput.value.trim().toLowerCase();
-  if(term) result=result.filter(m=>`${teamName(getTeams(m).home)} ${teamName(getTeams(m).away)} ${compName(m)}`.toLowerCase().includes(term));
+
+  if (currentView === "fixtures") {
+    result = result.filter(m => !["FT","AET","PEN","FINISHED","CANC","ABD","AWD","WO"].includes(String(statusShort(m)).toUpperCase()));
+  } else if (currentView === "results") {
+    result = result.filter(m => ["FT","AET","PEN","FINISHED"].includes(String(statusShort(m)).toUpperCase()));
+  } else if (currentView === "live") {
+    result = result.filter(m => ["1H","2H","HT","ET","P","LIVE","IN_PLAY","PAUSED"].includes(String(statusShort(m)).toUpperCase()));
+  } else if (currentView === "favorites") {
+    result = result.filter(m => favorites.has(String(fixtureId(m))));
+  }
+
+  const term = searchInput.value.trim().toLowerCase();
+  if (term) {
+    result = result.filter(m =>
+      `${teamName(getTeams(m).home)} ${teamName(getTeams(m).away)} ${compName(m)} ${countryName(m)}`.toLowerCase().includes(term)
+    );
+  }
   return result;
 }
 function setStatus(message,type="") {
@@ -325,7 +339,10 @@ function makeDateStrip() {
 }
 function syncControls() {
   document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===currentView));
-  document.querySelectorAll(".compbtn").forEach(b=>b.classList.toggle("active",b.dataset.league===selectedLeague));
+  document.querySelectorAll(".compbtn").forEach(b=>b.classList.toggle("active", b.dataset.league === (showAll ? "all" : selectedLeague)));
+  const showAllButton = document.getElementById("showAll");
+  showAllButton.textContent = showAll ? "Filter selected league" : "Show all leagues";
+  showAllButton.setAttribute("aria-pressed", String(showAll));
   makeDateStrip();
 }
 function renderMatches(arr) {
@@ -334,7 +351,7 @@ function renderMatches(arr) {
     content.innerHTML=`<div class="empty"><strong>No matches found</strong>${currentView==="live"?"There are no live matches in the returned data right now.":"Try another date, competition, or use Show all."}</div>`;
     setStatus("No matches for this selection","success"); return;
   }
-  setStatus(`${arr.length} match${arr.length===1?"":"es"} shown`,"success");
+  setStatus(`${arr.length} match${arr.length===1?"":"es"} shown${showAll ? " · all leagues" : " · " + (leagues[selectedLeague]?.name || "selected league")}`,"success");
   const groups=new Map();
   arr.forEach(m=>{const key=`${countryName(m)}|${compName(m)}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(m);});
   for(const [key,items] of groups){
@@ -465,18 +482,26 @@ document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",(
   if(currentView==="favorites" && !favorites.size){content.innerHTML='<div class="empty"><strong>No favorites saved</strong>Tap the star beside a match to save it.</div>';syncControls();setStatus("No saved favorites");return;}
   loadData();
 }));
-document.querySelectorAll(".compbtn").forEach(b=>b.addEventListener("click",()=>{
-  const id=b.dataset.league;
-  if(id===" african"){showAll=true;selectedLeague="all";}else{selectedLeague=id;showAll=false;}
-  document.querySelectorAll(".compbtn").forEach(x=>x.classList.toggle("active",x===b));
+document.querySelectorAll(".compbtn").forEach(b => b.addEventListener("click", () => {
+  if (b.dataset.league === "all") {
+    showAll = true;
+  } else {
+    selectedLeague = String(b.dataset.league);
+    showAll = false;
+  }
+  document.querySelectorAll(".compbtn").forEach(x => x.classList.toggle("active", x === b));
   loadData();
 }));
 document.getElementById("refresh").addEventListener("click",loadData);
-document.getElementById("showAll").addEventListener("click",()=>{
-  showAll=!showAll;
-  document.getElementById("showAll").textContent=showAll?"Selected league":"Show all";
-  if(showAll){selectedLeague="all";document.querySelectorAll(".compbtn").forEach(x=>x.classList.remove("active"));}
-  else {selectedLeague="39";document.querySelectorAll(".compbtn").forEach(x=>x.classList.toggle("active",x.dataset.league==="39"));}
+document.getElementById("showAll").addEventListener("click", () => {
+  if (!showAll) {
+    showAll = true;
+    document.querySelectorAll(".compbtn").forEach(x => x.classList.toggle("active", x.dataset.league === "all"));
+  } else {
+    showAll = false;
+    if (selectedLeague === "all") selectedLeague = "39";
+    document.querySelectorAll(".compbtn").forEach(x => x.classList.toggle("active", x.dataset.league === selectedLeague));
+  }
   loadData();
 });
 searchInput.addEventListener("input",()=>renderMatches(filterMatches(allLoadedMatches)));
