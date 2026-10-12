@@ -145,7 +145,7 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .stat-compare{display:grid;grid-template-columns:minmax(0,1fr) minmax(92px,1.15fr) minmax(0,1fr);align-items:center;gap:7px;padding:5px 2px;border-bottom:1px solid var(--line);font-size:11px;min-height:34px}
 .stat-compare .home{text-align:right}.stat-compare .away{text-align:left}.stat-compare .label{text-align:center;color:var(--muted);font-size:10px;font-weight:750}
 .stat-track{height:3px;display:flex;gap:3px;margin:0 0 4px}.stat-track span{height:100%;border-radius:9px;background:#dce4e8}.stat-track .better{background:var(--green)}
-.lineup-team{margin:0;border:0;border-bottom:1px solid var(--line);padding:0 0 10px;overflow:hidden;background:var(--surface)}
+.lineups-combined{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}.lineup-team{margin:0;border:0;border-bottom:1px solid var(--line);padding:0 0 10px;overflow:hidden;background:var(--surface)}
 .lineup-team + .lineup-team{padding-top:10px}
 .commentary-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0 12px;font-size:11px;color:var(--muted)}
 .commentary-refresh{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:6px 9px;font-size:11px;font-weight:750;color:var(--text)}
@@ -305,7 +305,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
 */
 const API_BASE = "https://football-livescore-backend-new.vercel.app/api";
 const STANDINGS_SEASON = 2024; // Historical standings season supported by the current plan.
-const FIXTURES_SEASON = 2026; // Current football season for league-scoped fixtures and results.
+const FIXTURES_SEASON = 2024; // Provider free-plan ceiling; current-season league-scoped fixtures require a paid plan.
 const leagues = {
   "39": {name:"Premier League", country:"England"},
   "140": {name:"La Liga", country:"Spain"},
@@ -574,13 +574,16 @@ async function loadData() {
       if(requestId!==requestCounter)return;
       renderStandings(data);return;
     }
-    const leagueParams = (!showAll && selectedLeague !== "all") ? {league:selectedLeague,season:String(FIXTURES_SEASON)} : {};
+    // Fetch the broad fixture/result feed first, then apply the selected league locally.
+    // League-scoped calls force a season parameter and fail on the current free API plan
+    // for 2026; the broad feed already works and includes league IDs for local filtering.
+    const leagueParams = (!showAll && selectedLeague !== "all") ? {league:selectedLeague} : {};
     if(currentView==="live"){
       data=await api({action:"live",...leagueParams});
     } else if(currentView==="fixtures"){
-      data=await api({action:"fixtures",date:selectedDate,...leagueParams});
+      data=await api({action:"fixtures",date:selectedDate});
     } else if(currentView==="results"){
-      data=await api({action:"results",date:selectedDate,...leagueParams});
+      data=await api({action:"results",date:selectedDate});
     } else if(currentView==="favorites"){
       // Retrieve live matches for the selected league; saved fixtures are filtered locally.
       data=await api({action:"live",...leagueParams});
@@ -717,7 +720,7 @@ function renderDetailSection(section,m,data) {
     body.innerHTML=`<div class="stat-compare" style="font-weight:800;border-bottom:1px solid var(--line);margin-bottom:8px"><div class="home">${esc(homeName)}</div><div class="label">STATISTICS</div><div class="away">${esc(awayName)}</div></div><div class="stats-grid">`+types.map(type=>{const h=byTeam.find(t=>t.name===homeName)?.items.find(x=>(x.type||x.name)===type)?.value;const a=byTeam.find(t=>t.name===awayName)?.items.find(x=>(x.type||x.name)===type)?.value;const numeric=v=>{if(v===null||v===undefined||v==="")return null;const n=parseFloat(String(v).replace("%",""));return Number.isFinite(n)?n:null};const hn=numeric(h),an=numeric(a);const homeBetter=hn!==null&&an!==null&&hn>an;const awayBetter=hn!==null&&an!==null&&an>hn;return `<div class="stats-card"><div class="stat-compare"><div class="home"><strong>${esc(h??"—")}</strong></div><div class="label">${esc(type)}</div><div class="away"><strong>${esc(a??"—")}</strong></div></div><div class="stat-track"><span class="${homeBetter?"better":""}" style="width:${hn!==null&&an!==null?(hn+an?hn/(hn+an)*100:50):50}%"></span><span class="${awayBetter?"better":""}" style="width:${hn!==null&&an!==null?(hn+an?an/(hn+an)*100:50):50}%"></span></div></div>`}).join("")+`</div>`;
   } else if(section==="lineups"){
     if(!lineups.length){body.innerHTML='<div class="empty">Lineups are not available yet. Starting XI and substitutes are usually published closer to kick-off.</div>';return;}
-    body.innerHTML=lineups.map(renderLineupTeam).join("");
+    body.innerHTML=`<div class="lineups-combined">${lineups.map(renderLineupTeam).join("")}</div>`;
   }
 }
 
