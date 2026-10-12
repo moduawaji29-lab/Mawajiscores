@@ -130,6 +130,18 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 
 .match-meta{display:flex;justify-content:center;gap:8px 16px;flex-wrap:wrap;padding:10px 12px;background:var(--surface2);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted)}
 .match-meta span{display:inline-flex;align-items:center;gap:5px}
+ .match-info{border-bottom:1px solid var(--line);background:var(--surface)}
+.match-info-title{padding:10px 12px;background:var(--surface2);font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}
+.match-info-row{display:grid;grid-template-columns:125px minmax(0,1fr);gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:12px}
+.match-info-row:last-child{border-bottom:0}.match-info-label{color:var(--muted);font-weight:750}.match-info-value{text-align:right;font-weight:750;overflow-wrap:anywhere}
+.form-panels{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px}
+.form-card{border:1px solid var(--line);border-radius:11px;padding:10px;min-width:0;text-align:center}
+.form-card-title{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12px;font-weight:800;margin-bottom:8px}
+.form-card-title img{width:24px;height:24px;object-fit:contain}
+.form-results{display:flex;justify-content:center;gap:4px;flex-wrap:wrap}.form-results span{width:26px;height:27px;border-radius:5px;display:grid;place-items:center;color:#fff;font-weight:850;font-size:11px}
+.h2h-list{padding:0 12px}.h2h-row{display:grid;grid-template-columns:70px minmax(0,1fr) 45px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:11px}.h2h-date{color:var(--muted)}.h2h-teams{display:grid;gap:4px}.h2h-score{text-align:center;font-weight:900}
+.pitch-player-photo{width:34px;height:34px;object-fit:cover;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px #003d2455;margin-bottom:3px;background:#e8f0ec}
+@media(max-width:720px){.match-info-row{grid-template-columns:95px minmax(0,1fr);font-size:11px}.form-panels{gap:6px;padding:8px}.form-card{padding:8px 4px}.form-card-title{font-size:10px}.form-results{gap:3px}.form-results span{width:22px;height:24px}.h2h-row{grid-template-columns:57px minmax(0,1fr) 38px;gap:5px}}
 .stat-compare{display:grid;grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr);align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:12px}
 .stat-compare .home{text-align:right}.stat-compare .away{text-align:left}.stat-compare .label{text-align:center;color:var(--muted);font-size:10px;font-weight:750}
 .stat-track{height:4px;display:flex;gap:3px;margin-top:5px}.stat-track span{height:100%;border-radius:9px;background:#dce4e8}.stat-track .better{background:var(--green)}
@@ -280,7 +292,8 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
   This page only calls your own backend.
 */
 const API_BASE = "https://football-livescore-backend-new.vercel.app/api";
-const STANDINGS_SEASON = 2024; // Historical season supported by the current free API plan; update after upgrading the subscription.
+const STANDINGS_SEASON = 2024; // Historical standings season supported by the current plan.
+const FIXTURES_SEASON = 2026; // Current football season for league-scoped fixtures and results.
 const leagues = {
   "39": {name:"Premier League", country:"England"},
   "140": {name:"La Liga", country:"Spain"},
@@ -531,7 +544,7 @@ async function loadData() {
       if(requestId!==requestCounter)return;
       renderStandings(data);return;
     }
-    const leagueParams = (!showAll && selectedLeague !== "all") ? {league:selectedLeague} : {};
+    const leagueParams = (!showAll && selectedLeague !== "all") ? {league:selectedLeague,season:String(FIXTURES_SEASON)} : {};
     if(currentView==="live"){
       data=await api({action:"live",...leagueParams});
     } else if(currentView==="fixtures"){
@@ -591,18 +604,48 @@ function matchPayload(m,data,key) {
   if (Array.isArray(nested?.[key])) return nested[key];
   return [];
 }
+function matchTeamMeta(m){
+  const t=getTeams(m);
+  return {
+    home:t.home||{}, away:t.away||{}
+  };
+}
+function formLetters(team){
+  const raw=String(team?.form||team?.recentForm||"").toUpperCase();
+  return raw.split("").filter(x=>["W","D","L"].includes(x)).slice(-5);
+}
+function renderTeamFormCard(team){
+  const name=teamName(team), logo=teamLogo(team), form=formLetters(team);
+  return `<div class="form-card"><div class="form-card-title">${logo?`<img src="${logo}" alt="" loading="lazy">`:""}<span>${esc(name)}</span></div><div class="form-results">${form.length?form.map(ch=>`<span style="background:${ch==="W"?"#08a64f":ch==="D"?"#f0a000":"#d90016"}">${ch}</span>`).join(""):'<small>Form not supplied</small>'}</div></div>`;
+}
+function renderH2HRow(m){
+  const teams=getTeams(m), goals=getGoals(m), f=getFixture(m);
+  const date=f.date||m.date||m.utcDate;
+  const dateText=date?new Date(date).toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit",year:"2-digit"}):"—";
+  return `<div class="h2h-row"><span class="h2h-date">${esc(dateText)}</span><span class="h2h-teams"><span>${esc(teamName(teams.home))}</span><span>${esc(teamName(teams.away))}</span></span><strong class="h2h-score">${esc(scoreValue(goals.home))} : ${esc(scoreValue(goals.away))}</strong></div>`;
+}
 function renderMatchCentre(m,data) {
   const f=getFixture(m), teams=getTeams(m), home=teams.home||{}, away=teams.away||{}, goals=getGoals(m), league=getLeague(m), st=statusLabel(m);
   const venue=f.venue || m.venue || {}, kickoff=f.date || m.date || m.utcDate;
   const venueText=[venue.name,venue.city].filter(Boolean).join(", ");
   const referee=f.referee || m.referee || "";
   const kickoffText=kickoff ? new Date(kickoff).toLocaleString("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "Kick-off time unavailable";
+  const capacity=venue.capacity || f.venue?.capacity || m.venue?.capacity || null;
+  const teamMeta=matchTeamMeta(m);
+  const h2h=Array.isArray(m.headtohead)?m.headtohead:(Array.isArray(data.headtohead)?data.headtohead:[]);
   content.innerHTML=`<div class="detail-head"><div class="detail-league">${esc(league.name||compName(m))} ${league.round?`· ${esc(league.round)}`:""}</div><div class="detail-teams">
     <div class="detail-team">${teamLogo(home)?`<img src="${teamLogo(home)}" alt="">`:"⚽"}<div>${esc(teamName(home))}</div></div>
     <div><div class="detail-score">${esc(scoreValue(goals.home))} - ${esc(scoreValue(goals.away))}</div><div class="detail-status">${esc(st.text)}</div></div>
     <div class="detail-team">${teamLogo(away)?`<img src="${teamLogo(away)}" alt="">`:"⚽"}<div>${esc(teamName(away))}</div></div>
   </div></div>
-  <div class="match-meta"><span>🕒 ${esc(kickoffText)}</span>${venueText?`<span>📍 ${esc(venueText)}</span>`:""}${referee?`<span>🟨 Referee: ${esc(referee)}</span>`:""}</div>
+  <div class="match-info"><div class="match-info-title">Match information</div>
+    <div class="match-info-row"><span class="match-info-label">🕒 Date & time</span><span class="match-info-value">${esc(kickoffText)}</span></div>
+    <div class="match-info-row"><span class="match-info-label">🏟️ Venue</span><span class="match-info-value">${esc(venueText || "Not supplied by provider")}</span></div>
+    <div class="match-info-row"><span class="match-info-label">🧑‍⚖️ Referee</span><span class="match-info-value">${esc(referee || "Not supplied by provider")}</span></div>
+    <div class="match-info-row"><span class="match-info-label">👥 Capacity</span><span class="match-info-value">${capacity ? esc(Number(capacity).toLocaleString("en-GB")) : "Not supplied by provider"}</span></div>
+  </div>
+  <div class="match-info"><div class="match-info-title">Recent form</div><div class="form-panels">${renderTeamFormCard(teams.home,teamMeta.home)}${renderTeamFormCard(teams.away,teamMeta.away)}</div></div>
+  <div class="match-info"><div class="match-info-title">Head-to-head matches</div>${h2h.length?`<div class="h2h-list">${h2h.slice(0,5).map(renderH2HRow).join("")}</div>`:`<div class="empty">Head-to-head history is not included in this backend response yet.</div>`}</div>
   <div class="detail-tabs"><button class="detail-tab active" data-detail="events">Events</button><button class="detail-tab" data-detail="statistics">Statistics</button><button class="detail-tab" data-detail="lineups">Lineups</button><button class="detail-tab" data-detail="back">← Matches</button></div><div class="detail-body" id="detailBody"></div>`;
   document.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.detail==="back"){loadData();return;}document.querySelectorAll("[data-detail]").forEach(x=>x.classList.toggle("active",x===b));detailSection=b.dataset.detail;renderDetailSection(detailSection,m,data);}));
   renderDetailSection("events",m,data);
@@ -619,7 +662,7 @@ function renderLineupTeam(l){
   // API-Football grid values look like "2:3" (row:column). Use them to place players in pitch rows.
   const grouped={};
   starters.forEach((p,i)=>{const raw=p.grid||p.player?.grid||"";const row=String(raw).includes(":")?parseInt(String(raw).split(":")[0],10):null;const key=Number.isFinite(row)&&row>0?row:Math.min(5,Math.max(1,Math.round((i+1)/Math.max(1,starters.length/5))));(grouped[key] ||= []).push(p);});
-  const rows=Object.keys(grouped).map(Number).sort((a,b)=>a-b).map(key=>`<div class="pitch-row">${grouped[key].map(p=>`<div class="pitch-player"><span class="player-shirt">${esc(lineupNumber(p)||"•")}</span><span>${esc(lineupPlayerName(p))}</span></div>`).join("")}</div>`).join("");
+  const rows=Object.keys(grouped).map(Number).sort((a,b)=>a-b).map(key=>`<div class="pitch-row">${grouped[key].map(p=>{const photo=safeUrl(p.player?.photo||p.photo||"");return `<div class="pitch-player">${photo?`<img class="pitch-player-photo" src="${photo}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<span class="player-shirt">${esc(lineupNumber(p)||"•")}</span>`}<span>${esc(lineupPlayerName(p))}</span></div>`}).join("")}</div>`).join("");
   return `<section class="lineup-team"><div class="lineup-team-head"><span>${esc(teamNameText)}</span><span>${esc(formation)}</span></div>${starters.length?`<div class="pitch" aria-label="${esc(teamNameText)} starting formation"><div class="pitch-line"></div><div class="pitch-players">${rows}</div></div>`:`<div class="empty">Starting lineup has not been supplied for this match.</div>`}<div class="lineup-list">${coach?`<div class="lineup-list-row"><strong>Coach</strong><span>${esc(typeof coach==="string"?coach:coach.name||"")}</span></div>`:""}<h5>Substitutes</h5>${substitutes.length?substitutes.map(p=>`<div class="lineup-list-row"><span>${esc(lineupNumber(p))} ${esc(lineupPlayerName(p))}</span><span>${esc(p.player?.pos||p.pos||"")}</span></div>`).join(""):`<div>No substitutes supplied.</div>`}</div></section>`;
 }
 function renderDetailSection(section,m,data) {
