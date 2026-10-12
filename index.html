@@ -572,8 +572,7 @@ function renderStandings(data, season=STANDINGS_SEASON) {
   }
   if(!rows.length){content.innerHTML='<div class="empty"><strong>Standings response received</strong>The response format did not include a recognised table.</div>';setStatus("Could not read the standings table","error");return;}
   const formMarkup = r => {
-    const rawForm = Array.isArray(r.form) ? r.form.join("") : String(r.form || r.recentForm || "");
-    const form=rawForm.toUpperCase().replace(/[^WDL]/g,"").slice(-5).split("");
+    const form=String(r.form||"").toUpperCase().replace(/[^WDL]/g,"").slice(-5).split("");
     while(form.length<5) form.unshift("?");
     return `<div class="form-list">${form.map(ch=>`<span class="form-chip ${["W","D","L"].includes(ch)?`form-${ch}`:"form-unknown"}">${esc(ch)}</span>`).join("")}</div>`;
   };
@@ -893,10 +892,8 @@ async function smartAutoRefresh(){
   // Avoid spending API requests while the browser tab is hidden or a request is still running.
   if(document.hidden || pollInFlight) return;
   // Live scores and the currently open match refresh every 15 seconds. Other screens refresh less often.
-  // Never rebuild the open match-centre automatically: doing so causes the visible blink.
-  // Users can tap Refresh or return to the match list to request fresh match details.
-  if(detailFixtureId!==null) return;
-  const interval = currentView==="live" ? 15000 :
+  const interval = detailFixtureId!==null ? 15000 :
+    currentView==="live" ? 15000 :
     currentView==="fixtures" || currentView==="results" || currentView==="favorites" ? 60000 : 300000;
   if(now-lastPollAt < interval) return;
   lastPollAt=now;
