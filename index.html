@@ -89,7 +89,7 @@ body[data-theme="dark"] .comp-country{color:var(--muted)}
 .matches{min-height:130px}
 .league-head{padding:10px 13px;background:#f7f9fb;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800}
 .league-head img{width:20px;height:20px;object-fit:contain}.league-head .country-flag{width:18px;height:13px}
-.league-head .country{color:var(--muted);font-weight:500;margin-left:auto;font-size:11px}
+.league-head .country{color:var(--muted);font-weight:650;margin-left:0;font-size:11px;white-space:nowrap}.league-head .league-title{font-weight:800;min-width:0}.league-head .country::before{content:"— ";color:var(--muted);font-weight:500}
 .match-row{display:grid;grid-template-columns:48px minmax(0,1fr) 52px 28px;gap:9px;align-items:center;padding:12px 12px;border-bottom:1px solid #edf0f3;cursor:pointer;transition:background .15s}
 .match-row:last-child{border-bottom:0}
 .match-row:hover{background:#fbfdfc}
@@ -533,7 +533,7 @@ function renderMatches(arr) {
     const [country,name]=key.split("|");
     const head=document.createElement("div");head.className="league-head";
     const l=getLeague(items[0]); const logo=safeUrl(l.logo || l.emblem || "");
-    const flag=countryFlagUrl(country); head.innerHTML=`${logo?`<img src="${logo}" alt="League logo" loading="lazy" onerror="this.style.display='none'">`:"⚽"}${flag?`<img class="country-flag" src="${flag}" alt="${esc(country)} flag" loading="lazy" onerror="this.style.display='none'">`:""}<span>${esc(name)}</span><span class="country">${esc(country)}</span>`;
+    const flag=countryFlagUrl(country); head.innerHTML=`${logo?`<img src="${logo}" alt="League logo" loading="lazy" onerror="this.style.display='none'">`:"⚽"}${flag?`<img class="country-flag" src="${flag}" alt="${esc(country)} flag" loading="lazy" onerror="this.style.display='none'">`:""}<span class="league-title">${esc(name)}</span>${country?`<span class="country">${esc(country)}</span>`:""}`;
     content.appendChild(head);
     items.forEach(m=>{
       const teams=getTeams(m), home=teams.home||{}, away=teams.away||{}, goals=getGoals(m), state=statusLabel(m), id=fixtureId(m);
@@ -619,20 +619,22 @@ async function loadData(silent=false, restoreY=null) {
     const leagueParams = {};
     if(currentView==="live"){
       data=await api({action:"live",...leagueParams});
-    } else if(currentView==="fixtures"){
-      data=await api({action:"fixtures",date:selectedDate,...leagueParams});
-    } else if(currentView==="results"){
-      data=await api({action:"results",date:selectedDate,...leagueParams});
+    } else if(currentView==="fixtures" || currentView==="results"){
+      // Load the entire date-strip window, across all leagues. The selected date
+      // centers the 8-day window; it must not restrict results to one day only.
+      const rangeBase = new Date(selectedDate + "T12:00:00");
+      const rangeFromDate = new Date(rangeBase); rangeFromDate.setDate(rangeFromDate.getDate() - 3);
+      const rangeToDate = new Date(rangeBase); rangeToDate.setDate(rangeToDate.getDate() + 4);
+      const from = localDateString(rangeFromDate), to = localDateString(rangeToDate);
+      data=await api({action:currentView,from,to,...leagueParams});
     } else if(currentView==="favorites"){
       // Retrieve live matches for the selected league; saved fixtures are filtered locally.
       data=await api({action:"live",...leagueParams});
     }
     if(requestId!==requestCounter)return;
     allLoadedMatches=responseArray(data);
-    // If endpoint response includes an API-Football fixture payload, filter by chosen date where relevant.
-    if(currentView==="fixtures"||currentView==="results"){
-      allLoadedMatches=allLoadedMatches.filter(m=>!matchDate(m)||matchDate(m)===selectedDate);
-    }
+    // The backend returns the requested range. Keep all returned dates visible;
+    // the selected date centers the date strip rather than hiding other days.
     const shown=filterMatches(allLoadedMatches);
     renderMatches(shown);
     if(restoreY!==null) requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:"instant"}));
