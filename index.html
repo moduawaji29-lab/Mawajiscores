@@ -626,7 +626,7 @@ async function loadData(silent=false, restoreY=null) {
       const rangeFromDate = new Date(rangeBase); rangeFromDate.setDate(rangeFromDate.getDate() - 3);
       const rangeToDate = new Date(rangeBase); rangeToDate.setDate(rangeToDate.getDate() + 4);
       const from = localDateString(rangeFromDate), to = localDateString(rangeToDate);
-      data=await api({action:currentView,from,to,...leagueParams});
+      data=await api({action:currentView,from,to,timezone:"Africa/Lagos",...leagueParams});
     } else if(currentView==="favorites"){
       // Retrieve live matches for the selected league; saved fixtures are filtered locally.
       data=await api({action:"live",...leagueParams});
