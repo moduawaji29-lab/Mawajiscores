@@ -127,6 +127,21 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .detail-body{padding:12px}
 .event{display:grid;grid-template-columns:1fr 42px 1fr;align-items:center;padding:9px 0;border-bottom:1px solid #edf0f3;font-size:11px}
 .event .left{text-align:right}.event .right{text-align:left}.event .minute{text-align:center;color:var(--muted);font-weight:800}
+
+.match-meta{display:flex;justify-content:center;gap:8px 16px;flex-wrap:wrap;padding:10px 12px;background:var(--surface2);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted)}
+.match-meta span{display:inline-flex;align-items:center;gap:5px}
+.stat-compare{display:grid;grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr);align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:12px}
+.stat-compare .home{text-align:right}.stat-compare .away{text-align:left}.stat-compare .label{text-align:center;color:var(--muted);font-size:10px;font-weight:750}
+.stat-track{height:4px;display:flex;gap:3px;margin-top:5px}.stat-track span{height:100%;border-radius:9px;background:#dce4e8}.stat-track .better{background:var(--green)}
+.lineup-team{margin:8px 0 15px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.lineup-team-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--surface2);font-size:12px;font-weight:800}
+.pitch{position:relative;margin:10px;border:1px solid #7fc69e;border-radius:8px;min-height:300px;background:repeating-linear-gradient(0deg,#168a52 0,#168a52 42px,#137d49 42px,#137d49 84px);overflow:hidden;color:#fff}
+.pitch:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px solid #ffffff70}.pitch:after{content:"";position:absolute;width:86px;height:86px;border:1px solid #ffffff70;border-radius:50%;left:calc(50% - 43px);top:calc(50% - 43px)}
+.pitch-line{position:absolute;inset:8px;border:1px solid #ffffff70;border-radius:5px;pointer-events:none}.pitch-players{position:absolute;inset:12px 5px;display:flex;flex-direction:column;justify-content:space-around;z-index:1;gap:6px}
+.pitch-row{display:flex;justify-content:space-around;align-items:center;gap:4px}.pitch-player{width:24%;max-width:76px;display:flex;flex-direction:column;align-items:center;text-align:center;font-size:9px;line-height:1.15;text-shadow:0 1px 2px #003d24;min-width:0}.player-shirt{width:25px;height:25px;border-radius:50%;background:#f6fbff;color:#087b54;border:2px solid #fff;display:grid;place-items:center;font-size:10px;font-weight:900;text-shadow:none;margin-bottom:3px;box-shadow:0 1px 3px #003d2455}.pitch-player span:last-child{display:block;max-width:100%;overflow-wrap:anywhere}
+.lineup-list{padding:8px 12px;font-size:12px}.lineup-list h5{margin:8px 0;color:var(--muted);font-size:10px;text-transform:uppercase}.lineup-list-row{padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+@media(max-width:720px){.detail-head{padding:15px 9px}.match-meta{justify-content:flex-start}.stat-compare{grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr);gap:5px}.pitch{min-height:285px}.pitch-player{font-size:8px}.player-shirt{width:22px;height:22px}}
+
 footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
 .mobile-nav{display:none}
 @media(max-width:720px){
@@ -182,7 +197,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
     <button class="navbtn" data-view="fixtures"><span class="ico">📅</span> Fixtures</button>
     <button class="navbtn" data-view="results"><span class="ico">✅</span> Results</button>
     <button class="navbtn" data-view="standings"><span class="ico">🏆</span> League Table</button>
-    <button class="navbtn" data-view="favorites"><span class="ico">⭐</span> Saved Matches</button>
+    <button class="navbtn" data-view="favorites"><span class="ico">⭐</span> Favourites</button>
   </div>
   <div class="side-note">Choose a section or switch theme using the button in the header.</div>
 </aside>
@@ -196,7 +211,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
         <button class="navbtn" data-view="fixtures"><span class="ico">📅</span> Fixtures</button>
         <button class="navbtn" data-view="results"><span class="ico">✅</span> Results</button>
         <button class="navbtn" data-view="standings"><span class="ico">🏆</span> Standings</button>
-        <button class="navbtn" data-view="favorites"><span class="ico">⭐</span> Favorites</button>
+        <button class="navbtn" data-view="favorites"><span class="ico">⭐</span> Favourites</button>
       </div>
       <div class="side-note">Scores and match information supplied by your connected football data provider.</div>
     </section>
@@ -216,6 +231,20 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
       <button class="compbtn" data-league="78" data-code="BL1">Bundesliga</button>
       <button class="compbtn" data-league="61" data-code="FL1">Ligue 1</button>
       <button class="compbtn" data-league="2" data-code="CL">Champions League</button>
+      <button class="compbtn" data-league="3" data-code="UEL">Europa League</button>
+      <button class="compbtn" data-league="848" data-code="UECL">Conference League</button>
+      <button class="compbtn" data-league="40" data-code="CH">Championship</button>
+      <button class="compbtn" data-league="88" data-code="ERE">Eredivisie</button>
+      <button class="compbtn" data-league="94" data-code="PPL">Primeira Liga</button>
+      <button class="compbtn" data-league="179" data-code="SCO">Scottish Premiership</button>
+      <button class="compbtn" data-league="203" data-code="TUR">Turkish Super Lig</button>
+      <button class="compbtn" data-league="144" data-code="BEL">Belgian Pro League</button>
+      <button class="compbtn" data-league="71" data-code="BRA">Brazil Serie A</button>
+      <button class="compbtn" data-league="253" data-code="MLS">MLS</button>
+      <button class="compbtn" data-league="307" data-code="SAU">Saudi Pro League</button>
+      <button class="compbtn" data-league="12" data-code="CAF">CAF Champions League</button>
+      <button class="compbtn" data-league="6" data-code="AFCON">Africa Cup of Nations</button>
+      <button class="compbtn" data-league="399" data-code="NPFL">Nigeria NPFL</button>
       <button class="compbtn" data-league="all" data-code="ALL">All leagues</button>
     </div>
 
@@ -239,7 +268,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
   <button data-view="fixtures"><span>📅</span>Fixtures</button>
   <button data-view="results"><span>✓</span>Results</button>
   <button data-view="standings"><span>🏆</span>Table</button>
-  <button data-view="favorites"><span>⭐</span>Saved</button>
+  <button data-view="favorites"><span>⭐</span>Favourites</button>
 </nav>
 
 <script>
@@ -258,7 +287,21 @@ const leagues = {
   "135": {name:"Serie A", country:"Italy"},
   "78": {name:"Bundesliga", country:"Germany"},
   "61": {name:"Ligue 1", country:"France"},
-  "2": {name:"UEFA Champions League", country:"Europe"}
+  "2": {name:"UEFA Champions League", country:"Europe"},
+  "3": {name:"UEFA Europa League", country:"Europe"},
+  "848": {name:"UEFA Conference League", country:"Europe"},
+  "40": {name:"Championship", country:"England"},
+  "88": {name:"Eredivisie", country:"Netherlands"},
+  "94": {name:"Primeira Liga", country:"Portugal"},
+  "179": {name:"Scottish Premiership", country:"Scotland"},
+  "203": {name:"Süper Lig", country:"Turkey"},
+  "144": {name:"Belgian Pro League", country:"Belgium"},
+  "71": {name:"Brasileirão Série A", country:"Brazil"},
+  "253": {name:"Major League Soccer", country:"USA"},
+  "307": {name:"Saudi Pro League", country:"Saudi Arabia"},
+  "12": {name:"CAF Champions League", country:"Africa"},
+  "6": {name:"Africa Cup of Nations", country:"Africa"},
+  "399": {name:"Nigeria Professional Football League", country:"Nigeria"}
 };
 let selectedLeague = "39";
 let currentView = "live";
@@ -488,15 +531,16 @@ async function loadData() {
       if(requestId!==requestCounter)return;
       renderStandings(data);return;
     }
+    const leagueParams = (!showAll && selectedLeague !== "all") ? {league:selectedLeague} : {};
     if(currentView==="live"){
-      data=await api({action:"live"});
+      data=await api({action:"live",...leagueParams});
     } else if(currentView==="fixtures"){
-      data=await api({action:"fixtures",date:selectedDate});
+      data=await api({action:"fixtures",date:selectedDate,...leagueParams});
     } else if(currentView==="results"){
-      data=await api({action:"results",date:selectedDate});
+      data=await api({action:"results",date:selectedDate,...leagueParams});
     } else if(currentView==="favorites"){
-      // Retrieve the live list first, then display any favorited fixtures returned by this endpoint.
-      data=await api({action:"live"});
+      // Retrieve live matches for the selected league; saved fixtures are filtered locally.
+      data=await api({action:"live",...leagueParams});
     }
     if(requestId!==requestCounter)return;
     allLoadedMatches=responseArray(data);
@@ -517,9 +561,19 @@ async function openMatch(id, item) {
   content.innerHTML='<div class="empty"><span class="spinner"></span>Loading match centre…</div>';
   setStatus("Loading match details…");
   try {
-    const data=await api({action:"match",id:String(id)});
+    const detailResults = await Promise.allSettled([
+      api({action:"match",id:String(id)}),
+      api({action:"events",id:String(id)}),
+      api({action:"statistics",id:String(id)}),
+      api({action:"lineups",id:String(id)})
+    ]);
     if(requestId!==requestCounter)return;
+    const data = detailResults[0].status === "fulfilled" ? detailResults[0].value : {};
     const match=responseArray(data)[0] || data?.response?.[0] || data?.fixture || item;
+    const eventsData=detailResults[1].status === "fulfilled" ? detailResults[1].value : {};
+    const statsData=detailResults[2].status === "fulfilled" ? detailResults[2].value : {};
+    const lineupsData=detailResults[3].status === "fulfilled" ? detailResults[3].value : {};
+    data.events=responseArray(eventsData); data.statistics=responseArray(statsData); data.lineups=responseArray(lineupsData);
     renderMatchCentre(match,data);
   } catch(e) {
     if(requestId!==requestCounter)return;
@@ -539,15 +593,34 @@ function matchPayload(m,data,key) {
 }
 function renderMatchCentre(m,data) {
   const f=getFixture(m), teams=getTeams(m), home=teams.home||{}, away=teams.away||{}, goals=getGoals(m), league=getLeague(m), st=statusLabel(m);
-  const events=matchPayload(m,data,"events"), stats=matchPayload(m,data,"statistics"), lineups=matchPayload(m,data,"lineups");
+  const venue=f.venue || m.venue || {}, kickoff=f.date || m.date || m.utcDate;
+  const venueText=[venue.name,venue.city].filter(Boolean).join(", ");
+  const referee=f.referee || m.referee || "";
+  const kickoffText=kickoff ? new Date(kickoff).toLocaleString("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "Kick-off time unavailable";
   content.innerHTML=`<div class="detail-head"><div class="detail-league">${esc(league.name||compName(m))} ${league.round?`· ${esc(league.round)}`:""}</div><div class="detail-teams">
     <div class="detail-team">${teamLogo(home)?`<img src="${teamLogo(home)}" alt="">`:"⚽"}<div>${esc(teamName(home))}</div></div>
-    <div><div class="detail-score">${esc(scoreValue(goals.home))} - ${esc(scoreValue(goals.away))}</div><div class="detail-status">${esc(st.text)} ${f.date?`· ${esc(new Date(f.date).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}))}`:""}</div></div>
+    <div><div class="detail-score">${esc(scoreValue(goals.home))} - ${esc(scoreValue(goals.away))}</div><div class="detail-status">${esc(st.text)}</div></div>
     <div class="detail-team">${teamLogo(away)?`<img src="${teamLogo(away)}" alt="">`:"⚽"}<div>${esc(teamName(away))}</div></div>
-  </div></div><div class="detail-tabs"><button class="detail-tab active" data-detail="events">Events</button><button class="detail-tab" data-detail="statistics">Statistics</button><button class="detail-tab" data-detail="lineups">Lineups</button><button class="detail-tab" data-detail="back">← Matches</button></div><div class="detail-body" id="detailBody"></div>`;
+  </div></div>
+  <div class="match-meta"><span>🕒 ${esc(kickoffText)}</span>${venueText?`<span>📍 ${esc(venueText)}</span>`:""}${referee?`<span>🟨 Referee: ${esc(referee)}</span>`:""}</div>
+  <div class="detail-tabs"><button class="detail-tab active" data-detail="events">Events</button><button class="detail-tab" data-detail="statistics">Statistics</button><button class="detail-tab" data-detail="lineups">Lineups</button><button class="detail-tab" data-detail="back">← Matches</button></div><div class="detail-body" id="detailBody"></div>`;
   document.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.detail==="back"){loadData();return;}document.querySelectorAll("[data-detail]").forEach(x=>x.classList.toggle("active",x===b));detailSection=b.dataset.detail;renderDetailSection(detailSection,m,data);}));
   renderDetailSection("events",m,data);
   setStatus("Match centre loaded","success");
+}
+function lineupPlayerName(p){return p?.player?.name || p?.player?.player_name || p?.name || p?.player_name || (typeof p?.player === "string" ? p.player : "Player");}
+function lineupNumber(p){return p?.player?.number ?? p?.number ?? "";}
+function renderLineupTeam(l){
+  const teamNameText=l.team?.name||l.team_name||"Team";
+  const starters=l.startXI||l.startingXI||l.starting_lineups||l.startingLineups||[];
+  const substitutes=l.substitutes||l.subs||[];
+  const coach=l.coach?.name||l.coach||"";
+  const formation=l.formation||"Formation unavailable";
+  // API-Football grid values look like "2:3" (row:column). Use them to place players in pitch rows.
+  const grouped={};
+  starters.forEach((p,i)=>{const raw=p.grid||p.player?.grid||"";const row=String(raw).includes(":")?parseInt(String(raw).split(":")[0],10):null;const key=Number.isFinite(row)&&row>0?row:Math.min(5,Math.max(1,Math.round((i+1)/Math.max(1,starters.length/5))));(grouped[key] ||= []).push(p);});
+  const rows=Object.keys(grouped).map(Number).sort((a,b)=>a-b).map(key=>`<div class="pitch-row">${grouped[key].map(p=>`<div class="pitch-player"><span class="player-shirt">${esc(lineupNumber(p)||"•")}</span><span>${esc(lineupPlayerName(p))}</span></div>`).join("")}</div>`).join("");
+  return `<section class="lineup-team"><div class="lineup-team-head"><span>${esc(teamNameText)}</span><span>${esc(formation)}</span></div>${starters.length?`<div class="pitch" aria-label="${esc(teamNameText)} starting formation"><div class="pitch-line"></div><div class="pitch-players">${rows}</div></div>`:`<div class="empty">Starting lineup has not been supplied for this match.</div>`}<div class="lineup-list">${coach?`<div class="lineup-list-row"><strong>Coach</strong><span>${esc(typeof coach==="string"?coach:coach.name||"")}</span></div>`:""}<h5>Substitutes</h5>${substitutes.length?substitutes.map(p=>`<div class="lineup-list-row"><span>${esc(lineupNumber(p))} ${esc(lineupPlayerName(p))}</span><span>${esc(p.player?.pos||p.pos||"")}</span></div>`).join(""):`<div>No substitutes supplied.</div>`}</div></section>`;
 }
 function renderDetailSection(section,m,data) {
   const body=document.getElementById("detailBody");if(!body)return;
@@ -556,17 +629,20 @@ function renderDetailSection(section,m,data) {
     if(!events.length){body.innerHTML='<div class="empty">No match events were provided for this fixture.</div>';return;}
     body.innerHTML=events.map(e=>{const time=e.time?.elapsed??e.time??e.elapsed??"";const team=e.team?.name||"";const player=e.player?.name||e.player||"";const detail=e.detail||e.type||e.comments||"";const left=(team&&team===teamName(getTeams(m).home))?`${player} ${detail}`:"";const right=left?"":`${player} ${detail}`;return `<div class="event"><div class="left">${esc(left)}</div><div class="minute">${esc(time)}${time!==""?"'":""}</div><div class="right">${esc(right)}</div></div>`}).join("");
   } else if(section==="statistics"){
-    if(!stats.length){body.innerHTML='<div class="empty">Statistics are not available for this match.</div>';return;}
-    body.innerHTML=stats.map(s=>{const team=s.team?.name||"Team";const items=s.statistics||[];return `<h4 style="margin:8px 0">${esc(team)}</h4>${items.map(x=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #edf0f3;font-size:12px"><span>${esc(x.type||x.name||"Stat")}</span><strong>${esc(x.value===null||x.value===undefined||x.value===""?"—":x.value)}</strong></div>`).join("")||'<div class="empty">No statistics were supplied for this team.</div>'}`}).join("");
+    if(!stats.length){body.innerHTML='<div class="empty">Statistics are not available for this match yet. They may appear after kick-off or when the provider supplies them.</div>';return;}
+    const homeName=teamName(getTeams(m).home), awayName=teamName(getTeams(m).away);
+    const byTeam=stats.map(s=>({name:s.team?.name||"Team",items:s.statistics||[]}));
+    const types=[...new Set(byTeam.flatMap(t=>t.items.map(x=>x.type||x.name||"Statistic")))];
+    body.innerHTML=`<div class="stat-compare" style="font-weight:800;border-bottom:1px solid var(--line)"><div class="home">${esc(homeName)}</div><div class="label">STAT</div><div class="away">${esc(awayName)}</div></div>`+types.map(type=>{const h=byTeam.find(t=>t.name===homeName)?.items.find(x=>(x.type||x.name)===type)?.value;const a=byTeam.find(t=>t.name===awayName)?.items.find(x=>(x.type||x.name)===type)?.value;const numeric=v=>{if(v===null||v===undefined||v==="")return null;const n=parseFloat(String(v).replace("%",""));return Number.isFinite(n)?n:null};const hn=numeric(h),an=numeric(a);const homeBetter=hn!==null&&an!==null&&hn>an;const awayBetter=hn!==null&&an!==null&&an>hn;return `<div class="stat-compare"><div class="home"><strong>${esc(h??"—")}</strong></div><div class="label">${esc(type)}</div><div class="away"><strong>${esc(a??"—")}</strong></div></div><div class="stat-track"><span class="${homeBetter?"better":""}" style="width:${hn!==null&&an!==null?(hn+an?hn/(hn+an)*100:50):50}%"></span><span class="${awayBetter?"better":""}" style="width:${hn!==null&&an!==null?(hn+an?an/(hn+an)*100:50):50}%"></span></div>`}).join("");
   } else if(section==="lineups"){
-    if(!lineups.length){body.innerHTML='<div class="empty">Lineups are not available for this match.</div>';return;}
-    body.innerHTML=lineups.map(l=>{const starters=l.startXI||l.startingXI||l.starting_lineups||l.startingLineups||[];const teamNameText=l.team?.name||l.team_name||"Team";return `<h4 style="margin:8px 0">${esc(teamNameText)} ${l.formation?`· ${esc(l.formation)}`:""}</h4><div style="font-size:12px;padding-bottom:10px">${starters.map(p=>esc(p.player?.name||p.player?.player_name||p.lineup_player||p.name||p.player||"Player")).join(" · ")||"Starting lineup not supplied"}</div>`}).join("");
+    if(!lineups.length){body.innerHTML='<div class="empty">Lineups are not available yet. Starting XI and substitutes are usually published closer to kick-off.</div>';return;}
+    body.innerHTML=lineups.map(renderLineupTeam).join("");
   }
 }
 
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{
   currentView=b.dataset.view;
-  if(currentView==="favorites" && !favorites.size){content.innerHTML='<div class="empty"><strong>No favorites saved</strong>Tap the star beside a match to save it.</div>';syncControls();setStatus("No saved favorites");return;}
+  if(currentView==="favorites" && !favorites.size){content.innerHTML='<div class="empty"><strong>No favorites saved</strong>Tap the star beside a match to add it to Favourites.</div>';syncControls();setStatus("No favourites yet");return;}
   loadData();
 }));
 document.querySelectorAll(".compbtn").forEach(b => b.addEventListener("click", () => {
