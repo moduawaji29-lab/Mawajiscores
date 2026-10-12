@@ -76,12 +76,18 @@ button{cursor:pointer}
 .errorbox{padding:13px;background:#fff4f4;color:#a52a38;border:1px solid #ffd9dd;border-radius:10px;margin:12px;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
 .spinner{display:inline-block;width:13px;height:13px;border:2px solid #d8e1e7;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
-th,td{padding:10px 9px;border-bottom:1px solid #edf0f3;text-align:center}
+.table-wrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;position:relative}
+table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap}
+th,td{padding:10px 9px;border-bottom:1px solid #edf0f3;text-align:center;background:#fff}
 th{background:#f7f9fb;color:#64717d;font-size:10px;text-transform:uppercase}
-td.teamcell{text-align:left;font-weight:750}
-.rank{color:var(--muted);width:26px}
+td.teamcell{text-align:left;font-weight:750;min-width:145px}
+.rank{color:var(--muted);width:34px;min-width:34px}
+.table-wrap th:first-child,.table-wrap td.rank{position:sticky;left:0;z-index:2;background:#fff}
+.table-wrap th:first-child{background:#f7f9fb;z-index:4}
+.table-wrap th:nth-child(2),.table-wrap td.teamcell{position:sticky;left:34px;z-index:2;background:#fff;box-shadow:3px 0 4px rgba(22,35,48,.04)}
+.table-wrap th:nth-child(2){background:#f7f9fb;z-index:4}
+.standings-note{padding:9px 12px;background:#fff8e8;border-bottom:1px solid #f2e3bd;color:#76591c;font-size:11px;display:flex;gap:7px;align-items:flex-start}
+.standings-note strong{white-space:nowrap}
 .detail-head{padding:20px 12px;text-align:center;background:linear-gradient(180deg,#f4fbf7,#fff);border-bottom:1px solid var(--line)}
 .detail-league{font-size:11px;color:var(--muted);margin-bottom:12px}
 .detail-teams{display:grid;grid-template-columns:1fr 110px 1fr;gap:8px;align-items:center}
@@ -110,6 +116,10 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
  .mobile-nav button span{font-size:18px}
  .mobile-nav button.active{color:var(--green-dark)}
  .detail-teams{grid-template-columns:1fr 80px 1fr}
+ .table-wrap{max-width:calc(100vw - 20px)}
+ .table-wrap table{min-width:690px}
+ .table-wrap th,.table-wrap td{padding:10px 8px}
+ .table-wrap td.teamcell{min-width:135px;max-width:145px;overflow:hidden;text-overflow:ellipsis}
 }
 </style>
 </head>
@@ -186,7 +196,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
   This page only calls your own backend.
 */
 const API_BASE = "https://football-livescore-backend-new.vercel.app/api";
-const CURRENT_SEASON = 2024; // Free-plan access shown by the provider supports 2022–2024.
+const STANDINGS_SEASON = 2024; // Historical season supported by the current free API plan; update after upgrading the subscription.
 const leagues = {
   "39": {name:"Premier League", country:"England"},
   "140": {name:"La Liga", country:"Spain"},
@@ -393,8 +403,8 @@ function renderStandings(data) {
     else if(item?.rank!==undefined || item?.team) rows.push(item);
   }
   if(!rows.length){content.innerHTML='<div class="empty"><strong>Standings response received</strong>The response format did not include a recognised table.</div>';setStatus("Could not read the standings table","error");return;}
-  content.innerHTML=`<div class="table-wrap"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>${rows.map((r,i)=>{const t=r.team||r;const all=r.all||{};const goals=all.goals||r.goals||{};return `<tr><td class="rank">${esc(r.rank??i+1)}</td><td class="teamcell">${esc(t.name||"Team")}</td><td>${esc(all.played??r.played??"—")}</td><td>${esc(all.win??r.win??"—")}</td><td>${esc(all.draw??r.draw??"—")}</td><td>${esc(all.lose??r.lose??"—")}</td><td>${esc(goals.for??r.goalsFor??"—")}</td><td>${esc(goals.against??r.goalsAgainst??"—")}</td><td>${esc(all.goalsDiff??r.goalsDiff??"—")}</td><td><strong>${esc(all.points??r.points??"—")}</strong></td></tr>`}).join("")}</tbody></table></div>`;
-  setStatus(`${rows.length} teams in table`,"success");
+  content.innerHTML=`<div class="standings-note"><strong>Historical table · Season ${STANDINGS_SEASON}</strong><span>These are archived standings available on the current free API plan, not the live 2026–27 table. The season can be changed after the API subscription is upgraded.</span></div><div class="table-wrap" role="region" aria-label="League standings; swipe horizontally to see all statistics" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>${rows.map((r,i)=>{const t=r.team||r;const all=r.all||{};const goals=all.goals||r.goals||{};return `<tr><td class="rank">${esc(r.rank??i+1)}</td><td class="teamcell" title="${esc(t.name||"Team")}">${esc(t.name||"Team")}</td><td>${esc(all.played??r.played??"—")}</td><td>${esc(all.win??r.win??"—")}</td><td>${esc(all.draw??r.draw??"—")}</td><td>${esc(all.lose??r.lose??"—")}</td><td>${esc(goals.for??r.goalsFor??"—")}</td><td>${esc(goals.against??r.goalsAgainst??"—")}</td><td>${esc(all.goalsDiff??r.goalsDiff??"—")}</td><td><strong>${esc(all.points??r.points??"—")}</strong></td></tr>`}).join("")}</tbody></table></div>`;
+  setStatus(`${rows.length} teams · historical season ${STANDINGS_SEASON}`,"success");
 }
 async function loadData() {
   const requestId=++requestCounter;
@@ -406,7 +416,7 @@ async function loadData() {
     let data;
     if(currentView==="standings"){
       const league=selectedLeague==="all"?"39":selectedLeague;
-      data=await api({action:"standings",league,season:String(CURRENT_SEASON)});
+      data=await api({action:"standings",league,season:String(STANDINGS_SEASON)});
       if(requestId!==requestCounter)return;
       renderStandings(data);return;
     }
@@ -450,9 +460,18 @@ async function openMatch(id, item) {
     setStatus("Match details unavailable","error");
   }
 }
+function matchPayload(m,data,key) {
+  if (Array.isArray(m?.[key])) return m[key];
+  if (Array.isArray(data?.[key])) return data[key];
+  const response = Array.isArray(data?.response) ? data.response : [];
+  if (response.length && Array.isArray(response[0]?.[key])) return response[0][key];
+  const nested = data?.data;
+  if (Array.isArray(nested?.[key])) return nested[key];
+  return [];
+}
 function renderMatchCentre(m,data) {
   const f=getFixture(m), teams=getTeams(m), home=teams.home||{}, away=teams.away||{}, goals=getGoals(m), league=getLeague(m), st=statusLabel(m);
-  const events=m?.events||data?.events||[], stats=m?.statistics||data?.statistics||[], lineups=m?.lineups||data?.lineups||[];
+  const events=matchPayload(m,data,"events"), stats=matchPayload(m,data,"statistics"), lineups=matchPayload(m,data,"lineups");
   content.innerHTML=`<div class="detail-head"><div class="detail-league">${esc(league.name||compName(m))} ${league.round?`· ${esc(league.round)}`:""}</div><div class="detail-teams">
     <div class="detail-team">${teamLogo(home)?`<img src="${teamLogo(home)}" alt="">`:"⚽"}<div>${esc(teamName(home))}</div></div>
     <div><div class="detail-score">${esc(scoreValue(goals.home))} - ${esc(scoreValue(goals.away))}</div><div class="detail-status">${esc(st.text)} ${f.date?`· ${esc(new Date(f.date).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}))}`:""}</div></div>
@@ -464,16 +483,16 @@ function renderMatchCentre(m,data) {
 }
 function renderDetailSection(section,m,data) {
   const body=document.getElementById("detailBody");if(!body)return;
-  const events=m?.events||data?.events||[], stats=m?.statistics||data?.statistics||[], lineups=m?.lineups||data?.lineups||[];
+  const events=matchPayload(m,data,"events"), stats=matchPayload(m,data,"statistics"), lineups=matchPayload(m,data,"lineups");
   if(section==="events"){
     if(!events.length){body.innerHTML='<div class="empty">No match events were provided for this fixture.</div>';return;}
     body.innerHTML=events.map(e=>{const time=e.time?.elapsed??e.time??e.elapsed??"";const team=e.team?.name||"";const player=e.player?.name||e.player||"";const detail=e.detail||e.type||e.comments||"";const left=(team&&team===teamName(getTeams(m).home))?`${player} ${detail}`:"";const right=left?"":`${player} ${detail}`;return `<div class="event"><div class="left">${esc(left)}</div><div class="minute">${esc(time)}${time!==""?"'":""}</div><div class="right">${esc(right)}</div></div>`}).join("");
   } else if(section==="statistics"){
     if(!stats.length){body.innerHTML='<div class="empty">Statistics are not available for this match.</div>';return;}
-    body.innerHTML=stats.map(s=>{const team=s.team?.name||"Team";const items=s.statistics||[];return `<h4 style="margin:8px 0">${esc(team)}</h4>${items.map(x=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #edf0f3;font-size:12px"><span>${esc(x.type||x.name||"Stat")}</span><strong>${esc(x.value??"—")}</strong></div>`).join("")}`}).join("");
+    body.innerHTML=stats.map(s=>{const team=s.team?.name||"Team";const items=s.statistics||[];return `<h4 style="margin:8px 0">${esc(team)}</h4>${items.map(x=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #edf0f3;font-size:12px"><span>${esc(x.type||x.name||"Stat")}</span><strong>${esc(x.value===null||x.value===undefined||x.value===""?"—":x.value)}</strong></div>`).join("")||'<div class="empty">No statistics were supplied for this team.</div>'}`}).join("");
   } else if(section==="lineups"){
     if(!lineups.length){body.innerHTML='<div class="empty">Lineups are not available for this match.</div>';return;}
-    body.innerHTML=lineups.map(l=>`<h4 style="margin:8px 0">${esc(l.team?.name||"Team")} ${l.formation?`· ${esc(l.formation)}`:""}</h4><div style="font-size:12px;padding-bottom:10px">${(l.startXI||l.startingXI||[]).map(p=>esc(p.player?.name||p.name||p.player||"Player")).join(" · ")||"Starting lineup not supplied"}</div>`).join("");
+    body.innerHTML=lineups.map(l=>{const starters=l.startXI||l.startingXI||l.starting_lineups||l.startingLineups||[];const teamNameText=l.team?.name||l.team_name||"Team";return `<h4 style="margin:8px 0">${esc(teamNameText)} ${l.formation?`· ${esc(l.formation)}`:""}</h4><div style="font-size:12px;padding-bottom:10px">${starters.map(p=>esc(p.player?.name||p.player?.player_name||p.lineup_player||p.name||p.player||"Player")).join(" · ")||"Starting lineup not supplied"}</div>`}).join("");
   }
 }
 
