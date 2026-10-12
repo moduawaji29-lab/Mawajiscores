@@ -100,7 +100,9 @@ button{cursor:pointer}
 .errorbox{padding:13px;background:#fff4f4;color:#a52a38;border:1px solid #ffd9dd;border-radius:10px;margin:12px;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
 .spinner{display:inline-block;width:13px;height:13px;border:2px solid #d8e1e7;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.table-wrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;position:relative}
+.table-wrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;position:relative;scrollbar-width:thin;scrollbar-color:#9aa7b2 #edf1f4}
+.table-wrap::after{content:"Swipe →";position:sticky;float:right;right:0;top:0;margin-top:-1px;padding:4px 7px;border-radius:0 0 0 7px;background:rgba(8,123,84,.94);color:#fff;font-size:10px;font-weight:800;pointer-events:none;z-index:6}
+.standings-table{border-bottom:1px solid var(--line)}
 table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap}
 th,td{padding:10px 9px;border-bottom:1px solid #edf0f3;text-align:center;background:#fff}
 th{background:#f7f9fb;color:#64717d;font-size:10px;text-transform:uppercase}
@@ -149,12 +151,14 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
  .mobile-nav button.active{color:var(--green-dark)}
  .detail-teams{grid-template-columns:1fr 80px 1fr}
  .table-wrap{max-width:calc(100vw - 20px)}
+ .table-wrap::after{position:sticky;float:right;right:0;margin-bottom:-20px}
  .table-wrap table{min-width:610px}
  .table-wrap th,.table-wrap td{padding:7px 6px}
- .standings-table th,.standings-table td{height:33px;padding:4px 4px}
- .standings-table td.teamcell{min-width:118px;max-width:118px;overflow:hidden;text-overflow:ellipsis;font-size:11px}
- .standings-table td.teamcell span{display:inline-block;max-width:79px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
- .standings-table td.teamcell .standing-logo{width:18px;height:18px;margin-right:4px}
+ .standings-table th,.standings-table td{min-height:36px;padding:5px 4px}
+ .standings-table td.teamcell{min-width:142px;max-width:142px;white-space:normal;overflow:visible;text-overflow:clip;font-size:10px;line-height:1.12}
+ .standings-table th:nth-child(2){min-width:142px;width:142px}
+ .standings-table td.teamcell span{display:inline-block;max-width:108px;white-space:normal;overflow-wrap:anywhere;vertical-align:middle}
+ .standings-table td.teamcell .standing-logo{width:17px;height:17px;margin-right:3px;vertical-align:middle}
  .standings-table .form-chip{width:17px;height:19px;font-size:9px}
  .standings-table .form-cell{min-width:100px}
 }
@@ -468,7 +472,7 @@ function renderStandings(data) {
     return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${logo?`<img class="standing-logo" src="${logo}" alt="" loading="lazy" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td>${esc(played)}</td><td>${esc(win)}</td><td>${esc(draw)}</td><td>${esc(lose)}</td><td>${esc(gf)}:${esc(ga)}</td><td>${esc(gd)}</td><td><strong>${esc(pts)}</strong></td><td class="form-cell">${formMarkup(r)}</td></tr>`;
   }).join("");
   content.innerHTML=`<div class="table-wrap standings-table" role="region" aria-label="League standings with statistics and recent form; swipe horizontally to see all columns" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF:GA</th><th>GD</th><th>PTS</th><th>FORM</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
-  setStatus(`${rows.length} teams · swipe sideways for all statistics and form` ,"success");
+  setStatus(`${rows.length} teams · swipe → for more statistics and form` ,"success");
 }
 async function loadData() {
   const requestId=++requestCounter;
