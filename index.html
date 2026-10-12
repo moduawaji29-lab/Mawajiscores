@@ -86,6 +86,8 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .table-wrap th:first-child{background:#f7f9fb;z-index:4}
 .table-wrap th:nth-child(2),.table-wrap td.teamcell{position:sticky;left:34px;z-index:2;background:#fff;box-shadow:3px 0 4px rgba(22,35,48,.04)}
 .table-wrap th:nth-child(2){background:#f7f9fb;z-index:4}
+.standings-note{padding:9px 12px;background:#fff8e8;border-bottom:1px solid #f2e3bd;color:#76591c;font-size:11px;display:flex;gap:7px;align-items:flex-start}
+.standings-note strong{white-space:nowrap}
 .detail-head{padding:20px 12px;text-align:center;background:linear-gradient(180deg,#f4fbf7,#fff);border-bottom:1px solid var(--line)}
 .detail-league{font-size:11px;color:var(--muted);margin-bottom:12px}
 .detail-teams{display:grid;grid-template-columns:1fr 110px 1fr;gap:8px;align-items:center}
@@ -99,12 +101,38 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .detail-body{padding:12px}
 .event{display:grid;grid-template-columns:1fr 42px 1fr;align-items:center;padding:9px 0;border-bottom:1px solid #edf0f3;font-size:11px}
 .event .left{text-align:right}.event .right{text-align:left}.event .minute{text-align:center;color:var(--muted);font-weight:800}
-footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:18px 10px 25px}
 .mobile-nav{display:none}
+/* Theme switch */
+.theme-toggle,.menu-toggle{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800;white-space:nowrap}
+.menu-toggle{display:none}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:39;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+.drawer{position:fixed;z-index:40;top:0;bottom:0;left:0;width:min(300px,86vw);background:var(--surface);color:var(--text);box-shadow:12px 0 35px rgba(0,0,0,.2);transform:translateX(-105%);transition:transform .22s ease;padding:18px;overflow-y:auto}
+.drawer.open{transform:translateX(0)}
+.drawer-backdrop.open{opacity:1;visibility:visible}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.drawer-head strong{font-size:17px}
+.drawer-close{border:0;background:var(--surface2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:18px}
+.drawer .navbtn{color:var(--text)}
+.drawer .navbtn.active{background:var(--surface2);color:var(--green-dark)}
+body.dark-mode{--page:#07151b;--surface:#0d2028;--surface2:#122b35;--line:#25404a;--text:#edf4f6;--muted:#a6b6bd;--green:#08a66a;--green-dark:#48d6a0;--magenta:#e75a99;--red:#ff6477;--shadow:0 4px 16px rgba(0,0,0,.2)}
+body.dark-mode .topbar,body.dark-mode .brand,body.dark-mode .mobile-nav{background:var(--surface);border-color:var(--line)}
+body.dark-mode .search input,body.dark-mode .smallbtn,body.dark-mode .compbtn,body.dark-mode .datebtn,body.dark-mode th,body.dark-mode td,body.dark-mode .tab.active{background:var(--surface);color:var(--text);border-color:var(--line)}
+body.dark-mode .tabs,body.dark-mode .league-head,body.dark-mode .statusbar,body.dark-mode .table-wrap th:first-child,body.dark-mode .table-wrap th:nth-child(2){background:var(--surface2);color:var(--text)}
+body.dark-mode .table-wrap th:first-child,body.dark-mode .table-wrap td.rank,body.dark-mode .table-wrap th:nth-child(2),body.dark-mode .table-wrap td.teamcell{background:var(--surface);color:var(--text)}
+body.dark-mode .compbtn.active,body.dark-mode .datebtn.active,body.dark-mode .navbtn.active,body.dark-mode .detail-tab.active{background:#123e32;color:#70e0b2;border-color:#24694f}
+body.dark-mode .standings-note{display:none}
+body.dark-mode .detail-head{background:linear-gradient(180deg,#102e31,var(--surface))}
+body.dark-mode .detail-tab,body.dark-mode .drawer-close{background:var(--surface2);color:var(--text)}
+body.dark-mode .empty strong{color:var(--text)}
+body.dark-mode .match-row:hover{background:var(--surface2)}
+body.dark-mode .match-row{border-color:var(--line)}
+body.dark-mode .team-line,body.dark-mode .scores{color:var(--text)}
+body.dark-mode .smallbtn.primary{background:var(--green);color:#fff;border-color:var(--green)}
 @media(max-width:720px){
  .app{display:block;padding:10px 9px 80px}
  .sidebar{display:none}
- .brand{padding:11px 12px}.brandmark{width:38px;height:38px}.brand h1{font-size:18px}
+ .brand{padding:11px 10px;gap:8px}.brandmark{width:36px;height:36px;font-size:20px}.brand h1{font-size:16px}.brand p{font-size:9px}.menu-toggle{display:block;padding:8px}.theme-toggle{padding:8px;font-size:10px}.brand .live-pill{padding:5px 7px;font-size:9px}
  .toolbar{gap:6px}.smallbtn{padding:10px;font-size:11px}
  .match-row{grid-template-columns:43px minmax(0,1fr) 42px 23px;gap:6px;padding:11px 9px}
  .team-line{font-size:11px}.scores{font-size:12px}
@@ -124,11 +152,23 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
 <body>
 <header class="topbar">
   <div class="brand">
+    <button class="menu-toggle" id="menuToggle" aria-label="Open side menu" aria-expanded="false">☰</button>
     <div class="brandmark">⚽</div>
-    <div><h1>M.Awaji LiveScores</h1><p>LIVE SCORES · FIXTURES · RESULTS</p></div>
+    <div class="brand-copy"><h1>M.Awaji LiveScores</h1><p>LIVE SCORES · FIXTURES · RESULTS</p></div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Switch color theme">🌙 Dark</button>
     <div class="live-pill">● FOOTBALL</div>
   </div>
 </header>
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="sideDrawer" aria-label="Side menu" aria-hidden="true">
+  <div class="drawer-head"><strong>⚽ M.Awaji LiveScores</strong><button class="drawer-close" id="drawerClose" aria-label="Close menu">×</button></div>
+  <button class="navbtn active" data-view="live"><span class="ico">🔴</span> Live Scores</button>
+  <button class="navbtn" data-view="fixtures"><span class="ico">📅</span> Fixtures</button>
+  <button class="navbtn" data-view="results"><span class="ico">✅</span> Results</button>
+  <button class="navbtn" data-view="standings"><span class="ico">🏆</span> League Table</button>
+  <button class="navbtn" data-view="favorites"><span class="ico">⭐</span> Saved Matches</button>
+  <div class="side-note">Choose a section or switch between light and dark mode using the button in the header.</div>
+</aside>
 
 <div class="app">
   <aside class="sidebar">
@@ -194,7 +234,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
   This page only calls your own backend.
 */
 const API_BASE = "https://football-livescore-backend-new.vercel.app/api";
-const STANDINGS_SEASON = 2024; // Update to the current season after the football API subscription is upgraded.
+const STANDINGS_SEASON = 2024; // Update to the current season after the paid API subscription is active.
 const leagues = {
   "39": {name:"Premier League", country:"England"},
   "140": {name:"La Liga", country:"Spain"},
@@ -402,7 +442,7 @@ function renderStandings(data) {
   }
   if(!rows.length){content.innerHTML='<div class="empty"><strong>Standings response received</strong>The response format did not include a recognised table.</div>';setStatus("Could not read the standings table","error");return;}
   content.innerHTML=`<div class="table-wrap" role="region" aria-label="League standings; swipe horizontally to see all statistics" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>${rows.map((r,i)=>{const t=r.team||r;const all=r.all||{};const goals=all.goals||r.goals||{};return `<tr><td class="rank">${esc(r.rank??i+1)}</td><td class="teamcell" title="${esc(t.name||"Team")}">${esc(t.name||"Team")}</td><td>${esc(all.played??r.played??"—")}</td><td>${esc(all.win??r.win??"—")}</td><td>${esc(all.draw??r.draw??"—")}</td><td>${esc(all.lose??r.lose??"—")}</td><td>${esc(goals.for??r.goalsFor??"—")}</td><td>${esc(goals.against??r.goalsAgainst??"—")}</td><td>${esc(all.goalsDiff??r.goalsDiff??"—")}</td><td><strong>${esc(all.points??r.points??"—")}</strong></td></tr>`}).join("")}</tbody></table></div>`;
-  setStatus(`${rows.length} teams`,"success");
+  setStatus(`${rows.length} teams in the league table`,"success");
 }
 async function loadData() {
   const requestId=++requestCounter;
@@ -522,6 +562,25 @@ document.getElementById("showAll").addEventListener("click", () => {
   loadData();
 });
 searchInput.addEventListener("input",()=>renderMatches(filterMatches(allLoadedMatches)));
+// Persistent light/dark theme.
+const themeToggle=document.getElementById("themeToggle");
+function applyTheme(mode){
+  document.body.classList.toggle("dark-mode",mode==="dark");
+  themeToggle.textContent=mode==="dark"?"☀️ Light":"🌙 Dark";
+  themeToggle.setAttribute("aria-label",mode==="dark"?"Switch to light mode":"Switch to dark mode");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",mode==="dark"?"#0d2028":"#ffffff");
+}
+let savedTheme=localStorage.getItem("mawajiLivescoresTheme");
+if(!savedTheme)savedTheme=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+applyTheme(savedTheme);
+themeToggle.addEventListener("click",()=>{savedTheme=document.body.classList.contains("dark-mode")?"light":"dark";localStorage.setItem("mawajiLivescoresTheme",savedTheme);applyTheme(savedTheme);});
+// Slide-out side menu for mobile, with the existing navigation preserved.
+const sideDrawer=document.getElementById("sideDrawer"),drawerBackdrop=document.getElementById("drawerBackdrop"),menuToggle=document.getElementById("menuToggle");
+function setDrawer(open){sideDrawer.classList.toggle("open",open);drawerBackdrop.classList.toggle("open",open);sideDrawer.setAttribute("aria-hidden",String(!open));menuToggle.setAttribute("aria-expanded",String(open));document.body.style.overflow=open?"hidden":"";}
+menuToggle.addEventListener("click",()=>setDrawer(!sideDrawer.classList.contains("open")));
+document.getElementById("drawerClose").addEventListener("click",()=>setDrawer(false));
+drawerBackdrop.addEventListener("click",()=>setDrawer(false));
+sideDrawer.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setDrawer(false)));
 makeDateStrip();
 loadData();
 setInterval(()=>{if(["live","fixtures","results"].includes(currentView))loadData();},60000);
