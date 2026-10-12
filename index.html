@@ -24,7 +24,7 @@ body[data-theme="dark"] .table-wrap th:first-child,body[data-theme="dark"] .tabl
 body[data-theme="dark"] .table-wrap td.rank,body[data-theme="dark"] .table-wrap td.teamcell{background:#03151a}
 body[data-theme="dark"] .table-wrap td.teamcell{box-shadow:3px 0 5px rgba(0,0,0,.35)}
 body[data-theme="dark"] .mobile-nav{background:#061b21;border-color:#18343b}
-body[data-theme="dark"] .standings-note{display:flex}
+body[data-theme="dark"] .standings-note{display:none}
 body[data-theme="dark"] .empty,body[data-theme="dark"] .empty strong{color:#b9c8ce}
 .theme-toggle{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800;white-space:nowrap}
 .menu-toggle{display:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:18px}
@@ -112,8 +112,7 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .table-wrap th:first-child{background:#f7f9fb;z-index:4}
 .table-wrap th:nth-child(2),.table-wrap td.teamcell{position:sticky;left:28px;z-index:2;background:#fff;box-shadow:3px 0 4px rgba(22,35,48,.04)}
 .table-wrap th:nth-child(2){background:#f7f9fb;z-index:4}
-.standings-note{padding:9px 12px;background:#fff8e8;border-bottom:1px solid #f2e3bd;color:#76591c;font-size:11px;display:flex;gap:7px;align-items:flex-start}
-.standings-note strong{white-space:nowrap}
+
 .detail-head{padding:20px 12px;text-align:center;background:linear-gradient(180deg,#f4fbf7,#fff);border-bottom:1px solid var(--line)}
 .detail-league{font-size:11px;color:var(--muted);margin-bottom:12px}
 .detail-teams{display:grid;grid-template-columns:1fr 110px 1fr;gap:8px;align-items:center}
@@ -651,7 +650,21 @@ async function openMatch(id, item, preserveSection=false) {
     const eventsData=detailResults[1].status === "fulfilled" ? detailResults[1].value : {};
     const statsData=detailResults[2].status === "fulfilled" ? detailResults[2].value : {};
     const lineupsData=detailResults[3].status === "fulfilled" ? detailResults[3].value : {};
+    const matchTeams=getTeams(match);
+    const homeId=matchTeams.home?.id || matchTeams.home?.team_id;
+    const awayId=matchTeams.away?.id || matchTeams.away?.team_id;
+    const leagueInfo=getLeague(match);
+    const formSeason=leagueInfo.season || STANDINGS_SEASON;
+    const extraResults=await Promise.allSettled([
+      homeId ? api({action:"form",team:String(homeId),season:String(formSeason)}) : Promise.resolve({response:[]}),
+      awayId ? api({action:"form",team:String(awayId),season:String(formSeason)}) : Promise.resolve({response:[]}),
+      homeId && awayId ? api({action:"headtohead",home:String(homeId),away:String(awayId)}) : Promise.resolve({response:[]})
+    ]);
+    if(requestId!==requestCounter)return;
     data.events=responseArray(eventsData); data.statistics=responseArray(statsData); data.lineups=responseArray(lineupsData);
+    data.formHome=extraResults[0].status==="fulfilled"?responseArray(extraResults[0].value):[];
+    data.formAway=extraResults[1].status==="fulfilled"?responseArray(extraResults[1].value):[];
+    data.headtohead=extraResults[2].status==="fulfilled"?responseArray(extraResults[2].value):[];
     renderMatchCentre(match,data);
     // Keep the reader at the same position during automatic match updates.
     if(preserveSection) requestAnimationFrame(()=>window.scrollTo({top:savedScrollY,behavior:"instant"}));
@@ -681,9 +694,24 @@ function formLetters(team){
   const raw=String(team?.form||team?.recentForm||"").toUpperCase();
   return raw.split("").filter(x=>["W","D","L"].includes(x)).slice(-5);
 }
-function renderTeamFormCard(team){
-  const name=teamName(team), logo=teamLogo(team), form=formLetters(team);
-  return `<div class="form-card"><div class="form-card-title">${logo?`<img src="${logo}" alt="" loading="lazy">`:""}<span>${esc(name)}</span></div><div class="form-results">${form.length?form.map(ch=>`<span style="background:${ch==="W"?"#08a64f":ch==="D"?"#f0a000":"#d90016"}">${ch}</span>`).join(""):'<small>Form not supplied</small>'}</div></div>`;
+function formFromFixtures(fixtures, teamId){
+  const list=Array.isArray(fixtures)?fixtures.slice():[];
+  list.sort((a,b)=>new Date(getFixture(a).date||a.date||0)-new Date(getFixture(b).date||b.date||0));
+  return list.map(match=>{
+    const teams=getTeams(match), goals=getGoals(match);
+    const homeId=teams.home?.id||teams.home?.team_id, awayId=teams.away?.id||teams.away?.team_id;
+    const hg=Number(goals.home), ag=Number(goals.away);
+    if(!Number.isFinite(hg)||!Number.isFinite(ag))return "";
+    const isHome=String(homeId)===String(teamId);
+    const scored=isHome?hg:ag, conceded=isHome?ag:hg;
+    return scored>conceded?"W":scored===conceded?"D":"L";
+  }).filter(Boolean).slice(-5);
+}
+function renderTeamFormCard(team, fixtures=[]){
+  const name=teamName(team), logo=teamLogo(team);
+  const teamId=team?.id||team?.team_id;
+  const form=formFromFixtures(fixtures,teamId);
+  return `<div class="form-card"><div class="form-card-title">${logo?`<img src="${logo}" alt="" loading="lazy">`:""}<span>${esc(name)}</span></div><div class="form-results">${form.length?form.map(ch=>`<span style="background:${ch==="W"?"#08a64f":ch==="D"?"#f0a000":"#d90016"}" title="${ch==="W"?"Win":ch==="D"?"Draw":"Loss"}">${ch}</span>`).join(""):'<small>Recent results unavailable</small>'}</div></div>`;
 }
 function renderH2HRow(m){
   const teams=getTeams(m), goals=getGoals(m), f=getFixture(m);
@@ -711,15 +739,13 @@ function renderMatchCentre(m,data) {
     <div class="match-info-row"><span class="match-info-label">🧑‍⚖️ Referee</span><span class="match-info-value">${esc(referee || "Not supplied by provider")}</span></div>
     <div class="match-info-row"><span class="match-info-label">👥 Capacity</span><span class="match-info-value">${capacity ? esc(Number(capacity).toLocaleString("en-GB")) : "Not supplied by provider"}</span></div>
   </div>
-  <div class="match-info"><div class="match-info-title">Recent form</div><div class="form-panels">${renderTeamFormCard(teams.home,teamMeta.home)}${renderTeamFormCard(teams.away,teamMeta.away)}</div></div>
-  <div class="match-info"><div class="match-info-title">Head-to-head matches</div>${h2h.length?`<div class="h2h-list">${h2h.slice(0,5).map(renderH2HRow).join("")}</div>`:`<div class="empty">Head-to-head history is not included in this backend response yet.</div>`}</div>
+  <div class="match-info"><div class="match-info-title">Recent form</div><div class="form-panels">${renderTeamFormCard(teams.home,data.formHome)}${renderTeamFormCard(teams.away,data.formAway)}</div></div>
+  <div class="match-info"><div class="match-info-title">Head-to-head matches</div>${h2h.length?`<div class="h2h-list">${h2h.slice(0,5).map(renderH2HRow).join("")}</div>`:`<div class="empty">No previous meetings were returned for these teams.</div>`}</div>
   <div class="detail-tabs"><button class="detail-tab ${detailSection==="events"?"active":""}" data-detail="events">Commentary</button><button class="detail-tab ${detailSection==="statistics"?"active":""}" data-detail="statistics">Statistics</button><button class="detail-tab ${detailSection==="lineups"?"active":""}" data-detail="lineups">Lineups</button><button class="detail-tab" data-detail="table">🏆 Table</button></div><div class="detail-body" id="detailBody"></div>`;
   document.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.detail==="back"){returnToMatches();return;}document.querySelectorAll("[data-detail]").forEach(x=>x.classList.toggle("active",x===b));detailSection=b.dataset.detail;if(detailSection==="table"){renderMatchLeagueTable(m);return;}renderDetailSection(detailSection,m,data);}));
   renderDetailSection(detailSection,m,data);
   setStatus("Match centre loaded","success");
 }
-function lineupPlayerName(p){return p?.player?.name || p?.player?.player_name || p?.name || p?.player_name || (typeof p?.player === "string" ? p.player : "Player");}
-function lineupNumber(p){return p?.player?.number ?? p?.number ?? "";}
 function lineupPlayerName(p){return p?.player?.name || p?.player?.player_name || p?.name || p?.player_name || (typeof p?.player === "string" ? p.player : "Player");}
 function lineupNumber(p){return p?.player?.number ?? p?.number ?? "";}
 function lineupStarters(l){
