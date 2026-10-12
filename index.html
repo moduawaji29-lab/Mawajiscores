@@ -29,13 +29,15 @@ body[data-theme="dark"] .empty,body[data-theme="dark"] .empty strong{color:#b9c8
 .theme-toggle{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800;white-space:nowrap}
 .menu-toggle{display:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:18px}
 .drawer-backdrop{display:none}
-.standings-controls{display:flex;gap:7px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface2)}
-.standings-mode{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--surface);color:var(--text);font-size:11px;font-weight:800}
-.standings-mode.active{background:#e7f8f0;border-color:#85d9b6;color:#087b54}
-body[data-theme="dark"] .standings-mode.active{background:#104332;color:#70e7b7;border-color:#176747}
-.form-list{display:flex;gap:4px;justify-content:center}
-.form-chip{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:7px;color:#fff;font-size:12px;font-weight:850}
-.standing-logo{width:24px;height:24px;object-fit:contain;flex:none}.table-wrap td.teamcell{display:table-cell}.table-wrap td.teamcell span{vertical-align:middle}.table-wrap td.teamcell .standing-logo{vertical-align:middle;margin-right:8px}.table-wrap td.teamcell{white-space:nowrap}.form-W{background:#08a64f}.form-D{background:#f0a000}.form-L{background:#d90016}.form-unknown{background:#5c666b}
+.form-list{display:flex;gap:3px;justify-content:center;align-items:center}
+.form-chip{display:inline-grid;place-items:center;width:23px;height:24px;border-radius:5px;color:#fff;font-size:11px;font-weight:850}
+.standing-logo{width:24px;height:24px;object-fit:contain;flex:none}.table-wrap td.teamcell{display:table-cell}.table-wrap td.teamcell span{vertical-align:middle}.table-wrap td.teamcell .standing-logo{vertical-align:middle;margin-right:6px}.table-wrap td.teamcell{white-space:nowrap}.form-W{background:#08a64f}.form-D{background:#f0a000}.form-L{background:#d90016}.form-unknown{background:#5c666b}
+.standings-table th,.standings-table td{padding:8px 7px;height:42px}
+.standings-table th{font-size:10px}
+.standings-table td{font-size:12px}
+.standings-table td.teamcell{min-width:165px}
+.standings-table .rank{min-width:32px;width:32px}
+.standings-table .form-cell{min-width:145px}
 button,input{font:inherit}
 button{cursor:pointer}
 .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 9px #1322350b}
@@ -147,9 +149,14 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
  .mobile-nav button.active{color:var(--green-dark)}
  .detail-teams{grid-template-columns:1fr 80px 1fr}
  .table-wrap{max-width:calc(100vw - 20px)}
- .table-wrap table{min-width:690px}
- .table-wrap th,.table-wrap td{padding:10px 8px}
- .table-wrap td.teamcell{min-width:165px;max-width:165px;overflow:hidden;text-overflow:ellipsis}.table-wrap td.teamcell span{display:inline-block;max-width:112px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}.table-wrap td.teamcell .standing-logo{width:24px;height:24px}
+ .table-wrap table{min-width:760px}
+ .table-wrap th,.table-wrap td{padding:7px 6px}
+ .standings-table th,.standings-table td{height:38px;padding:6px 5px}
+ .standings-table td.teamcell{min-width:155px;max-width:155px;overflow:hidden;text-overflow:ellipsis}
+ .standings-table td.teamcell span{display:inline-block;max-width:108px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+ .standings-table td.teamcell .standing-logo{width:21px;height:21px}
+ .standings-table .form-chip{width:20px;height:21px;font-size:10px}
+ .standings-table .form-cell{min-width:126px}
 }
 </style>
 </head>
@@ -448,30 +455,20 @@ function renderStandings(data) {
   }
   if(!rows.length){content.innerHTML='<div class="empty"><strong>Standings response received</strong>The response format did not include a recognised table.</div>';setStatus("Could not read the standings table","error");return;}
   const formMarkup = r => {
-    const form=String(r.form||"").slice(-5).split("");
+    const form=String(r.form||"").toUpperCase().replace(/[^WDL]/g,"").slice(-5).split("");
     while(form.length<5) form.unshift("?");
     return `<div class="form-list">${form.map(ch=>`<span class="form-chip ${["W","D","L"].includes(ch)?`form-${ch}`:"form-unknown"}">${esc(ch)}</span>`).join("")}</div>`;
   };
-  const statRows=rows.map((r,i)=>{
+  const tableRows=rows.map((r,i)=>{
     const t=r.team||r, all=r.all||{}, goals=all.goals||r.goals||{};
     const played=all.played??r.played??"—", win=all.win??r.win??"—", draw=all.draw??r.draw??"—", lose=all.lose??r.lose??"—";
     const gf=goals.for??r.goalsFor??"—", ga=goals.against??r.goalsAgainst??"—";
-    return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${t.logo?`<img class="standing-logo" src="${safeUrl(t.logo)}" alt="" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td>${esc(played)}</td><td>${esc(win)}</td><td>${esc(draw)}</td><td>${esc(lose)}</td><td>${esc(gf)}:${esc(ga)}</td><td>${esc(all.goalsDiff??r.goalsDiff??"—")}</td><td><strong>${esc(all.points??r.points??"—")}</strong></td></tr>`;
+    const gd=all.goalsDiff??r.goalsDiff??"—", pts=all.points??r.points??"—";
+    const logo=safeUrl(t.logo||t.crest||"");
+    return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${logo?`<img class="standing-logo" src="${logo}" alt="" loading="lazy" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td>${esc(played)}</td><td>${esc(win)}</td><td>${esc(draw)}</td><td>${esc(lose)}</td><td>${esc(gf)}:${esc(ga)}</td><td>${esc(gd)}</td><td><strong>${esc(pts)}</strong></td><td class="form-cell">${formMarkup(r)}</td></tr>`;
   }).join("");
-  const pointsRows=rows.map((r,i)=>{
-    const t=r.team||r;
-    return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${t.logo?`<img class="standing-logo" src="${safeUrl(t.logo)}" alt="" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td><strong>${esc(r.points??r.all?.points??"—")}</strong></td><td>${formMarkup(r)}</td></tr>`;
-  }).join("");
-  content.innerHTML=`<div class="statusbar"><span class="dot green"></span><span>${rows.length} teams</span></div>
-    <div class="standings-controls"><button class="standings-mode active" data-table-mode="stats">Statistics</button><button class="standings-mode" data-table-mode="form">Points &amp; Form</button></div>
-    <div class="table-wrap standings-table" id="statsTable" role="region" aria-label="League statistics; swipe horizontally to see all columns" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>G</th><th>GD</th><th>PTS</th></tr></thead><tbody>${statRows}</tbody></table></div>
-    <div class="table-wrap standings-table" id="formTable" role="region" aria-label="League points and recent form" tabindex="0" style="display:none"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>PTS</th><th>FORM</th></tr></thead><tbody>${pointsRows}</tbody></table></div>`;
-  content.querySelectorAll("[data-table-mode]").forEach(btn=>btn.addEventListener("click",()=>{
-    content.querySelectorAll("[data-table-mode]").forEach(b=>b.classList.toggle("active",b===btn));
-    document.getElementById("statsTable").style.display=btn.dataset.tableMode==="stats"?"block":"none";
-    document.getElementById("formTable").style.display=btn.dataset.tableMode==="form"?"block":"none";
-  }));
-  setStatus(`${rows.length} teams`,"success");
+  content.innerHTML=`<div class="table-wrap standings-table" role="region" aria-label="League standings with statistics and recent form; swipe horizontally to see all columns" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF:GA</th><th>GD</th><th>PTS</th><th>FORM</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
+  setStatus(`${rows.length} teams · swipe sideways for all statistics and form` ,"success");
 }
 async function loadData() {
   const requestId=++requestCounter;
