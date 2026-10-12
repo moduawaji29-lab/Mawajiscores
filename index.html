@@ -13,7 +13,29 @@
   --magenta:#d72d79; --red:#e5394f; --shadow:0 4px 16px rgba(22,35,48,.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,Arial,Helvetica,sans-serif;background:var(--page);color:var(--text);line-height:1.4}
+body{font-family:Inter,Arial,Helvetica,sans-serif;background:var(--page);color:var(--text);line-height:1.4;transition:background .2s,color .2s}
+body[data-theme="dark"]{--page:#001116;--surface:#061b21;--surface2:#09252d;--line:#18343b;--text:#eef5f7;--muted:#a7b8bf;--shadow:0 4px 16px rgba(0,0,0,.2);--green:#08a66a;--green-dark:#36d69a}
+body[data-theme="dark"] .topbar,body[data-theme="dark"] .panel,body[data-theme="dark"] .search input,body[data-theme="dark"] .smallbtn,body[data-theme="dark"] .compbtn,body[data-theme="dark"] .datebtn{background:var(--surface);color:var(--text);border-color:var(--line)}
+body[data-theme="dark"] .tabs,body[data-theme="dark"] .league-head,body[data-theme="dark"] th{background:#08252d;color:#dce8ec}
+body[data-theme="dark"] .tab,body[data-theme="dark"] .navbtn{color:#c3d0d5}
+body[data-theme="dark"] .tab.active,body[data-theme="dark"] .navbtn.active{background:#103b32;color:#6de4b3}
+body[data-theme="dark"] td,body[data-theme="dark"] th{background:#03151a;color:#e9f0f2;border-color:#243a40}
+body[data-theme="dark"] .table-wrap th:first-child,body[data-theme="dark"] .table-wrap th:nth-child(2){background:#08252d}
+body[data-theme="dark"] .table-wrap td.rank,body[data-theme="dark"] .table-wrap td.teamcell{background:#03151a}
+body[data-theme="dark"] .table-wrap td.teamcell{box-shadow:3px 0 5px rgba(0,0,0,.35)}
+body[data-theme="dark"] .mobile-nav{background:#061b21;border-color:#18343b}
+body[data-theme="dark"] .standings-note{display:none}
+body[data-theme="dark"] .empty,body[data-theme="dark"] .empty strong{color:#b9c8ce}
+.theme-toggle{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800;white-space:nowrap}
+.menu-toggle{display:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:18px}
+.drawer-backdrop{display:none}
+.standings-controls{display:flex;gap:7px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.standings-mode{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--surface);color:var(--text);font-size:11px;font-weight:800}
+.standings-mode.active{background:#e7f8f0;border-color:#85d9b6;color:#087b54}
+body[data-theme="dark"] .standings-mode.active{background:#104332;color:#70e7b7;border-color:#176747}
+.form-list{display:flex;gap:4px;justify-content:center}
+.form-chip{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:7px;color:#fff;font-size:12px;font-weight:850}
+.standing-logo{width:24px;height:24px;object-fit:contain;flex:none}.table-wrap td.teamcell{display:table-cell}.table-wrap td.teamcell span{vertical-align:middle}.table-wrap td.teamcell .standing-logo{vertical-align:middle;margin-right:8px}.table-wrap td.teamcell{white-space:nowrap}.form-W{background:#08a64f}.form-D{background:#f0a000}.form-L{background:#d90016}.form-unknown{background:#5c666b}
 button,input{font:inherit}
 button{cursor:pointer}
 .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 9px #1322350b}
@@ -101,38 +123,20 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .detail-body{padding:12px}
 .event{display:grid;grid-template-columns:1fr 42px 1fr;align-items:center;padding:9px 0;border-bottom:1px solid #edf0f3;font-size:11px}
 .event .left{text-align:right}.event .right{text-align:left}.event .minute{text-align:center;color:var(--muted);font-weight:800}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:18px 10px 25px}
+footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
 .mobile-nav{display:none}
-/* Theme switch */
-.theme-toggle,.menu-toggle{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800;white-space:nowrap}
-.menu-toggle{display:none}
-.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:39;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
-.drawer{position:fixed;z-index:40;top:0;bottom:0;left:0;width:min(300px,86vw);background:var(--surface);color:var(--text);box-shadow:12px 0 35px rgba(0,0,0,.2);transform:translateX(-105%);transition:transform .22s ease;padding:18px;overflow-y:auto}
-.drawer.open{transform:translateX(0)}
-.drawer-backdrop.open{opacity:1;visibility:visible}
-.drawer-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:12px}
-.drawer-head strong{font-size:17px}
-.drawer-close{border:0;background:var(--surface2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:18px}
-.drawer .navbtn{color:var(--text)}
-.drawer .navbtn.active{background:var(--surface2);color:var(--green-dark)}
-body.dark-mode{--page:#07151b;--surface:#0d2028;--surface2:#122b35;--line:#25404a;--text:#edf4f6;--muted:#a6b6bd;--green:#08a66a;--green-dark:#48d6a0;--magenta:#e75a99;--red:#ff6477;--shadow:0 4px 16px rgba(0,0,0,.2)}
-body.dark-mode .topbar,body.dark-mode .brand,body.dark-mode .mobile-nav{background:var(--surface);border-color:var(--line)}
-body.dark-mode .search input,body.dark-mode .smallbtn,body.dark-mode .compbtn,body.dark-mode .datebtn,body.dark-mode th,body.dark-mode td,body.dark-mode .tab.active{background:var(--surface);color:var(--text);border-color:var(--line)}
-body.dark-mode .tabs,body.dark-mode .league-head,body.dark-mode .statusbar,body.dark-mode .table-wrap th:first-child,body.dark-mode .table-wrap th:nth-child(2){background:var(--surface2);color:var(--text)}
-body.dark-mode .table-wrap th:first-child,body.dark-mode .table-wrap td.rank,body.dark-mode .table-wrap th:nth-child(2),body.dark-mode .table-wrap td.teamcell{background:var(--surface);color:var(--text)}
-body.dark-mode .compbtn.active,body.dark-mode .datebtn.active,body.dark-mode .navbtn.active,body.dark-mode .detail-tab.active{background:#123e32;color:#70e0b2;border-color:#24694f}
-body.dark-mode .standings-note{display:none}
-body.dark-mode .detail-head{background:linear-gradient(180deg,#102e31,var(--surface))}
-body.dark-mode .detail-tab,body.dark-mode .drawer-close{background:var(--surface2);color:var(--text)}
-body.dark-mode .empty strong{color:var(--text)}
-body.dark-mode .match-row:hover{background:var(--surface2)}
-body.dark-mode .match-row{border-color:var(--line)}
-body.dark-mode .team-line,body.dark-mode .scores{color:var(--text)}
-body.dark-mode .smallbtn.primary{background:var(--green);color:#fff;border-color:var(--green)}
 @media(max-width:720px){
+ .menu-toggle{display:block;flex:none}
+ .brand{gap:7px}.brand .live-pill{display:none}.brand h1{font-size:16px}.brand p{font-size:9px}
+ .theme-toggle{margin-left:auto;padding:8px;font-size:10px}
+ .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+ .drawer-backdrop.open{display:block}
+ .mobile-drawer{position:fixed;z-index:41;left:0;top:0;bottom:0;width:min(82vw,310px);border-radius:0 16px 16px 0;transform:translateX(-105%);transition:transform .22s ease;display:block!important;box-shadow:0 8px 30px #0003}
+ .mobile-drawer.open{transform:translateX(0)}
+ .mobile-drawer .panel-title{gap:8px}.mobile-drawer .panel-title button{margin-left:auto}
  .app{display:block;padding:10px 9px 80px}
  .sidebar{display:none}
- .brand{padding:11px 10px;gap:8px}.brandmark{width:36px;height:36px;font-size:20px}.brand h1{font-size:16px}.brand p{font-size:9px}.menu-toggle{display:block;padding:8px}.theme-toggle{padding:8px;font-size:10px}.brand .live-pill{padding:5px 7px;font-size:9px}
+ .brand{padding:11px 12px}.brandmark{width:38px;height:38px}.brand h1{font-size:18px}
  .toolbar{gap:6px}.smallbtn{padding:10px;font-size:11px}
  .match-row{grid-template-columns:43px minmax(0,1fr) 42px 23px;gap:6px;padding:11px 9px}
  .team-line{font-size:11px}.scores{font-size:12px}
@@ -145,7 +149,7 @@ body.dark-mode .smallbtn.primary{background:var(--green);color:#fff;border-color
  .table-wrap{max-width:calc(100vw - 20px)}
  .table-wrap table{min-width:690px}
  .table-wrap th,.table-wrap td{padding:10px 8px}
- .table-wrap td.teamcell{min-width:135px;max-width:145px;overflow:hidden;text-overflow:ellipsis}
+ .table-wrap td.teamcell{min-width:165px;max-width:165px;overflow:hidden;text-overflow:ellipsis}.table-wrap td.teamcell span{display:inline-block;max-width:112px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}.table-wrap td.teamcell .standing-logo{width:24px;height:24px}
 }
 </style>
 </head>
@@ -154,20 +158,22 @@ body.dark-mode .smallbtn.primary{background:var(--green);color:#fff;border-color
   <div class="brand">
     <button class="menu-toggle" id="menuToggle" aria-label="Open side menu" aria-expanded="false">☰</button>
     <div class="brandmark">⚽</div>
-    <div class="brand-copy"><h1>M.Awaji LiveScores</h1><p>LIVE SCORES · FIXTURES · RESULTS</p></div>
+    <div><h1>M.Awaji LiveScores</h1><p>LIVE SCORES · FIXTURES · RESULTS</p></div>
     <button class="theme-toggle" id="themeToggle" aria-label="Switch color theme">🌙 Dark</button>
     <div class="live-pill">● FOOTBALL</div>
   </div>
 </header>
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
-<aside class="drawer" id="sideDrawer" aria-label="Side menu" aria-hidden="true">
-  <div class="drawer-head"><strong>⚽ M.Awaji LiveScores</strong><button class="drawer-close" id="drawerClose" aria-label="Close menu">×</button></div>
-  <button class="navbtn active" data-view="live"><span class="ico">🔴</span> Live Scores</button>
-  <button class="navbtn" data-view="fixtures"><span class="ico">📅</span> Fixtures</button>
-  <button class="navbtn" data-view="results"><span class="ico">✅</span> Results</button>
-  <button class="navbtn" data-view="standings"><span class="ico">🏆</span> League Table</button>
-  <button class="navbtn" data-view="favorites"><span class="ico">⭐</span> Saved Matches</button>
-  <div class="side-note">Choose a section or switch between light and dark mode using the button in the header.</div>
+<aside class="mobile-drawer panel" id="mobileDrawer" aria-label="Main menu">
+  <div class="panel-title">M.Awaji LiveScores <button class="smallbtn" id="closeDrawer" aria-label="Close menu">✕</button></div>
+  <div class="side-nav">
+    <button class="navbtn active" data-view="live"><span class="ico">🔴</span> Live Scores</button>
+    <button class="navbtn" data-view="fixtures"><span class="ico">📅</span> Fixtures</button>
+    <button class="navbtn" data-view="results"><span class="ico">✅</span> Results</button>
+    <button class="navbtn" data-view="standings"><span class="ico">🏆</span> League Table</button>
+    <button class="navbtn" data-view="favorites"><span class="ico">⭐</span> Saved Matches</button>
+  </div>
+  <div class="side-note">Choose a section or switch theme using the button in the header.</div>
 </aside>
 
 <div class="app">
@@ -234,7 +240,7 @@ body.dark-mode .smallbtn.primary{background:var(--green);color:#fff;border-color
   This page only calls your own backend.
 */
 const API_BASE = "https://football-livescore-backend-new.vercel.app/api";
-const STANDINGS_SEASON = 2024; // Update to the current season after the paid API subscription is active.
+const STANDINGS_SEASON = 2024; // Historical season supported by the current free API plan; update after upgrading the subscription.
 const leagues = {
   "39": {name:"Premier League", country:"England"},
   "140": {name:"La Liga", country:"Spain"},
@@ -441,8 +447,31 @@ function renderStandings(data) {
     else if(item?.rank!==undefined || item?.team) rows.push(item);
   }
   if(!rows.length){content.innerHTML='<div class="empty"><strong>Standings response received</strong>The response format did not include a recognised table.</div>';setStatus("Could not read the standings table","error");return;}
-  content.innerHTML=`<div class="table-wrap" role="region" aria-label="League standings; swipe horizontally to see all statistics" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>${rows.map((r,i)=>{const t=r.team||r;const all=r.all||{};const goals=all.goals||r.goals||{};return `<tr><td class="rank">${esc(r.rank??i+1)}</td><td class="teamcell" title="${esc(t.name||"Team")}">${esc(t.name||"Team")}</td><td>${esc(all.played??r.played??"—")}</td><td>${esc(all.win??r.win??"—")}</td><td>${esc(all.draw??r.draw??"—")}</td><td>${esc(all.lose??r.lose??"—")}</td><td>${esc(goals.for??r.goalsFor??"—")}</td><td>${esc(goals.against??r.goalsAgainst??"—")}</td><td>${esc(all.goalsDiff??r.goalsDiff??"—")}</td><td><strong>${esc(all.points??r.points??"—")}</strong></td></tr>`}).join("")}</tbody></table></div>`;
-  setStatus(`${rows.length} teams in the league table`,"success");
+  const formMarkup = r => {
+    const form=String(r.form||"").slice(-5).split("");
+    while(form.length<5) form.unshift("?");
+    return `<div class="form-list">${form.map(ch=>`<span class="form-chip ${["W","D","L"].includes(ch)?`form-${ch}`:"form-unknown"}">${esc(ch)}</span>`).join("")}</div>`;
+  };
+  const statRows=rows.map((r,i)=>{
+    const t=r.team||r, all=r.all||{}, goals=all.goals||r.goals||{};
+    const played=all.played??r.played??"—", win=all.win??r.win??"—", draw=all.draw??r.draw??"—", lose=all.lose??r.lose??"—";
+    const gf=goals.for??r.goalsFor??"—", ga=goals.against??r.goalsAgainst??"—";
+    return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${t.logo?`<img class="standing-logo" src="${safeUrl(t.logo)}" alt="" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td>${esc(played)}</td><td>${esc(win)}</td><td>${esc(draw)}</td><td>${esc(lose)}</td><td>${esc(gf)}:${esc(ga)}</td><td>${esc(all.goalsDiff??r.goalsDiff??"—")}</td><td><strong>${esc(all.points??r.points??"—")}</strong></td></tr>`;
+  }).join("");
+  const pointsRows=rows.map((r,i)=>{
+    const t=r.team||r;
+    return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${t.logo?`<img class="standing-logo" src="${safeUrl(t.logo)}" alt="" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td><strong>${esc(r.points??r.all?.points??"—")}</strong></td><td>${formMarkup(r)}</td></tr>`;
+  }).join("");
+  content.innerHTML=`<div class="statusbar"><span class="dot green"></span><span>${rows.length} teams</span></div>
+    <div class="standings-controls"><button class="standings-mode active" data-table-mode="stats">Statistics</button><button class="standings-mode" data-table-mode="form">Points &amp; Form</button></div>
+    <div class="table-wrap standings-table" id="statsTable" role="region" aria-label="League statistics; swipe horizontally to see all columns" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>G</th><th>GD</th><th>PTS</th></tr></thead><tbody>${statRows}</tbody></table></div>
+    <div class="table-wrap standings-table" id="formTable" role="region" aria-label="League points and recent form" tabindex="0" style="display:none"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>PTS</th><th>FORM</th></tr></thead><tbody>${pointsRows}</tbody></table></div>`;
+  content.querySelectorAll("[data-table-mode]").forEach(btn=>btn.addEventListener("click",()=>{
+    content.querySelectorAll("[data-table-mode]").forEach(b=>b.classList.toggle("active",b===btn));
+    document.getElementById("statsTable").style.display=btn.dataset.tableMode==="stats"?"block":"none";
+    document.getElementById("formTable").style.display=btn.dataset.tableMode==="form"?"block":"none";
+  }));
+  setStatus(`${rows.length} teams`,"success");
 }
 async function loadData() {
   const requestId=++requestCounter;
@@ -562,25 +591,21 @@ document.getElementById("showAll").addEventListener("click", () => {
   loadData();
 });
 searchInput.addEventListener("input",()=>renderMatches(filterMatches(allLoadedMatches)));
-// Persistent light/dark theme.
 const themeToggle=document.getElementById("themeToggle");
-function applyTheme(mode){
-  document.body.classList.toggle("dark-mode",mode==="dark");
-  themeToggle.textContent=mode==="dark"?"☀️ Light":"🌙 Dark";
-  themeToggle.setAttribute("aria-label",mode==="dark"?"Switch to light mode":"Switch to dark mode");
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",mode==="dark"?"#0d2028":"#ffffff");
+function applyTheme(theme){
+  document.body.dataset.theme=theme;
+  localStorage.setItem("mawajiLivescoresTheme",theme);
+  themeToggle.textContent=theme==="dark"?"☀️ Light":"🌙 Dark";
+  themeToggle.setAttribute("aria-pressed",String(theme==="dark"));
 }
-let savedTheme=localStorage.getItem("mawajiLivescoresTheme");
-if(!savedTheme)savedTheme=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
-applyTheme(savedTheme);
-themeToggle.addEventListener("click",()=>{savedTheme=document.body.classList.contains("dark-mode")?"light":"dark";localStorage.setItem("mawajiLivescoresTheme",savedTheme);applyTheme(savedTheme);});
-// Slide-out side menu for mobile, with the existing navigation preserved.
-const sideDrawer=document.getElementById("sideDrawer"),drawerBackdrop=document.getElementById("drawerBackdrop"),menuToggle=document.getElementById("menuToggle");
-function setDrawer(open){sideDrawer.classList.toggle("open",open);drawerBackdrop.classList.toggle("open",open);sideDrawer.setAttribute("aria-hidden",String(!open));menuToggle.setAttribute("aria-expanded",String(open));document.body.style.overflow=open?"hidden":"";}
-menuToggle.addEventListener("click",()=>setDrawer(!sideDrawer.classList.contains("open")));
-document.getElementById("drawerClose").addEventListener("click",()=>setDrawer(false));
-drawerBackdrop.addEventListener("click",()=>setDrawer(false));
-sideDrawer.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setDrawer(false)));
+applyTheme(localStorage.getItem("mawajiLivescoresTheme")||"light");
+themeToggle.addEventListener("click",()=>applyTheme(document.body.dataset.theme==="dark"?"light":"dark"));
+const drawer=document.getElementById("mobileDrawer"), backdrop=document.getElementById("drawerBackdrop"), menuToggle=document.getElementById("menuToggle");
+function closeMenu(){drawer.classList.remove("open");backdrop.classList.remove("open");menuToggle.setAttribute("aria-expanded","false");}
+menuToggle.addEventListener("click",()=>{drawer.classList.add("open");backdrop.classList.add("open");menuToggle.setAttribute("aria-expanded","true");});
+document.getElementById("closeDrawer").addEventListener("click",closeMenu);
+backdrop.addEventListener("click",closeMenu);
+drawer.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",closeMenu));
 makeDateStrip();
 loadData();
 setInterval(()=>{if(["live","fixtures","results"].includes(currentView))loadData();},60000);
