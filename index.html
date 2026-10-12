@@ -63,7 +63,7 @@ button{cursor:pointer}
 .smallbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:750;color:#35414d}
 .smallbtn.primary{background:var(--green);border-color:var(--green);color:#fff}
 .competition-row{display:flex;gap:7px;overflow-x:auto;padding:1px 0 12px;scrollbar-width:thin}
-.compbtn{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 13px;font-size:12px;font-weight:750;color:#475462}.comp-country{font-size:10px;font-weight:600;opacity:.72;margin-left:2px}
+.compbtn{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 13px;font-size:12px;font-weight:750;color:#475462}.comp-country{font-size:10px;font-weight:600;opacity:.78;margin-left:1px}.comp-league-logo{width:18px;height:18px;object-fit:contain;flex:none}.country-flag{width:16px;height:12px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px #00000012;flex:none}
 .compbtn.active{background:#e7f8f0;border-color:#85d9b6;color:#087b54}
 .content-panel{margin-bottom:13px}
 .tabs{display:flex;gap:4px;padding:6px;background:#f3f5f7;border-bottom:1px solid var(--line)}
@@ -80,7 +80,7 @@ button{cursor:pointer}
 .dot.red{background:var(--red)}
 .matches{min-height:130px}
 .league-head{padding:10px 13px;background:#f7f9fb;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800}
-.league-head img{width:20px;height:20px;object-fit:contain}
+.league-head img{width:20px;height:20px;object-fit:contain}.league-head .country-flag{width:18px;height:13px}
 .league-head .country{color:var(--muted);font-weight:500;margin-left:auto;font-size:11px}
 .match-row{display:grid;grid-template-columns:48px minmax(0,1fr) 52px 28px;gap:9px;align-items:center;padding:12px 12px;border-bottom:1px solid #edf0f3;cursor:pointer;transition:background .15s}
 .match-row:last-child{border-bottom:0}
@@ -276,26 +276,26 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
     </div>
 
     <div class="competition-row" id="competitions">
-      <button class="compbtn active" data-league="39" data-code="PL">Premier League <span class="comp-country">· England</span></button>
-      <button class="compbtn" data-league="140" data-code="PD">La Liga <span class="comp-country">· Spain</span></button>
-      <button class="compbtn" data-league="135" data-code="SA">Serie A <span class="comp-country">· Italy</span></button>
-      <button class="compbtn" data-league="78" data-code="BL1">Bundesliga <span class="comp-country">· Germany</span></button>
-      <button class="compbtn" data-league="61" data-code="FL1">Ligue 1 <span class="comp-country">· France</span></button>
-      <button class="compbtn" data-league="2" data-code="CL">Champions League <span class="comp-country">· Europe</span></button>
-      <button class="compbtn" data-league="3" data-code="UEL">Europa League <span class="comp-country">· Europe</span></button>
-      <button class="compbtn" data-league="848" data-code="UECL">Conference League <span class="comp-country">· Europe</span></button>
-      <button class="compbtn" data-league="40" data-code="CH">Championship <span class="comp-country">· England</span></button>
-      <button class="compbtn" data-league="88" data-code="ERE">Eredivisie <span class="comp-country">· Netherlands</span></button>
-      <button class="compbtn" data-league="94" data-code="PPL">Primeira Liga <span class="comp-country">· Portugal</span></button>
-      <button class="compbtn" data-league="179" data-code="SCO">Scottish Premiership <span class="comp-country">· Scotland</span></button>
-      <button class="compbtn" data-league="203" data-code="TUR">Turkish Super Lig <span class="comp-country">· Turkey</span></button>
-      <button class="compbtn" data-league="144" data-code="BEL">Belgian Pro League <span class="comp-country">· Belgium</span></button>
-      <button class="compbtn" data-league="71" data-code="BRA">Brazil Serie A <span class="comp-country">· Brazil</span></button>
-      <button class="compbtn" data-league="253" data-code="MLS">MLS <span class="comp-country">· USA</span></button>
-      <button class="compbtn" data-league="307" data-code="SAU">Saudi Pro League <span class="comp-country">· Saudi Arabia</span></button>
-      <button class="compbtn" data-league="12" data-code="CAF">CAF Champions League <span class="comp-country">· Africa</span></button>
-      <button class="compbtn" data-league="6" data-code="AFCON">Africa Cup of Nations <span class="comp-country">· Africa</span></button>
-      <button class="compbtn" data-league="399" data-code="NPFL">Nigeria NPFL <span class="comp-country">· Nigeria</span></button>
+      <button class="compbtn active" data-league="39" data-code="PL"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/39.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/gb-eng.svg" alt="England flag" loading="lazy" onerror="this.style.display='none'">Premier League <span class="comp-country">· England</span></button>
+      <button class="compbtn" data-league="140" data-code="PD"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/140.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/es.svg" alt="Spain flag" loading="lazy" onerror="this.style.display='none'">La Liga <span class="comp-country">· Spain</span></button>
+      <button class="compbtn" data-league="135" data-code="SA"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/135.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/it.svg" alt="Italy flag" loading="lazy" onerror="this.style.display='none'">Serie A <span class="comp-country">· Italy</span></button>
+      <button class="compbtn" data-league="78" data-code="BL1"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/78.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/de.svg" alt="Germany flag" loading="lazy" onerror="this.style.display='none'">Bundesliga <span class="comp-country">· Germany</span></button>
+      <button class="compbtn" data-league="61" data-code="FL1"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/61.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/fr.svg" alt="France flag" loading="lazy" onerror="this.style.display='none'">Ligue 1 <span class="comp-country">· France</span></button>
+      <button class="compbtn" data-league="2" data-code="CL"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/2.png" alt="" loading="lazy" onerror="this.style.display='none'">Champions League <span class="comp-country">· Europe</span></button>
+      <button class="compbtn" data-league="3" data-code="UEL"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/3.png" alt="" loading="lazy" onerror="this.style.display='none'">Europa League <span class="comp-country">· Europe</span></button>
+      <button class="compbtn" data-league="848" data-code="UECL"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/848.png" alt="" loading="lazy" onerror="this.style.display='none'">Conference League <span class="comp-country">· Europe</span></button>
+      <button class="compbtn" data-league="40" data-code="CH"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/40.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/gb-eng.svg" alt="England flag" loading="lazy" onerror="this.style.display='none'">Championship <span class="comp-country">· England</span></button>
+      <button class="compbtn" data-league="88" data-code="ERE"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/88.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/nl.svg" alt="Netherlands flag" loading="lazy" onerror="this.style.display='none'">Eredivisie <span class="comp-country">· Netherlands</span></button>
+      <button class="compbtn" data-league="94" data-code="PPL"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/94.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/pt.svg" alt="Portugal flag" loading="lazy" onerror="this.style.display='none'">Primeira Liga <span class="comp-country">· Portugal</span></button>
+      <button class="compbtn" data-league="179" data-code="SCO"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/179.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/gb-sct.svg" alt="Scotland flag" loading="lazy" onerror="this.style.display='none'">Scottish Premiership <span class="comp-country">· Scotland</span></button>
+      <button class="compbtn" data-league="203" data-code="TUR"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/203.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/tr.svg" alt="Turkey flag" loading="lazy" onerror="this.style.display='none'">Turkish Super Lig <span class="comp-country">· Turkey</span></button>
+      <button class="compbtn" data-league="144" data-code="BEL"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/144.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/be.svg" alt="Belgium flag" loading="lazy" onerror="this.style.display='none'">Belgian Pro League <span class="comp-country">· Belgium</span></button>
+      <button class="compbtn" data-league="71" data-code="BRA"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/71.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/br.svg" alt="Brazil flag" loading="lazy" onerror="this.style.display='none'">Brazil Serie A <span class="comp-country">· Brazil</span></button>
+      <button class="compbtn" data-league="253" data-code="MLS"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/253.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/us.svg" alt="USA flag" loading="lazy" onerror="this.style.display='none'">MLS <span class="comp-country">· USA</span></button>
+      <button class="compbtn" data-league="307" data-code="SAU"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/307.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/sa.svg" alt="Saudi Arabia flag" loading="lazy" onerror="this.style.display='none'">Saudi Pro League <span class="comp-country">· Saudi Arabia</span></button>
+      <button class="compbtn" data-league="12" data-code="CAF"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/12.png" alt="" loading="lazy" onerror="this.style.display='none'">CAF Champions League <span class="comp-country">· Africa</span></button>
+      <button class="compbtn" data-league="6" data-code="AFCON"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/6.png" alt="" loading="lazy" onerror="this.style.display='none'">Africa Cup of Nations <span class="comp-country">· Africa</span></button>
+      <button class="compbtn" data-league="399" data-code="NPFL"><img class="comp-league-logo" src="https://media.api-sports.io/football/leagues/399.png" alt="" loading="lazy" onerror="this.style.display='none'"><img class="country-flag" src="https://media.api-sports.io/flags/ng.svg" alt="Nigeria flag" loading="lazy" onerror="this.style.display='none'">Nigeria NPFL <span class="comp-country">· Nigeria</span></button>
       <button class="compbtn" data-league="all" data-code="ALL">All leagues</button>
     </div>
 
@@ -382,6 +382,8 @@ function localDateString(d) {
 function fmtDate(d) { return d.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"}); }
 function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
 function safeUrl(v) { try { const u = new URL(v); return ["https:","http:"].includes(u.protocol) ? u.href : ""; } catch { return ""; } }
+const COUNTRY_FLAG_CODES = {"England":"gb-eng","Scotland":"gb-sct","Wales":"gb-wls","Northern Ireland":"gb-nir","Spain":"es","Italy":"it","Germany":"de","France":"fr","Netherlands":"nl","Portugal":"pt","Turkey":"tr","Türkiye":"tr","Belgium":"be","Brazil":"br","USA":"us","United States":"us","Saudi Arabia":"sa","Nigeria":"ng","Argentina":"ar","Mexico":"mx","Japan":"jp","South Korea":"kr","Korea Republic":"kr","Australia":"au","China":"cn","India":"in","Greece":"gr","Denmark":"dk","Sweden":"se","Norway":"no","Switzerland":"ch","Austria":"at","Poland":"pl","Ukraine":"ua","Croatia":"hr","Serbia":"rs","Czech Republic":"cz","Czechia":"cz","Romania":"ro","Egypt":"eg","Morocco":"ma","South Africa":"za","Ghana":"gh","Senegal":"sn","Cameroon":"cm","Ivory Coast":"ci","Côte d’Ivoire":"ci","Algeria":"dz","Tunisia":"tn","Uruguay":"uy","Chile":"cl","Colombia":"co","Paraguay":"py","Ecuador":"ec","Canada":"ca","Costa Rica":"cr","Iran":"ir","Qatar":"qa","United Arab Emirates":"ae","Russia":"ru","Israel":"il","Ireland":"ie","Finland":"fi","Iceland":"is","Hungary":"hu","Slovakia":"sk","Slovenia":"si","Bulgaria":"bg","Cyprus":"cy","Luxembourg":"lu","Malta":"mt"};
+function countryFlagUrl(country) { const code=COUNTRY_FLAG_CODES[String(country||"").trim()]; return code ? `https://media.api-sports.io/flags/${code}.svg` : ""; }
 function queryUrl(params) { const q = new URLSearchParams(params); return `${API_BASE}?${q.toString()}`; }
 
 async function api(params) {
@@ -523,7 +525,7 @@ function renderMatches(arr) {
     const [country,name]=key.split("|");
     const head=document.createElement("div");head.className="league-head";
     const l=getLeague(items[0]); const logo=safeUrl(l.logo || l.emblem || "");
-    head.innerHTML=`${logo?`<img src="${logo}" alt="" onerror="this.style.display='none'">`:"⚽"}<span>${esc(name)}</span><span class="country">${esc(country)}</span>`;
+    const flag=countryFlagUrl(country); head.innerHTML=`${logo?`<img src="${logo}" alt="League logo" loading="lazy" onerror="this.style.display='none'">`:"⚽"}${flag?`<img class="country-flag" src="${flag}" alt="${esc(country)} flag" loading="lazy" onerror="this.style.display='none'">`:""}<span>${esc(name)}</span><span class="country">${esc(country)}</span>`;
     content.appendChild(head);
     items.forEach(m=>{
       const teams=getTeams(m), home=teams.home||{}, away=teams.away||{}, goals=getGoals(m), state=statusLabel(m), id=fixtureId(m);
