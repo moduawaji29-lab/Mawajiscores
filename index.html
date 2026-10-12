@@ -24,7 +24,7 @@ body[data-theme="dark"] .table-wrap th:first-child,body[data-theme="dark"] .tabl
 body[data-theme="dark"] .table-wrap td.rank,body[data-theme="dark"] .table-wrap td.teamcell{background:#03151a}
 body[data-theme="dark"] .table-wrap td.teamcell{box-shadow:3px 0 5px rgba(0,0,0,.35)}
 body[data-theme="dark"] .mobile-nav{background:#061b21;border-color:#18343b}
-body[data-theme="dark"] .standings-note{display:none}
+body[data-theme="dark"] .standings-note{display:flex}
 body[data-theme="dark"] .empty,body[data-theme="dark"] .empty strong{color:#b9c8ce}
 .theme-toggle{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800;white-space:nowrap}
 .menu-toggle{display:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px;font-size:18px}
@@ -227,6 +227,8 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
 .lineup-subs .lineup-list-row{font-size:12px;gap:6px}
 @media(max-width:480px){.shared-pitch{min-height:620px;margin:0 4px 10px}.shared-pitch-player{font-size:9px}.shared-pitch-player img,.shared-shirt{width:30px;height:30px}.lineup-coaches,.substitutes-grid{gap:6px;padding-left:4px;padding-right:4px}.lineup-subs{padding:7px}.shared-lineup-head{font-size:12px}}
 
+ .detail-backbar{display:flex;justify-content:flex-start;padding:8px 0 10px;position:sticky;top:0;z-index:4;background:var(--bg)}
+.detail-backbar .smallbtn{font-size:13px;padding:9px 13px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -330,7 +332,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
   This page only calls your own backend.
 */
 const API_BASE = "https://football-livescore-backend-new.vercel.app/api";
-const STANDINGS_SEASON = 2024; // Historical standings season supported by the current plan.
+const STANDINGS_SEASON = 2026; // Current season; never silently label historical tables as current.
 const FIXTURES_SEASON = 2026; // Current football season for league-scoped fixtures and results.
 const leagues = {
   "39": {name:"Premier League", country:"England"},
@@ -363,6 +365,7 @@ let favorites = new Set(JSON.parse(localStorage.getItem("mawajiLivescoresFavorit
 let detailFixtureId = null;
 let detailMatchItem = null;
 let detailSection = "events";
+let detailReturnScrollY = 0;
 let requestCounter = 0;
 const previousScores = new Map();
 const recentMatchAlerts = new Map();
@@ -559,9 +562,9 @@ function toggleFavorite(id) {
   localStorage.setItem("mawajiLivescoresFavorites",JSON.stringify([...favorites]));
   if(currentView==="favorites")renderMatches(filterMatches(allLoadedMatches));
 }
-function renderStandings(data) {
+function renderStandings(data, season=STANDINGS_SEASON) {
   const arr=responseArray(data);
-  if(!arr.length){content.innerHTML='<div class="empty"><strong>Standings unavailable</strong>The provider returned no table for this league and season.</div>';setStatus("No standings returned","error");return;}
+  if(!arr.length){content.innerHTML=`<div class="empty"><strong>Current standings unavailable</strong>The provider returned no standings for ${esc(leagues[selectedLeague]?.name||'this competition')} in season ${esc(season)}. No old table will be shown as if it were current.</div>`;setStatus(`No standings for season ${season}`,"error");return;}
   let rows=[];
   for(const item of arr){
     if(item?.league?.standings) rows.push(...item.league.standings.flat());
@@ -583,22 +586,24 @@ function renderStandings(data) {
     return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${logo?`<img class="standing-logo" src="${logo}" alt="" loading="lazy" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td>${esc(played)}</td><td>${esc(win)}</td><td>${esc(draw)}</td><td>${esc(lose)}</td><td>${esc(gf)}:${esc(ga)}</td><td>${esc(gd)}</td><td><strong>${esc(pts)}</strong></td><td class="form-cell">${formMarkup(r)}</td></tr>`;
   }).join("");
   content.innerHTML=`<div class="table-wrap standings-table" role="region" aria-label="League standings with statistics and recent form; swipe horizontally to see all columns" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF:GA</th><th>GD</th><th>PTS</th><th>FORM</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
-  setStatus(`${rows.length} teams · swipe → for more statistics and form` ,"success");
+  content.insertAdjacentHTML("afterbegin", `<div class="standings-note"><strong>Season ${esc(season)}:</strong> Latest standings returned by the football data provider. Standings may update on the provider schedule.</div>`);
+  setStatus(`${rows.length} teams · season ${season} · swipe → for more statistics and form` ,"success");
 }
-async function loadData() {
+async function loadData(silent=false, restoreY=null) {
   const requestId=++requestCounter;
-  detailFixtureId=null;
-  detailMatchItem=null;
+  if(!silent){ detailFixtureId=null; detailMatchItem=null; }
   syncControls();
-  content.innerHTML='<div class="empty"><span class="spinner"></span>Loading football data…</div>';
-  setStatus("Connecting to your Vercel backend…");
+  if(!silent) content.innerHTML='<div class="empty"><span class="spinner"></span>Loading football data…</div>';
+  setStatus(silent ? "Updating scores quietly…" : "Connecting to your Vercel backend…");
   try {
     let data;
     if(currentView==="standings"){
       const league=selectedLeague==="all"?"39":selectedLeague;
       data=await api({action:"standings",league,season:String(STANDINGS_SEASON)});
       if(requestId!==requestCounter)return;
-      renderStandings(data);return;
+      renderStandings(data,STANDINGS_SEASON);
+      if(restoreY!==null) requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:"instant"}));
+      return;
     }
     // Fetch the broad endpoint and filter by league locally. This avoids plan-restricted
     // league/season requests on free API plans; the backend remains the source of match data.
@@ -621,17 +626,19 @@ async function loadData() {
     }
     const shown=filterMatches(allLoadedMatches);
     renderMatches(shown);
+    if(restoreY!==null) requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:"instant"}));
   } catch(e) {
     if(requestId!==requestCounter)return;
-    content.innerHTML=`<div class="errorbox"><strong>Unable to load football data</strong><br>${esc(e.message)}<br><br>Check that the Vercel deployment is Ready and that the API route accepts this action.</div>`;
-    setStatus("API request failed","error");
+    if(!silent) content.innerHTML=`<div class="errorbox"><strong>Unable to load football data</strong><br>${esc(e.message)}<br><br>Check that the Vercel deployment is Ready and that the API route accepts this action.</div>`;
+    setStatus(silent ? `Refresh failed: ${e.message}` : "API request failed","error");
   }
 }
 async function openMatch(id, item, preserveSection=false) {
   const savedScrollY=window.scrollY;
+  if(!preserveSection) detailReturnScrollY=savedScrollY;
   const requestId=++requestCounter; detailFixtureId=id; detailMatchItem=item || detailMatchItem; if(!preserveSection) detailSection="events";
-  content.innerHTML='<div class="empty"><span class="spinner"></span>Loading match centre…</div>';
-  setStatus("Loading match details…");
+  if(!preserveSection) content.innerHTML='<div class="empty"><span class="spinner"></span>Loading match centre…</div>';
+  if(!preserveSection) setStatus("Loading match details…");
   try {
     const detailResults = await Promise.allSettled([
       api({action:"match",id:String(id)}),
@@ -652,7 +659,7 @@ async function openMatch(id, item, preserveSection=false) {
   } catch(e) {
     if(requestId!==requestCounter)return;
     content.innerHTML=`<div class="errorbox">Unable to load match details.<br>${esc(e.message)}<br><br><button class="smallbtn" id="backToMatches">← Back to matches</button></div>`;
-    document.getElementById("backToMatches")?.addEventListener("click",loadData);
+    document.getElementById("backToMatches")?.addEventListener("click",returnToMatches);
     setStatus("Match details unavailable","error");
   }
 }
@@ -694,7 +701,7 @@ function renderMatchCentre(m,data) {
   const capacity=venue.capacity || f.venue?.capacity || m.venue?.capacity || null;
   const teamMeta=matchTeamMeta(m);
   const h2h=Array.isArray(m.headtohead)?m.headtohead:(Array.isArray(data.headtohead)?data.headtohead:[]);
-  content.innerHTML=`<div class="detail-head"><div class="detail-league">${esc(league.name||compName(m))} ${league.round?`· ${esc(league.round)}`:""}</div><div class="detail-teams">
+  content.innerHTML=`<div class="detail-backbar"><button class="smallbtn" data-detail="back">← Back to matches</button></div><div class="detail-head"><div class="detail-league">${esc(league.name||compName(m))} ${league.round?`· ${esc(league.round)}`:""}</div><div class="detail-teams">
     <div class="detail-team">${teamLogo(home)?`<img src="${teamLogo(home)}" alt="">`:"⚽"}<div>${esc(teamName(home))}</div></div>
     <div><div class="detail-score">${esc(scoreValue(goals.home))} - ${esc(scoreValue(goals.away))}</div><div class="detail-status">${esc(st.text)}</div></div>
     <div class="detail-team">${teamLogo(away)?`<img src="${teamLogo(away)}" alt="">`:"⚽"}<div>${esc(teamName(away))}</div></div>
@@ -708,7 +715,7 @@ function renderMatchCentre(m,data) {
   <div class="match-info"><div class="match-info-title">Recent form</div><div class="form-panels">${renderTeamFormCard(teams.home,teamMeta.home)}${renderTeamFormCard(teams.away,teamMeta.away)}</div></div>
   <div class="match-info"><div class="match-info-title">Head-to-head matches</div>${h2h.length?`<div class="h2h-list">${h2h.slice(0,5).map(renderH2HRow).join("")}</div>`:`<div class="empty">Head-to-head history is not included in this backend response yet.</div>`}</div>
   <div class="detail-tabs"><button class="detail-tab ${detailSection==="events"?"active":""}" data-detail="events">Commentary</button><button class="detail-tab ${detailSection==="statistics"?"active":""}" data-detail="statistics">Statistics</button><button class="detail-tab ${detailSection==="lineups"?"active":""}" data-detail="lineups">Lineups</button><button class="detail-tab" data-detail="back">← Matches</button></div><div class="detail-body" id="detailBody"></div>`;
-  document.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.detail==="back"){detailFixtureId=null;detailMatchItem=null;loadData();return;}document.querySelectorAll("[data-detail]").forEach(x=>x.classList.toggle("active",x===b));detailSection=b.dataset.detail;renderDetailSection(detailSection,m,data);}));
+  document.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.detail==="back"){returnToMatches();return;}document.querySelectorAll("[data-detail]").forEach(x=>x.classList.toggle("active",x===b));detailSection=b.dataset.detail;renderDetailSection(detailSection,m,data);}));
   renderDetailSection(detailSection,m,data);
   setStatus("Match centre loaded","success");
 }
@@ -782,6 +789,19 @@ function renderDetailSection(section,m,data) {
   }
 }
 
+async function returnToMatches(){
+  detailFixtureId=null; detailMatchItem=null;
+  await loadData(false, detailReturnScrollY);
+}
+async function refreshCurrentView(){
+  const y=window.scrollY;
+  if(detailFixtureId!==null){
+    await openMatch(detailFixtureId,detailMatchItem,true);
+    requestAnimationFrame(()=>window.scrollTo({top:y,behavior:"instant"}));
+  } else {
+    await loadData(true,y);
+  }
+}
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{
   currentView=b.dataset.view;
   if(currentView==="favorites" && !favorites.size){content.innerHTML='<div class="empty"><strong>No favorites saved</strong>Tap the star beside a match to add it to Favourites.</div>';syncControls();setStatus("No favourites yet");return;}
@@ -797,7 +817,7 @@ document.querySelectorAll(".compbtn").forEach(b => b.addEventListener("click", (
   document.querySelectorAll(".compbtn").forEach(x => x.classList.toggle("active", x === b));
   loadData();
 }));
-document.getElementById("refresh").addEventListener("click",loadData);
+document.getElementById("refresh").addEventListener("click",refreshCurrentView);
 document.getElementById("showAll").addEventListener("click", () => {
   if (!showAll) {
     showAll = true;
@@ -845,7 +865,7 @@ async function smartAutoRefresh(){
       // Refresh the open match only; keep its active Commentary/Statistics/Lineups tab and scroll position.
       await openMatch(detailFixtureId,detailMatchItem,true);
     } else if(["live","fixtures","results","favorites","standings"].includes(currentView)) {
-      await loadData();
+      await loadData(true,window.scrollY);
     }
   } finally { pollInFlight=false; }
 }
