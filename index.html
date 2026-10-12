@@ -63,7 +63,7 @@ button{cursor:pointer}
 .smallbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:750;color:#35414d}
 .smallbtn.primary{background:var(--green);border-color:var(--green);color:#fff}
 .competition-row{display:flex;gap:7px;overflow-x:auto;padding:1px 0 12px;scrollbar-width:thin}
-.compbtn{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 13px;font-size:12px;font-weight:750;color:#475462}
+.compbtn{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 13px;font-size:12px;font-weight:750;color:#475462}.comp-country{font-size:10px;font-weight:600;opacity:.72;margin-left:2px}
 .compbtn.active{background:#e7f8f0;border-color:#85d9b6;color:#087b54}
 .content-panel{margin-bottom:13px}
 .tabs{display:flex;gap:4px;padding:6px;background:#f3f5f7;border-bottom:1px solid var(--line)}
@@ -276,26 +276,26 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
     </div>
 
     <div class="competition-row" id="competitions">
-      <button class="compbtn active" data-league="39" data-code="PL">Premier League</button>
-      <button class="compbtn" data-league="140" data-code="PD">La Liga</button>
-      <button class="compbtn" data-league="135" data-code="SA">Serie A</button>
-      <button class="compbtn" data-league="78" data-code="BL1">Bundesliga</button>
-      <button class="compbtn" data-league="61" data-code="FL1">Ligue 1</button>
-      <button class="compbtn" data-league="2" data-code="CL">Champions League</button>
-      <button class="compbtn" data-league="3" data-code="UEL">Europa League</button>
-      <button class="compbtn" data-league="848" data-code="UECL">Conference League</button>
-      <button class="compbtn" data-league="40" data-code="CH">Championship</button>
-      <button class="compbtn" data-league="88" data-code="ERE">Eredivisie</button>
-      <button class="compbtn" data-league="94" data-code="PPL">Primeira Liga</button>
-      <button class="compbtn" data-league="179" data-code="SCO">Scottish Premiership</button>
-      <button class="compbtn" data-league="203" data-code="TUR">Turkish Super Lig</button>
-      <button class="compbtn" data-league="144" data-code="BEL">Belgian Pro League</button>
-      <button class="compbtn" data-league="71" data-code="BRA">Brazil Serie A</button>
-      <button class="compbtn" data-league="253" data-code="MLS">MLS</button>
-      <button class="compbtn" data-league="307" data-code="SAU">Saudi Pro League</button>
-      <button class="compbtn" data-league="12" data-code="CAF">CAF Champions League</button>
-      <button class="compbtn" data-league="6" data-code="AFCON">Africa Cup of Nations</button>
-      <button class="compbtn" data-league="399" data-code="NPFL">Nigeria NPFL</button>
+      <button class="compbtn active" data-league="39" data-code="PL">Premier League <span class="comp-country">· England</span></button>
+      <button class="compbtn" data-league="140" data-code="PD">La Liga <span class="comp-country">· Spain</span></button>
+      <button class="compbtn" data-league="135" data-code="SA">Serie A <span class="comp-country">· Italy</span></button>
+      <button class="compbtn" data-league="78" data-code="BL1">Bundesliga <span class="comp-country">· Germany</span></button>
+      <button class="compbtn" data-league="61" data-code="FL1">Ligue 1 <span class="comp-country">· France</span></button>
+      <button class="compbtn" data-league="2" data-code="CL">Champions League <span class="comp-country">· Europe</span></button>
+      <button class="compbtn" data-league="3" data-code="UEL">Europa League <span class="comp-country">· Europe</span></button>
+      <button class="compbtn" data-league="848" data-code="UECL">Conference League <span class="comp-country">· Europe</span></button>
+      <button class="compbtn" data-league="40" data-code="CH">Championship <span class="comp-country">· England</span></button>
+      <button class="compbtn" data-league="88" data-code="ERE">Eredivisie <span class="comp-country">· Netherlands</span></button>
+      <button class="compbtn" data-league="94" data-code="PPL">Primeira Liga <span class="comp-country">· Portugal</span></button>
+      <button class="compbtn" data-league="179" data-code="SCO">Scottish Premiership <span class="comp-country">· Scotland</span></button>
+      <button class="compbtn" data-league="203" data-code="TUR">Turkish Super Lig <span class="comp-country">· Turkey</span></button>
+      <button class="compbtn" data-league="144" data-code="BEL">Belgian Pro League <span class="comp-country">· Belgium</span></button>
+      <button class="compbtn" data-league="71" data-code="BRA">Brazil Serie A <span class="comp-country">· Brazil</span></button>
+      <button class="compbtn" data-league="253" data-code="MLS">MLS <span class="comp-country">· USA</span></button>
+      <button class="compbtn" data-league="307" data-code="SAU">Saudi Pro League <span class="comp-country">· Saudi Arabia</span></button>
+      <button class="compbtn" data-league="12" data-code="CAF">CAF Champions League <span class="comp-country">· Africa</span></button>
+      <button class="compbtn" data-league="6" data-code="AFCON">Africa Cup of Nations <span class="comp-country">· Africa</span></button>
+      <button class="compbtn" data-league="399" data-code="NPFL">Nigeria NPFL <span class="comp-country">· Nigeria</span></button>
       <button class="compbtn" data-league="all" data-code="ALL">All leagues</button>
     </div>
 
@@ -572,7 +572,8 @@ function renderStandings(data, season=STANDINGS_SEASON) {
   }
   if(!rows.length){content.innerHTML='<div class="empty"><strong>Standings response received</strong>The response format did not include a recognised table.</div>';setStatus("Could not read the standings table","error");return;}
   const formMarkup = r => {
-    const form=String(r.form||"").toUpperCase().replace(/[^WDL]/g,"").slice(-5).split("");
+    const rawForm = Array.isArray(r.form) ? r.form.join("") : String(r.form || r.recentForm || "");
+    const form=rawForm.toUpperCase().replace(/[^WDL]/g,"").slice(-5).split("");
     while(form.length<5) form.unshift("?");
     return `<div class="form-list">${form.map(ch=>`<span class="form-chip ${["W","D","L"].includes(ch)?`form-${ch}`:"form-unknown"}">${esc(ch)}</span>`).join("")}</div>`;
   };
@@ -892,8 +893,10 @@ async function smartAutoRefresh(){
   // Avoid spending API requests while the browser tab is hidden or a request is still running.
   if(document.hidden || pollInFlight) return;
   // Live scores and the currently open match refresh every 15 seconds. Other screens refresh less often.
-  const interval = detailFixtureId!==null ? 15000 :
-    currentView==="live" ? 15000 :
+  // Never rebuild the open match-centre automatically: doing so causes the visible blink.
+  // Users can tap Refresh or return to the match list to request fresh match details.
+  if(detailFixtureId!==null) return;
+  const interval = currentView==="live" ? 15000 :
     currentView==="fixtures" || currentView==="results" || currentView==="favorites" ? 60000 : 300000;
   if(now-lastPollAt < interval) return;
   lastPollAt=now;
