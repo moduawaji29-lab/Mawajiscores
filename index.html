@@ -586,7 +586,6 @@ function renderStandings(data, season=STANDINGS_SEASON) {
     return `<tr><td class="rank">${esc(r.rank??i+1)}.</td><td class="teamcell" title="${esc(t.name||"Team")}">${logo?`<img class="standing-logo" src="${logo}" alt="" loading="lazy" onerror="this.style.display='none'">`:""}<span>${esc(t.name||"Team")}</span></td><td>${esc(played)}</td><td>${esc(win)}</td><td>${esc(draw)}</td><td>${esc(lose)}</td><td>${esc(gf)}:${esc(ga)}</td><td>${esc(gd)}</td><td><strong>${esc(pts)}</strong></td><td class="form-cell">${formMarkup(r)}</td></tr>`;
   }).join("");
   content.innerHTML=`<div class="table-wrap standings-table" role="region" aria-label="League standings with statistics and recent form; swipe horizontally to see all columns" tabindex="0"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF:GA</th><th>GD</th><th>PTS</th><th>FORM</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
-  content.insertAdjacentHTML("afterbegin", `<div class="standings-note"><strong>Season ${esc(season)}:</strong> Latest standings returned by the football data provider. Standings may update on the provider schedule.</div>`);
   setStatus(`${rows.length} teams · season ${season} · swipe → for more statistics and form` ,"success");
 }
 async function loadData(silent=false, restoreY=null) {
@@ -714,8 +713,8 @@ function renderMatchCentre(m,data) {
   </div>
   <div class="match-info"><div class="match-info-title">Recent form</div><div class="form-panels">${renderTeamFormCard(teams.home,teamMeta.home)}${renderTeamFormCard(teams.away,teamMeta.away)}</div></div>
   <div class="match-info"><div class="match-info-title">Head-to-head matches</div>${h2h.length?`<div class="h2h-list">${h2h.slice(0,5).map(renderH2HRow).join("")}</div>`:`<div class="empty">Head-to-head history is not included in this backend response yet.</div>`}</div>
-  <div class="detail-tabs"><button class="detail-tab ${detailSection==="events"?"active":""}" data-detail="events">Commentary</button><button class="detail-tab ${detailSection==="statistics"?"active":""}" data-detail="statistics">Statistics</button><button class="detail-tab ${detailSection==="lineups"?"active":""}" data-detail="lineups">Lineups</button><button class="detail-tab" data-detail="back">← Matches</button></div><div class="detail-body" id="detailBody"></div>`;
-  document.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.detail==="back"){returnToMatches();return;}document.querySelectorAll("[data-detail]").forEach(x=>x.classList.toggle("active",x===b));detailSection=b.dataset.detail;renderDetailSection(detailSection,m,data);}));
+  <div class="detail-tabs"><button class="detail-tab ${detailSection==="events"?"active":""}" data-detail="events">Commentary</button><button class="detail-tab ${detailSection==="statistics"?"active":""}" data-detail="statistics">Statistics</button><button class="detail-tab ${detailSection==="lineups"?"active":""}" data-detail="lineups">Lineups</button><button class="detail-tab" data-detail="table">🏆 Table</button></div><div class="detail-body" id="detailBody"></div>`;
+  document.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.detail==="back"){returnToMatches();return;}document.querySelectorAll("[data-detail]").forEach(x=>x.classList.toggle("active",x===b));detailSection=b.dataset.detail;if(detailSection==="table"){renderMatchLeagueTable(m);return;}renderDetailSection(detailSection,m,data);}));
   renderDetailSection(detailSection,m,data);
   setStatus("Match centre loaded","success");
 }
@@ -765,6 +764,19 @@ function renderSharedLineups(lineups){
     <div class="lineup-coaches"><div><strong>Coach</strong><span>${esc(typeof homeCoach==="string"?homeCoach:homeCoach?.name||"Not supplied")}</span></div><div><strong>Coach</strong><span>${esc(typeof awayCoach==="string"?awayCoach:awayCoach?.name||"Not supplied")}</span></div></div>
     <div class="substitutes-grid">${[home,away].map(l=>`<section class="lineup-subs"><h4>${esc(lineupTeamName(l))} · Substitutes</h4>${lineupSubstitutes(l).length?lineupSubstitutes(l).map(p=>`<div class="lineup-list-row"><span>${esc(lineupNumber(p))} ${esc(lineupPlayerName(p))}</span><span>${esc(p.player?.pos||p.pos||"")}</span></div>`).join(""):'<p>No substitutes supplied.</p>'}</section>`).join("")}</div>
   </div>`;
+}
+async function renderMatchLeagueTable(m){
+  const body=document.getElementById("detailBody"); if(!body)return;
+  const league=getLeague(m), leagueId=league.id || league.league_id;
+  if(!leagueId){body.innerHTML='<div class="empty">League standings are not available for this match.</div>';return;}
+  body.innerHTML='<div class="empty"><span class="spinner"></span>Loading league table…</div>';
+  try{
+    const result=await api({action:"standings",league:String(leagueId),season:String(STANDINGS_SEASON)});
+    const arr=responseArray(result); let rows=[];
+    for(const item of arr){if(item?.league?.standings)rows.push(...item.league.standings.flat());else if(item?.standings)rows.push(...item.standings.flat());else if(item?.rank!==undefined||item?.team)rows.push(item);}
+    if(!rows.length){body.innerHTML='<div class="empty">Standings are not available for this league and season yet.</div>';return;}
+    body.innerHTML='<h3 style="margin:4px 0 12px">'+esc(league.name||'League')+' standings</h3><div class="table-wrap standings-table"><table><thead><tr><th>#</th><th style="text-align:left">Team</th><th>MP</th><th>GF:GA</th><th>GD</th><th>PTS</th></tr></thead><tbody>'+rows.map((r,i)=>{const t=r.team||r,a=r.all||{},g=a.goals||r.goals||{};const logo=safeUrl(t.logo||t.crest||'');return '<tr><td class="rank">'+esc(r.rank??i+1)+'.</td><td class="teamcell">'+(logo?'<img class="standing-logo" src="'+logo+'" alt="" loading="lazy">':'')+'<span>'+esc(t.name||'Team')+'</span></td><td>'+esc(a.played??r.played??'—')+'</td><td>'+esc(g.for??r.goalsFor??'—')+':'+esc(g.against??r.goalsAgainst??'—')+'</td><td>'+esc(a.goalsDiff??r.goalsDiff??'—')+'</td><td><strong>'+esc(a.points??r.points??'—')+'</strong></td></tr>';}).join('')+'</tbody></table></div>';
+  }catch(e){body.innerHTML='<div class="empty">Unable to load this league table right now. Please try again.</div>';}
 }
 function renderDetailSection(section,m,data) {
   const body=document.getElementById("detailBody");if(!body)return;
