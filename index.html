@@ -145,7 +145,7 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .stat-compare{display:grid;grid-template-columns:minmax(0,1fr) minmax(92px,1.15fr) minmax(0,1fr);align-items:center;gap:7px;padding:5px 2px;border-bottom:1px solid var(--line);font-size:11px;min-height:34px}
 .stat-compare .home{text-align:right}.stat-compare .away{text-align:left}.stat-compare .label{text-align:center;color:var(--muted);font-size:10px;font-weight:750}
 .stat-track{height:3px;display:flex;gap:3px;margin:0 0 4px}.stat-track span{height:100%;border-radius:9px;background:#dce4e8}.stat-track .better{background:var(--green)}
-.lineups-combined{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}.lineup-team{margin:0;border:0;border-bottom:1px solid var(--line);padding:0 0 10px;overflow:hidden;background:var(--surface)}
+.lineup-team{margin:0;border:0;border-bottom:1px solid var(--line);padding:0 0 10px;overflow:hidden;background:var(--surface)}
 .lineup-team + .lineup-team{padding-top:10px}
 .commentary-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0 12px;font-size:11px;color:var(--muted)}
 .commentary-refresh{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:6px 9px;font-size:11px;font-weight:750;color:var(--text)}
@@ -201,6 +201,32 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
  .standings-table .form-chip{width:17px;height:19px;font-size:9px}
  .standings-table .form-cell{min-width:100px}
 }
+
+/* One shared pitch with both teams facing each other */
+.shared-lineups{padding:8px 0}
+.shared-lineup-head{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding:12px;background:var(--surface2);border:1px solid var(--line);border-radius:12px 12px 0 0}
+.shared-lineup-head>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.shared-lineup-head>div:last-child{text-align:right}
+.shared-lineup-head strong{overflow-wrap:anywhere}
+.shared-lineup-head small{color:var(--muted);font-weight:700}
+.shared-lineup-head>span{font-size:11px;font-weight:900;color:var(--green)}
+.shared-pitch{position:relative;display:flex;flex-direction:column;min-height:680px;margin:0 8px 12px;border:2px solid #70c79a;border-radius:0 0 12px 12px;overflow:hidden;color:white;background:repeating-linear-gradient(0deg,#168a52 0,#168a52 42px,#137d49 42px,#137d49 84px)}
+.shared-pitch-half{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:12px;padding:14px 5px}
+.shared-pitch-half.home-half{border-bottom:0}
+.shared-pitch-midline{height:1px;background:#ffffff90;position:relative;z-index:2;flex:none}
+.shared-pitch-midline span{position:absolute;width:80px;height:40px;border:1px solid #ffffff80;border-radius:0 0 80px 80px;border-top:0;left:calc(50% - 40px);top:0}
+.shared-pitch-row{display:flex;justify-content:space-around;align-items:center;gap:3px}
+.shared-pitch-player{width:24%;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;font-size:10px;line-height:1.2;text-shadow:0 1px 2px #003d24}
+.shared-pitch-player img,.shared-shirt{width:34px;height:34px;object-fit:cover;border-radius:50%;border:2px solid white;background:#f7fff9;color:#08784b;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;margin-bottom:3px;box-shadow:0 1px 3px #003d2455}
+.shared-player-name{max-width:100%;overflow-wrap:anywhere;background:#064c32aa;border-radius:4px;padding:2px 3px}
+.pitch-unavailable{padding:15px;text-align:center}
+.lineup-coaches,.substitutes-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 8px 12px}
+.lineup-coaches>div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:10px 4px;flex-wrap:wrap}
+.lineup-subs{border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.lineup-subs h4{margin:0 0 8px;font-size:13px}
+.lineup-subs .lineup-list-row{font-size:12px;gap:6px}
+@media(max-width:480px){.shared-pitch{min-height:620px;margin:0 4px 10px}.shared-pitch-player{font-size:9px}.shared-pitch-player img,.shared-shirt{width:30px;height:30px}.lineup-coaches,.substitutes-grid{gap:6px;padding-left:4px;padding-right:4px}.lineup-subs{padding:7px}.shared-lineup-head{font-size:12px}}
+
 </style>
 </head>
 <body>
@@ -305,7 +331,7 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
 */
 const API_BASE = "https://football-livescore-backend-new.vercel.app/api";
 const STANDINGS_SEASON = 2024; // Historical standings season supported by the current plan.
-const FIXTURES_SEASON = 2024; // Provider free-plan ceiling; current-season league-scoped fixtures require a paid plan.
+const FIXTURES_SEASON = 2026; // Current football season for league-scoped fixtures and results.
 const leagues = {
   "39": {name:"Premier League", country:"England"},
   "140": {name:"La Liga", country:"Spain"},
@@ -574,16 +600,15 @@ async function loadData() {
       if(requestId!==requestCounter)return;
       renderStandings(data);return;
     }
-    // Fetch the broad fixture/result feed first, then apply the selected league locally.
-    // League-scoped calls force a season parameter and fail on the current free API plan
-    // for 2026; the broad feed already works and includes league IDs for local filtering.
-    const leagueParams = (!showAll && selectedLeague !== "all") ? {league:selectedLeague} : {};
+    // Fetch the broad endpoint and filter by league locally. This avoids plan-restricted
+    // league/season requests on free API plans; the backend remains the source of match data.
+    const leagueParams = {};
     if(currentView==="live"){
       data=await api({action:"live",...leagueParams});
     } else if(currentView==="fixtures"){
-      data=await api({action:"fixtures",date:selectedDate});
+      data=await api({action:"fixtures",date:selectedDate,...leagueParams});
     } else if(currentView==="results"){
-      data=await api({action:"results",date:selectedDate});
+      data=await api({action:"results",date:selectedDate,...leagueParams});
     } else if(currentView==="favorites"){
       // Retrieve live matches for the selected league; saved fixtures are filtered locally.
       data=await api({action:"live",...leagueParams});
@@ -689,17 +714,50 @@ function renderMatchCentre(m,data) {
 }
 function lineupPlayerName(p){return p?.player?.name || p?.player?.player_name || p?.name || p?.player_name || (typeof p?.player === "string" ? p.player : "Player");}
 function lineupNumber(p){return p?.player?.number ?? p?.number ?? "";}
-function renderLineupTeam(l){
-  const teamNameText=l.team?.name||l.team_name||"Team";
-  const starters=l.startXI||l.startingXI||l.starting_lineups||l.startingLineups||[];
-  const substitutes=l.substitutes||l.subs||[];
-  const coach=l.coach?.name||l.coach||"";
-  const formation=l.formation||"Formation unavailable";
-  // API-Football grid values look like "2:3" (row:column). Use them to place players in pitch rows.
+function lineupPlayerName(p){return p?.player?.name || p?.player?.player_name || p?.name || p?.player_name || (typeof p?.player === "string" ? p.player : "Player");}
+function lineupNumber(p){return p?.player?.number ?? p?.number ?? "";}
+function lineupStarters(l){
+  return l?.startXI||l?.startingXI||l?.starting_lineups||l?.startingLineups||[];
+}
+function lineupSubstitutes(l){return l?.substitutes||l?.subs||[];}
+function lineupTeamName(l){return l?.team?.name||l?.team_name||"Team";}
+function lineupFormation(l){return l?.formation||"Formation unavailable";}
+function lineupCoach(l){return l?.coach?.name||l?.coach||"";}
+function lineupPlayerRows(players, reverse=false){
   const grouped={};
-  starters.forEach((p,i)=>{const raw=p.grid||p.player?.grid||"";const row=String(raw).includes(":")?parseInt(String(raw).split(":")[0],10):null;const key=Number.isFinite(row)&&row>0?row:Math.min(5,Math.max(1,Math.round((i+1)/Math.max(1,starters.length/5))));(grouped[key] ||= []).push(p);});
-  const rows=Object.keys(grouped).map(Number).sort((a,b)=>a-b).map(key=>`<div class="pitch-row">${grouped[key].map(p=>{const photo=safeUrl(p.player?.photo||p.photo||"");return `<div class="pitch-player">${photo?`<img class="pitch-player-photo" src="${photo}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<span class="player-shirt">${esc(lineupNumber(p)||"•")}</span>`}<span>${esc(lineupPlayerName(p))}</span></div>`}).join("")}</div>`).join("");
-  return `<section class="lineup-team"><div class="lineup-team-head"><span>${esc(teamNameText)}</span><span>${esc(formation)}</span></div>${starters.length?`<div class="pitch" aria-label="${esc(teamNameText)} starting formation"><div class="pitch-line"></div><div class="pitch-players">${rows}</div></div>`:`<div class="empty">Starting lineup has not been supplied for this match.</div>`}<div class="lineup-list">${coach?`<div class="lineup-list-row"><strong>Coach</strong><span>${esc(typeof coach==="string"?coach:coach.name||"")}</span></div>`:""}<h5>Substitutes</h5>${substitutes.length?substitutes.map(p=>`<div class="lineup-list-row"><span>${esc(lineupNumber(p))} ${esc(lineupPlayerName(p))}</span><span>${esc(p.player?.pos||p.pos||"")}</span></div>`).join(""):`<div>No substitutes supplied.</div>`}</div></section>`;
+  players.forEach((p,i)=>{
+    const raw=p.grid||p.player?.grid||"";
+    const row=String(raw).includes(":")?parseInt(String(raw).split(":")[0],10):null;
+    const key=Number.isFinite(row)&&row>0?row:Math.min(5,Math.max(1,Math.round((i+1)/Math.max(1,players.length/5))));
+    (grouped[key] ||= []).push(p);
+  });
+  let keys=Object.keys(grouped).map(Number).sort((a,b)=>a-b);
+  if(reverse) keys=keys.reverse();
+  return keys.map(key=>`<div class="shared-pitch-row">${grouped[key].map(p=>{
+    const photo=safeUrl(p.player?.photo||p.photo||"");
+    return `<div class="shared-pitch-player">${photo?`<img src="${photo}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<span class="shared-shirt">${esc(lineupNumber(p)||"•")}</span>`}<span class="shared-player-name">${esc(lineupPlayerName(p))}</span></div>`;
+  }).join("")}</div>`).join("");
+}
+function renderSharedLineups(lineups){
+  const ordered=[...lineups].sort((a,b)=>{
+    const aName=lineupTeamName(a), bName=lineupTeamName(b);
+    return 0;
+  });
+  const home=ordered[0], away=ordered[1];
+  if(!home||!away) return `<div class="empty">Both teams' starting lineups are required to display the shared pitch. The provider supplied ${lineups.length} lineup.</div>`+
+    ordered.map(l=>`<section class="lineup-team"><div class="lineup-team-head"><span>${esc(lineupTeamName(l))}</span><span>${esc(lineupFormation(l))}</span></div><div class="lineup-list">${lineupSubstitutes(l).map(p=>`<div class="lineup-list-row"><span>${esc(lineupNumber(p))} ${esc(lineupPlayerName(p))}</span><span>${esc(p.player?.pos||p.pos||"")}</span></div>`).join("")}</div></section>`).join("");
+  const homeXI=lineupStarters(home), awayXI=lineupStarters(away);
+  const homeCoach=lineupCoach(home), awayCoach=lineupCoach(away);
+  return `<div class="shared-lineups">
+    <div class="shared-lineup-head"><div><strong>${esc(lineupTeamName(home))}</strong><small>${esc(lineupFormation(home))}</small></div><span>VS</span><div><strong>${esc(lineupTeamName(away))}</strong><small>${esc(lineupFormation(away))}</small></div></div>
+    <div class="shared-pitch" aria-label="Both teams' starting lineups on one shared football pitch">
+      <div class="shared-pitch-half home-half">${homeXI.length?lineupPlayerRows(homeXI,true):'<p class="pitch-unavailable">Home starting XI unavailable</p>'}</div>
+      <div class="shared-pitch-midline"><span></span></div>
+      <div class="shared-pitch-half away-half">${awayXI.length?lineupPlayerRows(awayXI,false):'<p class="pitch-unavailable">Away starting XI unavailable</p>'}</div>
+    </div>
+    <div class="lineup-coaches"><div><strong>Coach</strong><span>${esc(typeof homeCoach==="string"?homeCoach:homeCoach?.name||"Not supplied")}</span></div><div><strong>Coach</strong><span>${esc(typeof awayCoach==="string"?awayCoach:awayCoach?.name||"Not supplied")}</span></div></div>
+    <div class="substitutes-grid">${[home,away].map(l=>`<section class="lineup-subs"><h4>${esc(lineupTeamName(l))} · Substitutes</h4>${lineupSubstitutes(l).length?lineupSubstitutes(l).map(p=>`<div class="lineup-list-row"><span>${esc(lineupNumber(p))} ${esc(lineupPlayerName(p))}</span><span>${esc(p.player?.pos||p.pos||"")}</span></div>`).join(""):'<p>No substitutes supplied.</p>'}</section>`).join("")}</div>
+  </div>`;
 }
 function renderDetailSection(section,m,data) {
   const body=document.getElementById("detailBody");if(!body)return;
@@ -720,7 +778,7 @@ function renderDetailSection(section,m,data) {
     body.innerHTML=`<div class="stat-compare" style="font-weight:800;border-bottom:1px solid var(--line);margin-bottom:8px"><div class="home">${esc(homeName)}</div><div class="label">STATISTICS</div><div class="away">${esc(awayName)}</div></div><div class="stats-grid">`+types.map(type=>{const h=byTeam.find(t=>t.name===homeName)?.items.find(x=>(x.type||x.name)===type)?.value;const a=byTeam.find(t=>t.name===awayName)?.items.find(x=>(x.type||x.name)===type)?.value;const numeric=v=>{if(v===null||v===undefined||v==="")return null;const n=parseFloat(String(v).replace("%",""));return Number.isFinite(n)?n:null};const hn=numeric(h),an=numeric(a);const homeBetter=hn!==null&&an!==null&&hn>an;const awayBetter=hn!==null&&an!==null&&an>hn;return `<div class="stats-card"><div class="stat-compare"><div class="home"><strong>${esc(h??"—")}</strong></div><div class="label">${esc(type)}</div><div class="away"><strong>${esc(a??"—")}</strong></div></div><div class="stat-track"><span class="${homeBetter?"better":""}" style="width:${hn!==null&&an!==null?(hn+an?hn/(hn+an)*100:50):50}%"></span><span class="${awayBetter?"better":""}" style="width:${hn!==null&&an!==null?(hn+an?an/(hn+an)*100:50):50}%"></span></div></div>`}).join("")+`</div>`;
   } else if(section==="lineups"){
     if(!lineups.length){body.innerHTML='<div class="empty">Lineups are not available yet. Starting XI and substitutes are usually published closer to kick-off.</div>';return;}
-    body.innerHTML=`<div class="lineups-combined">${lineups.map(renderLineupTeam).join("")}</div>`;
+    body.innerHTML=renderSharedLineups(lineups);
   }
 }
 
@@ -793,7 +851,7 @@ async function smartAutoRefresh(){
 }
 setInterval(smartAutoRefresh,1000);
 document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden){ lastPollAt=0; smartAutoRefresh(); }
+  if(!document.hidden){ smartAutoRefresh(); }
 });
 </script>
 </body>
