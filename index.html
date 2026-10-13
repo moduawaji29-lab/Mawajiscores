@@ -236,6 +236,25 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
 
  .detail-backbar{display:flex;justify-content:flex-start;padding:8px 0 10px;position:sticky;top:0;z-index:4;background:var(--bg)}
 .detail-backbar .smallbtn{font-size:13px;padding:9px 13px;border-radius:10px}
+
+/* Match-centre readability on narrow phones */
+@media(max-width:420px){
+  .detail-head{padding:15px 8px}
+  .detail-teams{grid-template-columns:minmax(0,1fr) 74px minmax(0,1fr);gap:4px}
+  .detail-team img{width:38px;height:38px}
+  .detail-team div{font-size:11px;overflow-wrap:anywhere}
+  .detail-score{font-size:21px}
+  .match-info-row{grid-template-columns:105px minmax(0,1fr);gap:7px;padding:9px 10px;font-size:11px}
+  .form-panels{gap:6px;padding:9px}
+  .form-card{padding:7px 5px}
+  .form-card-title{font-size:10px;overflow-wrap:anywhere}
+  .form-results span{width:22px;height:24px}
+  .h2h-row{grid-template-columns:58px minmax(0,1fr) 42px;gap:5px}
+  .detail-tabs{padding:6px;gap:3px}
+  .detail-tab{padding:8px 9px;font-size:10px}
+  .detail-body{padding:8px}
+}
+
 </style>
 </head>
 <body>
@@ -394,25 +413,60 @@ const COUNTRY_FLAG_CODES = {"England":"gb-eng","Scotland":"gb-sct","Wales":"gb-w
 function countryFlagUrl(country) { const code=COUNTRY_FLAG_CODES[String(country||"").trim()]; return code ? `https://media.api-sports.io/flags/${code}.svg` : ""; }
 function queryUrl(params) { const q = new URLSearchParams(params); return `${API_BASE}?${q.toString()}`; }
 
+// Short in-memory response cache and in-flight request sharing reduce repeat API usage.
+// Errors are never cached. The cache lasts only while this page remains open.
+const apiResponseCache = new Map();
+const apiInFlight = new Map();
+function apiCacheTtl(params) {
+  const action = String(params?.action || "").toLowerCase();
+  if (action === "match") return 20_000;
+  if (action === "events" || action === "statistics") return 12_000;
+  if (action === "lineups" || action === "players") return 10 * 60_000;
+  if (action === "form") return 5 * 60_000;
+  if (action === "headtohead") return 30 * 60_000;
+  if (action === "standings") return 5 * 60_000;
+  return 0;
+}
 async function api(params) {
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(),18000);
-  try {
-    const response = await fetch(queryUrl(params), {method:"GET", headers:{Accept:"application/json"}, signal:controller.signal});
-    const raw = await response.text();
-    let data;
-    try { data = JSON.parse(raw); } catch { throw new Error(`Backend returned non-JSON (HTTP ${response.status}).`); }
-    if (!response.ok) throw new Error(data.message || data.error || `Backend HTTP ${response.status}`);
-    if (data && data.errors && !Array.isArray(data.errors) && Object.keys(data.errors).length) {
-      throw new Error(typeof data.errors === "string" ? data.errors : JSON.stringify(data.errors));
-    }
-    if (data && data.success === false) throw new Error(data.message || data.error || "The football provider rejected the request.");
-    return data;
-  } catch (e) {
-    if (e.name === "AbortError") throw new Error("The request timed out. Please try Refresh again.");
-    if (e instanceof TypeError) throw new Error("The browser could not reach the Vercel backend. Check the backend URL, deployment, and CORS settings.");
-    throw e;
-  } finally { clearTimeout(timer); }
+  const url = queryUrl(params);
+  const ttl = apiCacheTtl(params);
+  const now = Date.now();
+  if (ttl > 0) {
+    const cached = apiResponseCache.get(url);
+    if (cached && cached.expiresAt > now) return cached.data;
+    if (apiInFlight.has(url)) return apiInFlight.get(url);
+  }
+  const request = (async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(),18000);
+    try {
+      const response = await fetch(url, {method:"GET", headers:{Accept:"application/json"}, signal:controller.signal});
+      const raw = await response.text();
+      let data;
+      try { data = JSON.parse(raw); } catch { throw new Error(`Backend returned non-JSON (HTTP ${response.status}).`); }
+      if (!response.ok) throw new Error(data.message || data.error || `Backend HTTP ${response.status}`);
+      if (data && data.errors && !Array.isArray(data.errors) && Object.keys(data.errors).length) {
+        throw new Error(typeof data.errors === "string" ? data.errors : JSON.stringify(data.errors));
+      }
+      if (data && data.success === false) throw new Error(data.message || data.error || "The football provider rejected the request.");
+      if (ttl > 0) {
+        apiResponseCache.set(url, {data, expiresAt:Date.now()+ttl});
+        // Keep the small in-memory cache bounded during long sessions.
+        if (apiResponseCache.size > 120) {
+          const oldestKey = apiResponseCache.keys().next().value;
+          if (oldestKey) apiResponseCache.delete(oldestKey);
+        }
+      }
+      return data;
+    } catch (e) {
+      if (e.name === "AbortError") throw new Error("The request timed out. Please try Refresh again.");
+      if (e instanceof TypeError) throw new Error("The browser could not reach the Vercel backend. Check the backend URL, deployment, and CORS settings.");
+      throw e;
+    } finally { clearTimeout(timer); }
+  })();
+  if (ttl > 0) apiInFlight.set(url, request);
+  try { return await request; }
+  finally { if (apiInFlight.get(url) === request) apiInFlight.delete(url); }
 }
 
 function responseArray(data) {
@@ -647,47 +701,90 @@ async function loadData(silent=false, restoreY=null) {
 async function openMatch(id, item, preserveSection=false) {
   const savedScrollY=window.scrollY;
   if(!preserveSection) detailReturnScrollY=savedScrollY;
-  const requestId=++requestCounter; detailFixtureId=id; detailMatchItem=item || detailMatchItem; if(!preserveSection) detailSection="events";
-  if(!preserveSection) content.innerHTML='<div class="empty"><span class="spinner"></span>Loading match centre…</div>';
+  const requestId=++requestCounter;
+  detailFixtureId=id;
+  detailMatchItem=item || detailMatchItem;
+  if(!preserveSection) detailSection="events";
+  if(!preserveSection) content.innerHTML='<div class="empty"><span class="spinner"></span>Loading match centre…<br><small>Loading match information and available statistics.</small></div>';
   if(!preserveSection) setStatus("Loading match details…");
   try {
-    const detailResults = await Promise.allSettled([
-      api({action:"match",id:String(id)}),
-      api({action:"events",id:String(id)}),
-      api({action:"statistics",id:String(id)}),
-      api({action:"lineups",id:String(id)})
-    ]);
+    // Match lists normally already include team IDs, so all seven detail requests can start together.
+    let sourceMatch=item || detailMatchItem || {};
+    let sourceTeams=getTeams(sourceMatch);
+    let homeId=sourceTeams.home?.id || sourceTeams.home?.team_id;
+    let awayId=sourceTeams.away?.id || sourceTeams.away?.team_id;
+    let season=getLeague(sourceMatch).season || STANDINGS_SEASON;
+    let baseResults;
+    let extraResults;
+    if(homeId && awayId){
+      [baseResults,extraResults]=await Promise.all([
+        Promise.allSettled([
+          api({action:"match",id:String(id)}),
+          api({action:"events",id:String(id)}),
+          api({action:"statistics",id:String(id)}),
+          api({action:"lineups",id:String(id)})
+        ]),
+        Promise.allSettled([
+          api({action:"form",team:String(homeId),season:String(season)}),
+          api({action:"form",team:String(awayId),season:String(season)}),
+          api({action:"headtohead",home:String(homeId),away:String(awayId)})
+        ])
+      ]);
+    } else {
+      // Fallback for a match row that does not include team IDs.
+      const matchOnly=await Promise.allSettled([api({action:"match",id:String(id)})]);
+      if(requestId!==requestCounter)return;
+      const loaded=matchOnly[0].status==="fulfilled"?(responseArray(matchOnly[0].value)[0]||matchOnly[0].value?.response?.[0]||matchOnly[0].value?.fixture):null;
+      sourceMatch=loaded || sourceMatch;
+      sourceTeams=getTeams(sourceMatch);
+      homeId=sourceTeams.home?.id || sourceTeams.home?.team_id;
+      awayId=sourceTeams.away?.id || sourceTeams.away?.team_id;
+      season=getLeague(sourceMatch).season || STANDINGS_SEASON;
+      [baseResults,extraResults]=await Promise.all([
+        Promise.allSettled([
+          Promise.resolve(matchOnly[0]),
+          api({action:"events",id:String(id)}),
+          api({action:"statistics",id:String(id)}),
+          api({action:"lineups",id:String(id)})
+        ]),
+        Promise.allSettled([
+          homeId ? api({action:"form",team:String(homeId),season:String(season)}) : Promise.resolve({response:[]}),
+          awayId ? api({action:"form",team:String(awayId),season:String(season)}) : Promise.resolve({response:[]}),
+          homeId && awayId ? api({action:"headtohead",home:String(homeId),away:String(awayId)}) : Promise.resolve({response:[]})
+        ])
+      ]);
+    }
     if(requestId!==requestCounter)return;
-    const data = detailResults[0].status === "fulfilled" ? detailResults[0].value : {};
-    const match=responseArray(data)[0] || data?.response?.[0] || data?.fixture || item;
-    const eventsData=detailResults[1].status === "fulfilled" ? detailResults[1].value : {};
-    const statsData=detailResults[2].status === "fulfilled" ? detailResults[2].value : {};
-    const lineupsData=detailResults[3].status === "fulfilled" ? detailResults[3].value : {};
-    const matchTeams=getTeams(match);
-    const homeId=matchTeams.home?.id || matchTeams.home?.team_id;
-    const awayId=matchTeams.away?.id || matchTeams.away?.team_id;
-    const leagueInfo=getLeague(match);
-    const formSeason=leagueInfo.season || STANDINGS_SEASON;
-    const extraResults=await Promise.allSettled([
-      homeId ? api({action:"form",team:String(homeId),season:String(formSeason)}) : Promise.resolve({response:[]}),
-      awayId ? api({action:"form",team:String(awayId),season:String(formSeason)}) : Promise.resolve({response:[]}),
-      homeId && awayId ? api({action:"headtohead",home:String(homeId),away:String(awayId)}) : Promise.resolve({response:[]})
-    ]);
-    if(requestId!==requestCounter)return;
-    data.events=responseArray(eventsData); data.statistics=responseArray(statsData); data.lineups=responseArray(lineupsData);
+    const matchResult=baseResults[0];
+    const matchData=matchResult.status==="fulfilled"?matchResult.value:{};
+    const match=responseArray(matchData)[0] || matchData?.response?.[0] || matchData?.fixture || sourceMatch || item;
+    if(!match) throw new Error("Match information was not returned. Please go back and open the match again.");
+    const data={...matchData};
+    data.events=baseResults[1].status==="fulfilled"?responseArray(baseResults[1].value):[];
+    data.statistics=baseResults[2].status==="fulfilled"?responseArray(baseResults[2].value):[];
+    data.lineups=baseResults[3].status==="fulfilled"?responseArray(baseResults[3].value):[];
     data.formHome=extraResults[0].status==="fulfilled"?responseArray(extraResults[0].value):[];
     data.formAway=extraResults[1].status==="fulfilled"?responseArray(extraResults[1].value):[];
     data.headtohead=extraResults[2].status==="fulfilled"?responseArray(extraResults[2].value):[];
     renderMatchCentre(match,data);
-    // Keep the reader at the same position during automatic match updates.
+    const failedSections=[];
+    if(matchResult.status!=="fulfilled") failedSections.push("match information");
+    if(baseResults[1].status!=="fulfilled") failedSections.push("commentary");
+    if(baseResults[2].status!=="fulfilled") failedSections.push("statistics");
+    if(baseResults[3].status!=="fulfilled") failedSections.push("lineups");
+    if(extraResults[0].status!=="fulfilled" || extraResults[1].status!=="fulfilled") failedSections.push("recent form");
+    if(extraResults[2].status!=="fulfilled") failedSections.push("head-to-head");
+    if(failedSections.length) setStatus(`Match centre loaded; unavailable: ${[...new Set(failedSections)].join(", ")}`,"error");
     if(preserveSection) requestAnimationFrame(()=>window.scrollTo({top:savedScrollY,behavior:"instant"}));
   } catch(e) {
     if(requestId!==requestCounter)return;
-    content.innerHTML=`<div class="errorbox">Unable to load match details.<br>${esc(e.message)}<br><br><button class="smallbtn" id="backToMatches">← Back to matches</button></div>`;
+    content.innerHTML=`<div class="errorbox"><strong>Unable to load match details</strong><br>${esc(e.message)}<br><br><button class="smallbtn" id="backToMatches">← Back to matches</button> <button class="smallbtn primary" id="retryMatchDetails">↻ Try again</button></div>`;
     document.getElementById("backToMatches")?.addEventListener("click",returnToMatches);
+    document.getElementById("retryMatchDetails")?.addEventListener("click",()=>openMatch(id,item,preserveSection));
     setStatus("Match details unavailable","error");
   }
 }
+
 function matchPayload(m,data,key) {
   if (Array.isArray(m?.[key])) return m[key];
   if (Array.isArray(data?.[key])) return data[key];
@@ -737,7 +834,7 @@ function renderMatchCentre(m,data) {
   const venue=f.venue || m.venue || {}, kickoff=f.date || m.date || m.utcDate;
   const venueText=[venue.name,venue.city].filter(Boolean).join(", ");
   const referee=f.referee || m.referee || "";
-  const kickoffText=kickoff ? new Date(kickoff).toLocaleString("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "Kick-off time unavailable";
+  const kickoffText=kickoff ? new Date(kickoff).toLocaleString("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",timeZoneName:"short"}) : "Kick-off time unavailable";
   const capacity=venue.capacity || f.venue?.capacity || m.venue?.capacity || null;
   const teamMeta=matchTeamMeta(m);
   const h2h=Array.isArray(m.headtohead)?m.headtohead:(Array.isArray(data.headtohead)?data.headtohead:[]);
