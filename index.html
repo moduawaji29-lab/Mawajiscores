@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#101828" id="browserThemeColor">
 <meta name="description" content="M.Awaji LiveScores — live football scores, fixtures, results and league tables.">
 <title>M.Awaji LiveScores</title>
 <style>
@@ -14,7 +14,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Inter,Arial,Helvetica,sans-serif;background:var(--page);color:var(--text);line-height:1.4;transition:background .2s,color .2s}
-body[data-theme="dark"]{--page:#001116;--surface:#061b21;--surface2:#09252d;--line:#18343b;--text:#eef5f7;--muted:#a7b8bf;--shadow:0 4px 16px rgba(0,0,0,.2);--green:#08a66a;--green-dark:#36d69a}
+body[data-theme="dark"]{--page:#101828;--surface:#182230;--surface2:#202d3d;--line:#344254;--text:#f4f7fb;--muted:#a8b3c2;--shadow:0 8px 24px rgba(0,0,0,.24);--green:#16c784;--green-dark:#16c784}
 body[data-theme="dark"] .topbar,body[data-theme="dark"] .panel,body[data-theme="dark"] .search input,body[data-theme="dark"] .smallbtn,body[data-theme="dark"] .compbtn,body[data-theme="dark"] .datebtn{background:var(--surface);color:var(--text);border-color:var(--line)}
 body[data-theme="dark"] .tabs,body[data-theme="dark"] .league-head,body[data-theme="dark"] th{background:#08252d;color:#dce8ec}
 body[data-theme="dark"] .tab,body[data-theme="dark"] .navbtn{color:#c3d0d5}
@@ -319,6 +319,51 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   .mobile-nav button{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Premium sports theme refinements */
+body[data-theme="dark"] .topbar{background:#101828;border-bottom-color:#263548;box-shadow:0 5px 18px rgba(0,0,0,.24)}
+body[data-theme="dark"] .brandmark{background:linear-gradient(145deg,#16c784,#087b54);box-shadow:0 5px 14px rgba(22,199,132,.2)}
+body[data-theme="dark"] .brand .live-pill{background:#202d3d;color:#16c784;border-color:#344254}
+body[data-theme="dark"] .match-row{border-bottom-color:#2b394b}
+body[data-theme="dark"] .match-row:hover{background:#202d3d}
+body[data-theme="dark"] .compbtn.active{background:#173d35;border-color:#16c784;color:#74f0bd}
+body[data-theme="dark"] .compbtn.active .comp-country{color:#a8e9ce}
+body[data-theme="dark"] .tabs{background:#182230;border-bottom-color:#344254}
+body[data-theme="dark"] .tab.active{background:#263548;color:#74f0bd;box-shadow:none}
+body[data-theme="dark"] .datebtn.active{background:#173d35;border-color:#16c784;color:#74f0bd}
+body[data-theme="dark"] .datebtn.active strong{color:#74f0bd}
+body[data-theme="dark"] .statusbar{background:#182230;border-bottom-color:#344254}
+body[data-theme="dark"] .league-head{background:#202d3d;color:#f4f7fb;border-bottom-color:#344254}
+body[data-theme="dark"] .navbtn.active{background:#173d35;color:#74f0bd}
+body[data-theme="dark"] .smallbtn.primary{background:#16c784;border-color:#16c784;color:#071a14}
+body[data-theme="dark"] .theme-toggle:focus-visible,body[data-theme="dark"] button:focus-visible{outline:2px solid #16c784;outline-offset:2px}
+
+
+/* Final pre-release contrast update: true-black dark theme and a prominent match-count strip. */
+body[data-theme="dark"]{
+  --page:#000000; --surface:#080808; --surface2:#111111; --line:#292929;
+  --text:#f7f7f7; --muted:#c0c0c0; --shadow:0 8px 24px rgba(0,0,0,.5);
+}
+body[data-theme="dark"] .topbar,
+body[data-theme="dark"] .panel,
+body[data-theme="dark"] .search input,
+body[data-theme="dark"] .smallbtn,
+body[data-theme="dark"] .compbtn,
+body[data-theme="dark"] .datebtn,
+body[data-theme="dark"] .mobile-nav{background:#080808;color:#f7f7f7;border-color:#292929}
+body[data-theme="dark"] .tabs,
+body[data-theme="dark"] .league-head,
+body[data-theme="dark"] th,
+body[data-theme="dark"] .table-wrap th:first-child,
+body[data-theme="dark"] .table-wrap th:nth-child(2){background:#101010;color:#f7f7f7}
+body[data-theme="dark"] td,
+body[data-theme="dark"] .table-wrap td.rank,
+body[data-theme="dark"] .table-wrap td.teamcell{background:#030303;color:#f7f7f7;border-color:#292929}
+body[data-theme="dark"] .match-row:hover{background:#141414}
+body[data-theme="dark"] .statusbar{background:#123526;color:#eafff3;border-bottom:2px solid #16c784;font-size:14px;font-weight:800;padding:12px 14px;min-height:48px}
+body[data-theme="dark"] .statusbar .dot{background:#20e68a;box-shadow:0 0 0 3px rgba(32,230,138,.18)}
+.statusbar{background:#e8fff3;color:#06452d;font-size:14px;font-weight:800;padding:12px 14px;min-height:48px;border-bottom:2px solid #16a765}
+.statusbar .dot{background:#0aa866;box-shadow:0 0 0 3px rgba(10,168,102,.14)}
 </style>
 </head>
 <body>
@@ -1098,11 +1143,14 @@ searchInput.addEventListener("keydown",event=>{
 const themeToggle=document.getElementById("themeToggle");
 function applyTheme(theme){
   document.body.dataset.theme=theme;
+  document.documentElement.style.colorScheme=theme;
+  const browserThemeColor=document.getElementById("browserThemeColor");
+  if(browserThemeColor) browserThemeColor.setAttribute("content",theme==="dark"?"#101828":"#ffffff");
   safeStorageSet("mawajiLivescoresTheme",theme);
   themeToggle.textContent=theme==="dark"?"☀️ Light":"🌙 Dark";
   themeToggle.setAttribute("aria-pressed",String(theme==="dark"));
 }
-applyTheme(safeStorageGet("mawajiLivescoresTheme", "light")||"light");
+applyTheme(safeStorageGet("mawajiLivescoresTheme", "dark")||"dark");
 themeToggle.addEventListener("click",()=>applyTheme(document.body.dataset.theme==="dark"?"light":"dark"));
 const drawer=document.getElementById("mobileDrawer"), backdrop=document.getElementById("drawerBackdrop"), menuToggle=document.getElementById("menuToggle");
 function closeMenu(){drawer.classList.remove("open");backdrop.classList.remove("open");menuToggle.setAttribute("aria-expanded","false");}
