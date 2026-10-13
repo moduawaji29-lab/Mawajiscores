@@ -128,7 +128,7 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .detail-teams{display:grid;grid-template-columns:1fr 110px 1fr;gap:8px;align-items:center}
 .detail-team img{width:46px;height:46px;object-fit:contain;display:block;margin:0 auto 8px}
 .detail-team div{font-size:12px;font-weight:800}
-.detail-score{font-size:25px;font-weight:900}
+.detail-score{font-size:25px;font-weight:900;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;line-height:1.15}.detail-score>*{flex:0 0 auto}@media(max-width:480px){.detail-teams{grid-template-columns:minmax(0,1fr) minmax(92px,auto) minmax(0,1fr);gap:4px}.detail-score{font-size:22px;gap:4px}.detail-team div{overflow-wrap:anywhere}}
 .detail-status{font-size:11px;color:var(--muted);margin-top:4px}
 .detail-tabs{display:flex;gap:4px;padding:8px;border-bottom:1px solid var(--line);overflow-x:auto}
 .detail-tab{border:0;background:#f4f6f8;padding:8px 12px;border-radius:8px;white-space:nowrap;font-size:11px;font-weight:800;color:#586572}
@@ -141,6 +141,7 @@ td.teamcell{text-align:left;font-weight:750;min-width:145px}
 .match-meta span{display:inline-flex;align-items:center;gap:5px}
  .match-info{border-bottom:1px solid var(--line);background:var(--surface)}
 .match-info-title{padding:10px 12px;background:var(--surface2);font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}
+#backToMatches,.detail-backbar [data-detail="back"],.back-to-matches{background:#000!important;color:#fff!important;border:1px solid #000!important;font-weight:850!important;box-shadow:0 2px 5px rgba(0,0,0,.18)}#backToMatches:hover,.detail-backbar [data-detail="back"]:hover,.back-to-matches:hover{background:#222!important;color:#fff!important}
 .match-info-row{display:grid;grid-template-columns:125px minmax(0,1fr);gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:12px}
 .match-info-row:last-child{border-bottom:0}.match-info-label{color:var(--muted);font-weight:750}.match-info-value{text-align:right;font-weight:750;overflow-wrap:anywhere}
 .form-panels{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px}
@@ -1040,11 +1041,23 @@ async function returnToMatches(){
 }
 async function refreshCurrentView(){
   const y=window.scrollY;
-  if(detailFixtureId!==null){
-    await openMatch(detailFixtureId,detailMatchItem,true);
-    requestAnimationFrame(()=>window.scrollTo({top:y,behavior:"instant"}));
-  } else {
-    await loadData(true,y);
+  const button=document.getElementById("refresh");
+  if(button?.dataset.refreshing==="true") return;
+  if(button){button.dataset.refreshing="true";button.disabled=true;button.setAttribute("aria-busy","true");button.dataset.originalText ||= button.textContent;button.textContent="↻ Updating…";}
+  try {
+    // Manual refresh bypasses cached responses, while the current screen remains visible.
+    apiResponseCache.clear();
+    if(detailFixtureId!==null){
+      await openMatch(detailFixtureId,detailMatchItem,true);
+      requestAnimationFrame(()=>window.scrollTo({top:y,behavior:"instant"}));
+    } else {
+      await loadData(true,y);
+    }
+    lastPollAt=Date.now();
+  } catch(e) {
+    setStatus(`Refresh failed; showing the last available data. ${e.message||"Please try again."}`,"error");
+  } finally {
+    if(button){button.dataset.refreshing="false";button.disabled=false;button.removeAttribute("aria-busy");button.textContent=button.dataset.originalText||"↻ Refresh";}
   }
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{
