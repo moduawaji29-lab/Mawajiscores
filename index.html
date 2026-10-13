@@ -450,7 +450,21 @@ let currentView = "live";
 let selectedDate = localDateString(new Date());
 let showAll = false;
 let allLoadedMatches = [];
-let favorites = new Set(JSON.parse(localStorage.getItem("mawajiLivescoresFavorites") || "[]"));
+function safeStorageGet(key, fallback=null) {
+  try { const value=localStorage.getItem(key); return value===null?fallback:value; }
+  catch (_) { return fallback; }
+}
+function safeStorageSet(key, value) {
+  try { localStorage.setItem(key, value); return true; }
+  catch (_) { return false; }
+}
+function loadSavedFavorites() {
+  try {
+    const parsed=JSON.parse(safeStorageGet("mawajiLivescoresFavorites", "[]"));
+    return new Set(Array.isArray(parsed) ? parsed.map(String).filter(v=>v.length>0) : []);
+  } catch (_) { return new Set(); }
+}
+let favorites = loadSavedFavorites();
 let detailFixtureId = null;
 let detailMatchItem = null;
 let detailSection = "events";
@@ -482,8 +496,11 @@ const apiResponseCache = new Map();
 const apiInFlight = new Map();
 function apiCacheTtl(params) {
   const action = String(params?.action || "").toLowerCase();
+  // Keep live data briefly fresh while collapsing accidental duplicate calls.
+  if (action === "live") return 8_000;
+  if (action === "fixtures" || action === "results") return 20_000;
   if (action === "match") return 20_000;
-  if (action === "events" || action === "statistics") return 12_000;
+  if (action === "events" || action === "statistics" || action === "stats") return 12_000;
   if (action === "lineups" || action === "players") return 10 * 60_000;
   if (action === "form") return 5 * 60_000;
   if (action === "headtohead") return 30 * 60_000;
@@ -497,8 +514,9 @@ async function api(params) {
   if (ttl > 0) {
     const cached = apiResponseCache.get(url);
     if (cached && cached.expiresAt > now) return cached.data;
-    if (apiInFlight.has(url)) return apiInFlight.get(url);
   }
+  // Share an identical in-flight request even for uncached actions.
+  if (apiInFlight.has(url)) return apiInFlight.get(url);
   const request = (async () => {
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(),18000);
@@ -507,7 +525,14 @@ async function api(params) {
       const raw = await response.text();
       let data;
       try { data = JSON.parse(raw); } catch { throw new Error(`Backend returned non-JSON (HTTP ${response.status}).`); }
-      if (!response.ok) throw new Error(data.message || data.error || `Backend HTTP ${response.status}`);
+      if (!response.ok) {
+        const serverMessage = data.message || data.error || `Backend HTTP ${response.status}`;
+        if (response.status === 429 || response.status === 503) {
+          const retryAfter = response.headers.get("Retry-After");
+          throw new Error(`${serverMessage}${retryAfter ? ` Please try again in ${retryAfter} seconds.` : " Please wait briefly before retrying."}`);
+        }
+        throw new Error(serverMessage);
+      }
       if (data && data.errors && !Array.isArray(data.errors) && Object.keys(data.errors).length) {
         throw new Error(typeof data.errors === "string" ? data.errors : JSON.stringify(data.errors));
       }
@@ -527,7 +552,7 @@ async function api(params) {
       throw e;
     } finally { clearTimeout(timer); }
   })();
-  if (ttl > 0) apiInFlight.set(url, request);
+  apiInFlight.set(url, request);
   try { return await request; }
   finally { if (apiInFlight.get(url) === request) apiInFlight.delete(url); }
 }
@@ -693,7 +718,7 @@ function renderMatches(arr) {
 function toggleFavorite(id) {
   if(id===null||id===undefined)return;
   const key=String(id); favorites.has(key)?favorites.delete(key):favorites.add(key);
-  localStorage.setItem("mawajiLivescoresFavorites",JSON.stringify([...favorites]));
+  safeStorageSet("mawajiLivescoresFavorites",JSON.stringify([...favorites]));
   if(currentView==="favorites")renderMatches(filterMatches(allLoadedMatches));
 }
 function renderStandings(data, season=STANDINGS_SEASON) {
@@ -765,8 +790,9 @@ async function loadData(silent=false, restoreY=null) {
     if(restoreY!==null) requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:"instant"}));
   } catch(e) {
     if(requestId!==requestCounter)return;
-    if(!silent) content.innerHTML=`<div class="errorbox"><strong>Unable to load football data</strong><br>${esc(e.message)}<br><br>Check that the Vercel deployment is Ready and that the API route accepts this action.</div>`;
-    setStatus(silent ? `Refresh failed: ${e.message}` : "API request failed","error");
+    if(!silent) content.innerHTML=`<div class="errorbox"><strong>Unable to load football data</strong><br>${esc(e.message)}<br><br><button class="smallbtn primary" id="retryDataLoad">↻ Try again</button></div>`;
+    document.getElementById("retryDataLoad")?.addEventListener("click",()=>loadData(false));
+    setStatus(silent ? `Refresh failed; showing the last available scores. ${e.message}` : `API request failed: ${e.message}`,"error");
   }
 }
 async function openMatch(id, item, preserveSection=false) {
@@ -1059,11 +1085,11 @@ searchInput.addEventListener("keydown",event=>{
 const themeToggle=document.getElementById("themeToggle");
 function applyTheme(theme){
   document.body.dataset.theme=theme;
-  localStorage.setItem("mawajiLivescoresTheme",theme);
+  safeStorageSet("mawajiLivescoresTheme",theme);
   themeToggle.textContent=theme==="dark"?"☀️ Light":"🌙 Dark";
   themeToggle.setAttribute("aria-pressed",String(theme==="dark"));
 }
-applyTheme(localStorage.getItem("mawajiLivescoresTheme")||"light");
+applyTheme(safeStorageGet("mawajiLivescoresTheme", "light")||"light");
 themeToggle.addEventListener("click",()=>applyTheme(document.body.dataset.theme==="dark"?"light":"dark"));
 const drawer=document.getElementById("mobileDrawer"), backdrop=document.getElementById("drawerBackdrop"), menuToggle=document.getElementById("menuToggle");
 function closeMenu(){drawer.classList.remove("open");backdrop.classList.remove("open");menuToggle.setAttribute("aria-expanded","false");}
