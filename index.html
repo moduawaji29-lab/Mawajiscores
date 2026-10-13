@@ -255,6 +255,67 @@ footer{text-align:center;color:#77838f;font-size:11px;padding:18px 10px 25px}
   .detail-body{padding:8px}
 }
 
+
+/* Final small-screen usability pass: prevent page-wide horizontal overflow and keep controls tappable. */
+html{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{width:100%;max-width:100%;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.toolbar,.brand,.tabs,.league-head,.match-row,.detail-head,.detail-teams{min-width:0;max-width:100%}
+@media(max-width:480px){
+  .brand{gap:7px;padding:10px 9px}
+  .brandmark{width:36px;height:36px;border-radius:10px;font-size:20px}
+  .brand h1{font-size:clamp(14px,4.2vw,18px);letter-spacing:-.35px;overflow-wrap:anywhere}
+  .brand p{font-size:9px;line-height:1.2}
+  .theme-toggle{padding:8px 7px;font-size:10px;flex:none}
+  .app{width:100%;max-width:100%;padding:8px 7px calc(84px + env(safe-area-inset-bottom))}
+  .main,.content-panel,.panel,.matches{min-width:0;max-width:100%}
+  .toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+  .search{grid-column:1 / -1;width:100%;min-width:0}
+  .search input{min-height:42px;font-size:14px}
+  .toolbar .smallbtn{min-height:40px;white-space:nowrap;padding:9px 10px;font-size:11px}
+  .competition-row{max-width:calc(100vw - 14px);padding-bottom:10px;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
+  .compbtn{scroll-snap-align:start}
+  .tabs{width:100%;gap:2px;padding:5px}
+  .tab{min-width:0;padding:10px 2px;font-size:clamp(9px,2.8vw,11px);overflow-wrap:anywhere}
+  .date-strip{max-width:100%;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:9px 8px}
+  .datebtn{scroll-snap-align:start;min-width:78px;padding:8px 6px}
+  .league-head{gap:6px;padding:9px 8px;flex-wrap:wrap}
+  .league-head .league-title{overflow-wrap:anywhere}
+  .match-row{grid-template-columns:39px minmax(0,1fr) 34px 20px;gap:5px;padding:10px 7px}
+  .team-line{min-width:0;gap:5px;font-size:11px}
+  .team-line .name{min-width:0;overflow-wrap:anywhere}
+  .team-line img{width:18px;height:18px}
+  .scores{font-size:12px}
+  .star{min-width:24px;min-height:32px}
+  .mobile-nav{gap:0;padding:6px 2px calc(6px + env(safe-area-inset-bottom));}
+  .mobile-nav button{flex:1 1 0;min-width:0;max-width:none;font-size:9px;min-height:45px;padding:2px 0;}
+  .mobile-nav button span{font-size:17px;line-height:1.1}
+  .detail-teams{grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr);gap:4px}
+  .detail-team{min-width:0;overflow-wrap:anywhere;font-size:11px}
+  .detail-team img{width:38px;height:38px}
+  .detail-tabs{gap:3px;padding:6px;overscroll-behavior-x:contain}
+  .detail-tabs button{flex:none;padding:8px 9px;font-size:11px}
+  .match-info-row{grid-template-columns:78px minmax(0,1fr);gap:6px}
+  .form-panels{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .table-wrap{width:100%;max-width:calc(100vw - 16px);overflow-x:auto;overscroll-behavior-x:contain}
+}
+@media(max-width:360px){
+  .brand{gap:5px;padding-inline:7px}
+  .menu-toggle{padding:7px 8px;font-size:16px}
+  .brandmark{width:32px;height:32px;font-size:18px}
+  .brand h1{font-size:14px}
+  .brand p{font-size:8px}
+  .theme-toggle{font-size:9px;padding:7px 5px}
+  .toolbar{grid-template-columns:minmax(0,1fr) auto}
+  .toolbar .smallbtn{padding:8px 7px;font-size:10px}
+  .match-row{grid-template-columns:34px minmax(0,1fr) 30px 19px;gap:4px;padding-inline:5px}
+  .team-line{font-size:10px}
+  .scores{font-size:11px}
+  .detail-teams{grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr)}
+  .mobile-nav button{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
