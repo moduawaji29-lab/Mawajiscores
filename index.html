@@ -58,7 +58,9 @@ button{cursor:pointer}
 .main{min-width:0}
 .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:11px}
 .search{min-width:140px;flex:1;position:relative}
-.search input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--text);outline:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.search input{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--text);outline:none}
+.search input::-webkit-search-cancel-button{cursor:pointer;transform:scale(1.15)}
 .search input:focus{border-color:#6bcba5;box-shadow:0 0 0 3px #08a66a18}
 .smallbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:750;color:#35414d}
 .smallbtn.primary{background:var(--green);border-color:var(--green);color:#fff}
@@ -358,7 +360,7 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 
   <main class="main">
     <div class="toolbar">
-      <div class="search"><input id="search" type="search" placeholder="Search teams or competitions…" autocomplete="off"></div>
+      <div class="search"><label class="sr-only" for="search">Search teams, leagues, or countries</label><input id="search" type="search" placeholder="Search teams or competitions…" autocomplete="off" aria-label="Search teams, leagues, or countries" enterkeyhint="search"></div>
       <button class="smallbtn" id="showAll" aria-pressed="false">Show all leagues</button>
       <button class="smallbtn primary" id="refresh">↻ Refresh</button>
     </div>
@@ -637,11 +639,19 @@ function syncControls() {
 }
 function renderMatches(arr) {
   content.innerHTML="";
+  const searchTerm = searchInput.value.trim();
   if(!arr.length){
-    content.innerHTML=`<div class="empty"><strong>No matches found</strong>${currentView==="live"?"There are no live matches in the returned data right now.":"Try another date, competition, or use Show all."}</div>`;
-    setStatus("No matches for this selection","success"); return;
+    const emptyMessage = searchTerm
+      ? `No matches match “${esc(searchTerm)}”. Try another team or competition name, or clear the search.`
+      : currentView==="live"
+        ? "There are no live matches in the returned data right now."
+        : "Try another date, competition, or use Show all.";
+    content.innerHTML=`<div class="empty"><strong>No matches found</strong>${emptyMessage}</div>`;
+    setStatus(searchTerm ? `No results for “${searchTerm}”` : "No matches for this selection","success"); return;
   }
-  setStatus(`${arr.length} match${arr.length===1?"":"es"} shown${showAll ? " · all leagues" : " · " + (leagues[selectedLeague]?.name || "selected league")}`,"success");
+  setStatus(searchTerm
+    ? `${arr.length} matching match${arr.length===1?"":"es"} for “${searchTerm}”`
+    : `${arr.length} match${arr.length===1?"":"es"} shown${showAll ? " · all leagues" : " · " + (leagues[selectedLeague]?.name || "selected league")}`,"success");
   const groups=new Map();
   arr.forEach(m=>{const key=`${countryName(m)}|${compName(m)}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(m);});
   for(const [key,items] of groups){
@@ -1039,6 +1049,13 @@ document.getElementById("showAll").addEventListener("click", () => {
   loadData();
 });
 searchInput.addEventListener("input",()=>renderMatches(filterMatches(allLoadedMatches)));
+searchInput.addEventListener("keydown",event=>{
+  if(event.key==="Escape" && searchInput.value){
+    event.preventDefault();
+    searchInput.value="";
+    renderMatches(filterMatches(allLoadedMatches));
+  }
+});
 const themeToggle=document.getElementById("themeToggle");
 function applyTheme(theme){
   document.body.dataset.theme=theme;
