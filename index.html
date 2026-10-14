@@ -364,6 +364,47 @@ body[data-theme="dark"] .statusbar{background:#123526;color:#eafff3;border-botto
 body[data-theme="dark"] .statusbar .dot{background:#20e68a;box-shadow:0 0 0 3px rgba(32,230,138,.18)}
 .statusbar{background:#e8fff3;color:#06452d;font-size:14px;font-weight:800;padding:12px 14px;min-height:48px;border-bottom:2px solid #16a765}
 .statusbar .dot{background:#0aa866;box-shadow:0 0 0 3px rgba(10,168,102,.14)}
+
+/* Match-centre contrast fix: keep score, team names and details readable in both themes. */
+.detail-head,.detail-teams,.detail-team,.detail-score,.detail-status,.detail-league,
+.match-info,.match-info-title,.match-info-row,.match-info-label,.match-info-value,
+.detail-tabs,.detail-tab,.detail-body,.h2h-row,.h2h-teams,.h2h-score,.form-panels,
+.form-panel,.form-panel * { color: var(--text); }
+.detail-head,.match-info,.detail-body { background: var(--surface); border-color: var(--line); }
+.detail-league,.match-info-title { background: var(--surface2); color: var(--text); }
+.detail-team { color: var(--text); }
+.detail-score { color: var(--text) !important; opacity: 1 !important; visibility: visible !important; }
+.detail-status,.match-info-label { color: var(--muted) !important; }
+.match-info-value,.detail-team div { color: var(--text) !important; opacity: 1 !important; }
+.detail-tab { background: var(--surface2); color: var(--muted); border-color: var(--line); }
+.detail-tab.active { color: var(--green-dark); background: var(--surface); }
+body[data-theme="dark"] .detail-head,
+body[data-theme="dark"] .detail-teams,
+body[data-theme="dark"] .detail-team,
+body[data-theme="dark"] .detail-score,
+body[data-theme="dark"] .detail-status,
+body[data-theme="dark"] .detail-league,
+body[data-theme="dark"] .match-info,
+body[data-theme="dark"] .match-info-title,
+body[data-theme="dark"] .match-info-row,
+body[data-theme="dark"] .match-info-label,
+body[data-theme="dark"] .match-info-value,
+body[data-theme="dark"] .detail-body,
+body[data-theme="dark"] .h2h-row,
+body[data-theme="dark"] .h2h-teams,
+body[data-theme="dark"] .h2h-score { background-color: #080808; color: #f7f7f7 !important; border-color: #292929; }
+body[data-theme="dark"] .detail-league,
+body[data-theme="dark"] .match-info-title { background: #101010; color: #f7f7f7 !important; }
+body[data-theme="dark"] .detail-score,
+body[data-theme="dark"] .detail-team div,
+body[data-theme="dark"] .match-info-value,
+body[data-theme="dark"] .h2h-score { color: #ffffff !important; opacity: 1 !important; visibility: visible !important; }
+body[data-theme="dark"] .detail-status,
+body[data-theme="dark"] .match-info-label { color: #b8c0c8 !important; }
+body[data-theme="dark"] .detail-tab { background: #101010; color: #c7c7c7; border-color: #292929; }
+body[data-theme="dark"] .detail-tab.active { background: #263548; color: #74f0bd; }
+body[data-theme="dark"] .detail-backbar { background: #080808; }
+
 </style>
 </head>
 <body>
